@@ -1,7 +1,111 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+
+#include "structs.h"
+
+
+#define MAX_NUM_OF_CLASSES 65535
+
+void *jvm_pc;
+stack_t *jvm_stack;
+heap_t *jvm_heap;
+/*method_area_t *jvm_method_area;*/
+
+int jvm_number_of_classes = 0;
+class_t *jvm_classes[MAX_NUM_OF_CLASSES];
+
+/* Procura e retorna classe com nome
+ *
+ * input: class_name Nome da classe
+ * return: class ou NULL se não achar
+ */
+class_t *getClass(char* class_name) {
+    int i = 0;
+    for (i = 0; i < jvm_number_of_classes; ++i) {
+        if (strcmp(jvm_classes[i]->class_name, class_name) == 0) {
+            return jvm_classes[i];
+        }
+    }
+    return NULL;
+}
+
+/* Cria e retorna classe com nome
+ *
+ * input: class_name Nome da classe
+ * return: Classe criada
+ */
+class_t *createClass(char* class_name) {
+    jvm_number_of_classes++;
+    jvm_classes[jvm_number_of_classes] = (class_t*) malloc(sizeof(class_t));
+    jvm_classes[jvm_number_of_classes]->class_name = class_name;
+    jvm_classes[jvm_number_of_classes]->status = CLASSE_NAO_CARREGADA;
+    
+    return jvm_classes[jvm_number_of_classes];
+}
+
+
+void throwException() {
+    // check for handlers
+    // change PC
+    // pop current frame
+    // quit if no more frames
+    // re-throw exception
+}
+
+void returnFromFunction() {
+    // change PC
+    // pop current frame
+    // maybe put return value on the new frame's operand stack
+}
+
+void callMethod(char* class_name, char* method_name, args_t args) {
+    class_t *class = NULL;
+    class = getClass(class_name);
+
+    if (class == NULL || class->status == CLASSE_NAO_CARREGADA) {
+        class = createClass(class_name);
+        loadClass(class);
+    }
+    if (class->status == CLASSE_NAO_LINKADA) {
+        linkClass(class);
+    }
+    if (class->status == CLASSE_NAO_INICIALIZADA) {
+        initializeClass(class);
+    }
+
+    /*
+     * criar frame usando tamanhos estabelecidos no classfile para method_name
+     * preparar local variables e adicionar args no inicio
+     * preparar operand stack
+     * mudar pc
+     */
+}
 
 int main(int argc, char* argv[]) {
 
-    printf("Hello World");
+    if (argc < 2) {
+        printf("Instrução: Rode com 'jvm class_identifier [args]'\n");
+        return 1;
+    }
+
+    // passar argv[2:] como argumento (array de strings)
+    args_t args;
+    args.number_of_args = argc - 2;
+    args.args = (void *) malloc(args.number_of_args * sizeof(void*));
+    int i = 0;
+    for (i = 0; i < args.number_of_args; ++i) {
+        args.args[i] = argv[i + 2];
+    }
+    callMethod(argv[1], "main", args);
+
+    /*do {*/
+        /*fetch an opcode;*/
+        /*if (operands) fetch operands;*/
+        /*execute the action for the opcode;*/
+    /*} while (there is more to do);*/
+
     return 0;
 }
+
