@@ -10,18 +10,15 @@ typedef struct class_struct {
     method* method_table;
 } class_t;
 
-typedef struct frame_struct {
-    uint32_t *local_var;
-    int operand_stack;
-    constant_pool_t *constant_pool;
-    char *current_method;
-    char *current_class;
-    int return_address;
-} frame_t;
 
 typedef struct args_struct {
     int number_of_args;
     void **args;
 } args_t;
+
+typedef struct return_value_struct {
+    int category;
+    void *return_value;
+} return_value_t;
 
 #endif

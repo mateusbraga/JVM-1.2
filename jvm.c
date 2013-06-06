@@ -4,15 +4,17 @@
 #include <string.h>
 
 #include "structs.h"
+#include "frame_stack.h"
 
 
 #define MAX_NUM_OF_CLASSES 65535
 
 void *jvm_pc;
-stack_t *jvm_stack;
-heap_t *jvm_heap;
+frame_stack_t *jvm_stack;
+/*heap_t *jvm_heap;*/
 /*method_area_t *jvm_method_area;*/
 
+// Array com as classes na memória
 int jvm_number_of_classes = 0;
 class_t *jvm_classes[MAX_NUM_OF_CLASSES];
 
@@ -48,15 +50,31 @@ class_t *createClass(char* class_name) {
 
 void throwException() {
     // check for handlers
+
+    // pop stack
+    frame_t *frame = pop_stack(&jvm_stack);
+    if (frame == NULL) {
+        printf("Exception não foi tratada. JVM será terminada.\n");
+        exit(1);
+    }
+    
     // change PC
-    // pop current frame
-    // quit if no more frames
+    jvm_pc = frame->return_address;
+
     // re-throw exception
 }
 
-void returnFromFunction() {
+void returnFromFunction(return_value_t *retval) {
+    // pop stack
+    frame_t *frame = pop_stack(&jvm_stack);
+    if (frame == NULL) {
+        // Execução retornou da função main. Programa executado com sucesso
+        exit(0);
+    }
+
     // change PC
-    // pop current frame
+    jvm_pc = frame->return_address;
+
     // maybe put return value on the new frame's operand stack
 }
 
@@ -81,6 +99,7 @@ void callMethod(char* class_name, char* method_name, args_t args) {
      * preparar operand stack
      * mudar pc
      */
+    return;
 }
 
 int main(int argc, char* argv[]) {
