@@ -6,6 +6,9 @@
 #include "structs.h"
 #include "frame_stack.h"
 
+#include "loader.h"
+#include "linker.h"
+#include "initializer.h"
 
 #define MAX_NUM_OF_CLASSES 65535
 
@@ -62,6 +65,8 @@ void throwException() {
     jvm_pc = frame->return_address;
 
     // re-throw exception
+    
+    free(frame);
 }
 
 void returnFromFunction(return_value_t *retval) {
@@ -76,6 +81,8 @@ void returnFromFunction(return_value_t *retval) {
     jvm_pc = frame->return_address;
 
     // maybe put return value on the new frame's operand stack
+
+    free(frame);
 }
 
 void callMethod(char* class_name, char* method_name, args_t args) {
@@ -93,6 +100,7 @@ void callMethod(char* class_name, char* method_name, args_t args) {
         initializeClass(class);
     }
 
+    frame_t *frame = (frame_t*) malloc(sizeof(frame_t));
     /*
      * criar frame usando tamanhos estabelecidos no classfile para method_name
      * preparar local variables e adicionar args no inicio
