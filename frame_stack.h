@@ -18,7 +18,7 @@ typedef struct frame_stack_struct {
     struct frame_stack_struct *previous;
 } frame_stack_t;
 
-frame_t* pop_stack(frame_stack_t **stack);
-void push_stack(frame_stack_t **stack, frame_t *frame);
+frame_t* pop_frame_stack(frame_stack_t **stack);
+void push_frame_stack(frame_stack_t **stack, frame_t *frame);
 
 #endif

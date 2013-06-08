@@ -55,7 +55,7 @@ void throwException() {
     // check for handlers
 
     // pop stack
-    frame_t *frame = pop_stack(&jvm_stack);
+    frame_t *frame = pop_frame_stack(&jvm_stack);
     if (frame == NULL) {
         printf("Exception não foi tratada. JVM será terminada.\n");
         exit(1);
@@ -71,7 +71,7 @@ void throwException() {
 
 void returnFromFunction(return_value_t *retval) {
     // pop stack
-    frame_t *frame = pop_stack(&jvm_stack);
+    frame_t *frame = pop_frame_stack(&jvm_stack);
     if (frame == NULL) {
         // Execução retornou da função main. Programa executado com sucesso
         exit(0);

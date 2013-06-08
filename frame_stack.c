@@ -2,7 +2,7 @@
 
 #include "frame_stack.h"
 
-frame_t* pop_stack(frame_stack_t **stack) {
+frame_t* pop_frame_stack(frame_stack_t **stack) {
     frame_stack_t *oldStackHead = (*stack);
     frame_t *frame = (*stack)->frame;
 
@@ -18,7 +18,7 @@ frame_t* pop_stack(frame_stack_t **stack) {
     }
 }
 
-void push_stack(frame_stack_t **stack, frame_t *frame) {
+void push_frame_stack(frame_stack_t **stack, frame_t *frame) {
     frame_stack_t *newStackHead = (frame_stack_t*) malloc(sizeof(frame_stack_t));
 
     newStackHead->frame = frame;
