@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "structs.h"
+
 // --------------- Operand stack Stuff -----------------
 
 typedef struct operand_stack_struct {
@@ -14,14 +16,21 @@ typedef struct operand_stack_struct {
 uint32_t pop_operand_stack(operand_stack_t *stack);
 void push_operand_stack(operand_stack_t *stack, uint32_t operand);
 
+// --------------- Local variables Stuff -----------------
+
+typedef struct local_variables_struct {
+    uint32_t *var;
+    unsigned int size;
+} local_variables_t;
+
 // --------------- Frame Stuff -----------------
 
 typedef struct frame_struct {
-    uint32_t *local_var;
+    local_variables_t local_var;
     operand_stack_t operand_stack;
     void *constant_pool;
     char *current_method;
-    char *current_class;
+    class_t *current_class;
     void *return_address;
 } frame_t;
 
