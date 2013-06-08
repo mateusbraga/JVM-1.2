@@ -1,6 +1,9 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "frame_stack.h"
+
+// --------------- Frame stack Stuff -----------------
 
 frame_t* pop_frame_stack(frame_stack_t **stack) {
     frame_stack_t *oldStackHead = (*stack);
@@ -34,4 +37,27 @@ void push_frame_stack(frame_stack_t **stack, frame_t *frame) {
     }
 
     return;
+}
+
+// --------------- Operand stack Stuff -----------------
+
+uint32_t pop_operand_stack(operand_stack_t *stack) {
+    if (stack->head == 0) {
+        printf("ERRO: Pop operand stack sem elementos\n");
+        exit(1);
+    }
+
+    uint32_t operand = stack->operand[stack->head];
+    (stack->head)--;
+
+    return operand;
+}
+void push_operand_stack(operand_stack_t *stack, uint32_t operand) {
+    if (stack->head == stack->size - 1) {
+        printf("ERRO: Push operand stack overflow\n");
+        exit(1);
+    }
+
+    (stack->head)++;
+    stack->operand[stack->head] = operand;
 }
