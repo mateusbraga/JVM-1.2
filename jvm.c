@@ -52,7 +52,7 @@ class_t *createClass(char* class_name) {
 
 
 void throwException() {
-    // check for handlers
+    // check for handlers TODO
 
     // pop stack
     frame_t *frame = pop_frame_stack(&jvm_stack);
@@ -65,14 +65,15 @@ void throwException() {
     jvm_pc = frame->return_address;
 
     // re-throw exception
+    throwException();
     
     free(frame);
 }
 
-void returnFromFunction(return_value_t *retval) {
+void returnFromFunction() {
     // pop stack
     frame_t *frame = pop_frame_stack(&jvm_stack);
-    if (frame == NULL) {
+    if (frame->return_address == NULL) {
         // Execução retornou da função main. Programa executado com sucesso
         exit(0);
     }
@@ -80,12 +81,15 @@ void returnFromFunction(return_value_t *retval) {
     // change PC
     jvm_pc = frame->return_address;
 
-    // maybe put return value on the new frame's operand stack
+    // put return value on the new frame's operand stack TODO test
+    frame_t *invokerFrame = peek_frame_stack(jvm_stack);
+    any_type_t *operand = pop_operand_stack(&(frame->operand_stack));
+    push_operand_stack(&(invokerFrame->operand_stack), operand);
 
     free(frame);
 }
 
-void callMethod(char* class_name, char* method_name, args_t args) {
+void callMethod(char* class_name, char* method_name) {
     class_t *class = NULL;
     class = getClass(class_name);
 
@@ -100,10 +104,30 @@ void callMethod(char* class_name, char* method_name, args_t args) {
         initializeClass(class);
     }
 
+    frame_t *invokerFrame = peek_frame_stack(jvm_stack);
     frame_t *frame = (frame_t*) malloc(sizeof(frame_t));
+    frame->current_class = class;
+    frame->constant_pool = NULL;//TODO get from classfile
+    frame->current_method = method_name;
+    frame->return_address = NULL;
+    frame->local_var.size = 1; //TODO get from classfile
+    frame->local_var.var = (uint32_t*) malloc(frame->local_var.size * sizeof(uint32_t));
+    frame->operand_stack.depth = 0;
+    frame->operand_stack.head = 0;
+    frame->operand_stack.size = 1;//TODO get from classfile
+    frame->operand_stack.operand = (any_type_t**) malloc(frame->operand_stack.size * sizeof(any_type_t**));
+    
+
+    //TODO get number of arguments from classfile
+    // pop them from operand stack
+    // insert them on local_var
+
+    push_frame_stack(&jvm_stack, frame);
+
+
     /*
      * criar frame usando tamanhos estabelecidos no classfile para method_name
-     * preparar local variables e adicionar args no inicio
+     * preparar local variables e adicionar args no inicio(está na pilha de operando)
      * preparar operand stack
      * mudar pc
      */
@@ -118,14 +142,44 @@ int main(int argc, char* argv[]) {
     }
 
     // passar argv[2:] como argumento (array de strings)
-    args_t args;
-    args.number_of_args = argc - 2;
-    args.args = (void *) malloc(args.number_of_args * sizeof(void*));
-    int i = 0;
-    for (i = 0; i < args.number_of_args; ++i) {
-        args.args[i] = argv[i + 2];
+    any_type_t *args = (any_type_t*) malloc(sizeof(any_type_t)); 
+    args->tag = REFERENCE;
+    args->reference_val.tag = ARRAY;
+    args->reference_val.array.length = argc-2;
+    args->reference_val.array.components = (any_type_t *) malloc(args->reference_val.array.length * sizeof(any_type_t));
+
+    uint32_t i = 0;
+    for (i = 0; i < args->reference_val.array.length; i++) {
+        args->reference_val.array.components[i].tag = REFERENCE;
+        args->reference_val.array.components[i].reference_val.tag = ARRAY;
+        args->reference_val.array.components[i].reference_val.array.length = strlen(argv[i+2]);
+        args->reference_val.array.components[i].reference_val.array.components = (any_type_t *) malloc(strlen(argv[i+2]) * sizeof(any_type_t));
+
+        // TODO add support to unicode
+        unsigned long j = 0;
+        for (j = 0; j < strlen(argv[i+2]); j++) {
+            args->reference_val.array.components[i].reference_val.array.components[j].tag = PRIMITIVE;
+            args->reference_val.array.components[i].reference_val.array.components[j].primitive_val.tag = CHAR;
+            args->reference_val.array.components[i].reference_val.array.components[j].primitive_val.val_char = argv[i+2][j];
+        }
     }
-    callMethod(argv[1], "main", args);
+
+    // frame inicial
+    frame_t *frame = (frame_t*) malloc(sizeof(frame_t));
+    frame->current_class = NULL;
+    frame->constant_pool = NULL;
+    frame->current_method = NULL;
+    frame->return_address = NULL;
+    frame->local_var.size = 0;
+    frame->local_var.var = NULL;
+    frame->operand_stack.depth = 0;
+    frame->operand_stack.head = 0;
+    frame->operand_stack.size = 1;
+    frame->operand_stack.operand = (any_type_t**) malloc(frame->operand_stack.size * sizeof(any_type_t**));
+
+    push_frame_stack(&jvm_stack, frame);
+    push_operand_stack(&(frame->operand_stack), args);
+    callMethod(argv[1], "main");
 
     /*do {*/
         /*fetch an opcode;*/

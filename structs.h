@@ -10,15 +10,4 @@ typedef struct class_struct {
     method* method_table;
 } class_t;
 
-
-typedef struct args_struct {
-    int number_of_args;
-    void **args;
-} args_t;
-
-typedef struct return_value_struct {
-    int category;
-    void *return_value;
-} return_value_t;
-
 #endif
