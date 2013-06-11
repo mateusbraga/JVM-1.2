@@ -12,7 +12,7 @@
 
 #define MAX_NUM_OF_CLASSES 65535
 
-void *jvm_pc;
+void *jvm_pc = NULL;
 frame_stack_t *jvm_stack;
 /*heap_t *jvm_heap;*/
 /*method_area_t *jvm_method_area;*/
@@ -109,7 +109,7 @@ void callMethod(char* class_name, char* method_name) {
     frame->current_class = class;
     frame->constant_pool = NULL;//TODO get from classfile
     frame->current_method = method_name;
-    frame->return_address = NULL;
+    frame->return_address = jvm_pc;
     frame->local_var.size = 1; //TODO get from classfile
     frame->local_var.var = (uint32_t*) malloc(frame->local_var.size * sizeof(uint32_t));
     frame->operand_stack.depth = 0;
@@ -131,6 +131,7 @@ void callMethod(char* class_name, char* method_name) {
      * preparar operand stack
      * mudar pc
      */
+    jvm_pc++; //TODO check
     return;
 }
 
