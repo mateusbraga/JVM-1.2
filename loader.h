@@ -1,7 +1,7 @@
 /* Estrutura do arquivo CLASS */
 
-#ifndef CLASS_H_
-#define CLASS_H_
+#ifndef LOADER_H_
+#define LOADER_H_
 
 /* Tags */
 #define CONSTANT_Utf8                   1
@@ -24,9 +24,9 @@
 #define ACC_ABSTRACT                    0x0400
 
 /* Data types */
-typedef unsigned char u1;
-typedef unsigned short u2;
-typedef unsigned int u4;
+typedef uint8_t u1;
+typedef uint16_t u2;
+typedef uint32_t u4;
 
 /*
  * cp_info em si, formada por um byte que representa a tag
@@ -292,7 +292,7 @@ typedef struct class_file_f
 } class_file;
 
 
+void loadClass(class_t* class);
 
-
-#endif /* CLASS_H_ */
-
+#endif /* LOADER_H_ */
+ 
