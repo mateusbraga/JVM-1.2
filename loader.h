@@ -3,6 +3,9 @@
 #ifndef LOADER_H_
 #define LOADER_H_
 
+#include "structs.h"
+
+
 /* Tags */
 #define CONSTANT_Utf8                   1
 #define CONSTANT_Integer                3
@@ -18,10 +21,18 @@
 
 /* Access Flags */
 #define ACC_PUBLIC                      0x0001
+#define ACC_PRIVATE                     0x0002
+#define ACC_PROTECTED                   0x0004
+#define ACC_STATIC                      0x0008
 #define ACC_FINAL                       0x0010
 #define ACC_SUPER                       0x0020
+#define ACC_VOLATILE                    0x0040
+#define ACC_TRANSIENT                   0x0080
+#define ACC_NATIVE                      0x0100
 #define ACC_INTERFACE                   0x0200
 #define ACC_ABSTRACT                    0x0400
+#define ACC_STRICT                      0x0800
+
 
 /* Data types */
 typedef uint8_t u1;
@@ -33,94 +44,118 @@ typedef uint32_t u4;
  * e a outra parte nao se sabe ate ler o arquivo, podendo ser
  * diferentes tipos de cp_infos, por isso uma union
  */
-typedef struct cp_info
+typedef struct cp_info_struct
 {
     u1 tag;
     union info
     {
-        struct CONSTANT_Class_info
+        struct CONSTANT_Class_info_struct
         {
             u2 name_index;
-        } class_info;
+        } class_info_t;
 
-        struct CONSTANT_Fieldref_info
+        struct CONSTANT_Fieldref_info_struct
         {
             u2 class_index;
             u2 name_and_type_index;
-        } fieldref_info, methodref_info, interfacemethod_info;
+        } fieldref_info_t;;
 
-        struct CONSTANT_String_info
+
+        struct CONSTANT_Methodref_info_struct
+        {
+            u2 class_index;
+            u2 name_and_type_index;
+        } methodref_info_t;
+
+        struct CONSTANT_InterfaceMethodref_info_struct
+        {
+            u2 class_index;
+            u2 name_and_type_index;
+        } interfacemethod_info_t;
+
+        struct CONSTANT_String_info_struct
         {
             u2 string_index;
-        } string_info;
+        } string_info_t;
 
-        struct CONSTANT_Integer_info
+        struct CONSTANT_Integer_info_struct
         {
             u4 bytes;
-        } integer_info, float_info;
+        } integer_info_t;
 
-        struct CONSTANT_Long_info
+        struct CONSTANT_Float_info_struct
+        {
+            u4 bytes;
+        } float_info_t;
+
+        struct CONSTANT_Long_info_struct
         {
             u4 high_bytes;
             u4 low_bytes;
-        } long_info, double_info;
+        } long_info_t;
 
-        struct CONSTANT_NameAndType_info
+        struct CONSTANT_Double_info_struct
+        {
+            u4 high_bytes;
+            u4 low_bytes;
+        } double_info_t;
+
+        struct CONSTANT_NameAndType_info_struct
         {
             u2 name_index;
             u2 descriptor_index;
-        } nameandtype_info;
+        } nameandtype_info_t;
 
-        struct Utf8_info
+        struct Utf8_info_struct
         {
             u2 length;
             u1 *bytes;
-        } utf8_info;
+        } utf8_info_t;
 
     } info;
-} t_cp_info;
+} cp_info_t;
 
 
-typedef struct exception_table
+typedef struct exception_table_struct
 {
     u2 start_pc;
     u2 end_pc;
     u2 handler_pc;
     u2 catch_type;
-} t_exception_table;
+} exception_table_t;
 
-typedef struct inner_class
+typedef struct inner_class_struct
 {
     u2 inner_class_info_index;
     u2 outer_class_info_index;
     u2 inner_name_index;
     u2 inner_class_access_flags;
-} t_inner_class;
+} inner_class_t;
 
-typedef struct line_number_table
+typedef struct line_number_table_struct
 {
     u2 start_pc;
     u2 line_number;
-} t_line_number_table;
+} line_number_table_t;
 
-typedef struct local_variable_table
+typedef struct local_variable_table_struct
 {
     u2 start_pc;
     u2 length;
     u2 name_index;
     u2 descriptor_index;
     u2 index;
-} t_local_variable_table;
+} local_variable_table_t;
 
 
-typedef struct ConstantValue_attribute
+typedef struct constantvalue_attribute_struct
 {
     u2 attribute_name_index;
     u4 attribute_length;
     u2 constantvalue_index;
-} t_info_constant_value;
+} info_constant_value_t;
 
-typedef struct Code_attribute
+typedef struct code_attribute_struct
 {
     u2 attribute_name_index;
     u4 attribute_length;
@@ -129,71 +164,71 @@ typedef struct Code_attribute
     u4 code_length;
     u1 *code;
     u2 exception_table_length;
-    t_exception_table *exception_table;
+    exception_table_t *exception_table;
     u2 attributes_count;
-    struct attribute_info *attributes;
-} t_info_code;
+    struct attribute_info_struct *attributes;
+} info_code_t;
 
-typedef struct Exceptions_attribute
+typedef struct Exceptions_attribute_stru    ct
 {
     u2 attribute_name_index;
     u4 attribute_length;
     u2 number_of_exceptions;
     u2 *exception_index_table;
-} t_info_exception;
+} info_exception_t;
 
-typedef struct InnerClasses_attribute
+typedef struct InnerClasses_attribute_struct
 {
     u2 attribute_name_index;
     u4 attribute_length;
     u2 number_of_classes;
-    t_inner_class *classes;
-} t_info_innerclasses;
+    inner_class_t *classes;
+} info_innerclasses_t;
 
-typedef struct Synthetic_attribute
+typedef struct Synthetic_attribute_struct
 {
     u2 attribute_name_index;
     u4 attribute_length;
-} t_info_synthetic;
+} info_synthetic_t;
 
-typedef struct SourceFile_attribute
+typedef struct Sourcefile_attribute_struct
 {
     u2 attribute_name_index;
     u4 attribute_length;
     u2 sourcefile_index;
-} t_info_sourcefile;
+} info_sourcefile_t;
 
-typedef struct Signature_attribute
+/*typedef struct Signature_attribute_struct
 {
     u2 attribute_name_index;
     u4 attribute_length;
     u2 signature_index;
-} t_info_signature;
+} info_signature_t;*/
 
-typedef struct LineNumberTable_attribute
+typedef struct LineNumberTable_attribute_struct
 {
     u2 attribute_name_index;
     u4 attribute_length;
     u2 line_number_table_length;
-    t_line_number_table *line_number_table;
-} t_info_line_number_table;
+    line_number_table_t *line_number_table;
+} info_line_number_table_t;
 
-typedef struct LocalVariableTable_attribute
+typedef struct LocalVariableTable_attribute_struct
 {
     u2 attribute_name_index;
     u4 attribute_length;
     u2 local_variable_table_length;
-    t_local_variable_table *local_variable_table;
-} t_info_local_variable_table;
+    local_variable_table_t *local_variable_table;
+} info_local_variable_table_t;
 
-typedef struct Deprecated_attribute
+typedef struct Deprecated_attribute_struct
 {
     u2 attribute_name_index;
     u4 attribute_length;
-} t_info_deprecated;
+} info_deprecated_t;
 
 
-typedef struct attribute_info
+typedef struct attribute_info_struct
 {
     u2 attribute_name_index;
     u4 attribute_length;
@@ -201,96 +236,99 @@ typedef struct attribute_info
 
     union u_info_att
     {
-        t_info_constant_value constant_value;
-        t_info_code code;
-        t_info_exception exception;
-        t_info_innerclasses innerclasses;
-        t_info_synthetic synthetic;
-        t_info_sourcefile sourcefile;
-        t_info_line_number_table line_number_table;
-        t_info_local_variable_table local_variable_table;
-        t_info_deprecated deprecated;
-        t_info_signature signature;
+        info_constant_value_t constant_value;
+        info_code_t code;
+        info_exception_t exception;
+        info_innerclasses_t innerclasses;
+        info_synthetic_t synthetic;
+        info_sourcefile_t sourcefile;
+        info_line_number_table_t line_number_table;
+        info_local_variable_table_t local_variable_table;
+        info_deprecated_t deprecated;
+        info_signature_t signature;
 
     } _info;
-} t_attribute_info;
+} attribute_info_t;
 
-typedef struct constantvalue_attribute
+typedef struct constantvalue_attribute_struct
 {
     u2 access_flags;
     u2 name_index;
     u2 descriptor_index;
     u2 attributes_count;
-    t_attribute_info *attributes;
-} t_constantvalue_attribute;
+    attribute_info_t *attributes;
+} constantvalue_attribute_t;
 
 
-typedef struct code_attribute
+typedef struct code_attribute_struct
 {
-    /* u2 attribute_name_index */
-    /* u4 attribute_length */
+    u2 attribute_name_index 
+    u4 attribute_length 
     u2 max_stack;
     u2 max_locals;
     u4 code_length;
     u1 *code;
     u2 exception_table_length;
-    t_exception_table *exception_table;
+    exception_table_t *exception_table;
     u2 attributes_count;
-    t_attribute_info *attributes;
-} t_code_attribute;
+    attribute_info_t *attributes;
+} code_attribute_t;
 
 
-typedef struct sourcefile_attribute
+typedef struct sourcefile_attribute_struct
 {
-    /* Deixando sÛ os elementos dentro do info do attribute_info */
-    /* u2 attribute_name_index; */
-    /* u4 attribute_length; */
+    u2 attribute_name_index;
+    u4 attribute_length;
     u2 sourcefile_index;
-} t_sourcefile_attribute;
+} sourcefile_attribute_t;
 
 
-typedef struct field_info
+typedef struct field_info_struct
 {
     u2 access_flags;
     u2 name_index;
     u2 descriptor_index;
     u2 attributes_count;
-    t_attribute_info *attributes;
-} t_field_info;
+    attribute_info_t *attributes;
+} field_info_t;
 
 
-typedef struct method_info
+typedef struct method_info_struct
 {
     u2 access_flags;
     u2 name_index;
     u2 descriptor_index;
     u2 attributes_count;
-    t_attribute_info *attributes;
-} t_method_info;
+    attribute_info_t *attributes;
+} method_info_t;
 
 /*
  * Representa a estrutura de um arquivo CLASS.
  */
-typedef struct class_file_f
+typedef struct class_file_struct
 {
     u4 magic;
     u2 minor_version;
     u2 major_version;
     u2 constant_pool_count;
-    t_cp_info* constant_pool; /* Size of constant_pool_count */
+    cp_info_t* constant_pool; /* Size of constant_pool_count */
     u2 access_flags;
     u2 this_class;
     u2 super_class;
     u2 interfaces_count;
     u2 *interfaces; /* size of interfaces_count */
     u2 fields_count;
-    t_field_info *fields; /* size of fields_count */
+    field_info_t *fields; /* size of fields_count */
     u2 methods_count;
-    t_method_info *methods; /* size of methods_count */
+    method_info_t *methods; /* size of methods_count */
     u2 attributes_count;
-    t_attribute_info *attributes; /* size of attributes_count */
-} class_file;
+    attribute_info_t *attributes; /* size of attributes_count */
+} class_file_t;
 
+
+// todo tipo termina com _t: como em class_t
+// toda struct termina com _struct como em class_struct
+// olhar arquivo structs.h
 
 void loadClass(class_t* class);
 
