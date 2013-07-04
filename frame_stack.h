@@ -74,10 +74,9 @@ typedef struct local_variables_struct {
 typedef struct frame_struct {
     local_variables_t local_var;
     operand_stack_t operand_stack;
-    void *constant_pool;
-    char *current_method;
+    method_info_t *current_method;
     class_t *current_class;
-    void *return_address;
+    pc_t return_address;
 } frame_t;
 
 // --------------- Frame stack Stuff -----------------
