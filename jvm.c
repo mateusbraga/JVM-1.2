@@ -82,14 +82,25 @@ code_attribute_t* getCodeAttribute(class_t* class, method_info_t* method) {
     exit(1);
 }
 
-int isSuperClassOf(class_t* super_class, class_t* sub_class) {
-    //TODO
+class_t* getSuperClass(class_t* sub_class) {
+    u2 class_name_index = sub_class->class_file.constant_pool[sub_class->class_file.super_class].info.Class.name_index;
+    return getClass(&(sub_class->class_file.constant_pool[class_name_index].info.Utf8));
 }
 
 int isSameClass(class_t* a, class_t* b) {
     return (compare_utf8(a->class_name, b->class_name) == 0);
 }
 
+int isSuperClassOf(class_t* super_class, class_t* sub_class) {
+    class_t* class = sub_class;
+    while(compare_utf8(utf8_from_string("java/lang/Object"), class->class_name) != 0) {
+        if(isSameClass(super_class, getSuperClass(class))) {
+            return 1;
+        }
+        class = getSuperClass(class);
+    }
+    return 0;
+}
 
 void throwException(class_t* exception_class) {
     // check for handlers 
@@ -125,6 +136,19 @@ void throwException(class_t* exception_class) {
     free(frame);
 }
 
+int hasReturnValue(class_t* class, method_info_t* method) {
+    u1* b = class->class_file.constant_pool[method->descriptor_index].info.Utf8.bytes;
+    u2 length = class->class_file.constant_pool[method->descriptor_index].info.Utf8.length;
+
+    int i = 0;
+    for (i = 0; i < length; i++) {
+        if (b[i] == 'V') {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void returnFromFunction() {
     // pop stack
     frame_t *frame = pop_frame_stack(&jvm_stack);
@@ -137,11 +161,12 @@ void returnFromFunction() {
     jvm_pc = frame->return_address;
     jvm_pc.code_pc++;
 
-    // put return value on the new frame's operand stack 
-    // TODO talvez a funcao nao retorna nada!
-    frame_t *invokerFrame = peek_frame_stack(jvm_stack);
-    any_type_t *operand = pop_operand_stack(&(frame->operand_stack));
-    push_operand_stack(&(invokerFrame->operand_stack), operand);
+    // put return value on the new frame's operand stack if any
+    if(hasReturnValue(frame->current_class, frame->current_method)) {
+        frame_t *invokerFrame = peek_frame_stack(jvm_stack);
+        any_type_t *operand = pop_operand_stack(&(frame->operand_stack));
+        push_operand_stack(&(invokerFrame->operand_stack), operand);
+    }
 
     free(frame);
 }
@@ -160,7 +185,7 @@ method_info_t* getMethod(class_t* class, Utf8_info_t* method_name) {
     int i = 0;
     for (i = 0; class->class_file.methods_count; i++) {
         method_info_t* method = &(class->class_file.methods[i]);
-        Utf8_info_t* method_name2 = class->class_file.constant_pool[method->name_index].info.Utf8;
+        Utf8_info_t* method_name2 = &(class->class_file.constant_pool[method->name_index].info.Utf8);
 
         if (compare_utf8(method_name, method_name2) == 0) {
             return method;
@@ -169,7 +194,6 @@ method_info_t* getMethod(class_t* class, Utf8_info_t* method_name) {
     printf("ERROR: Could not find method");
     exit(1);
 }
-
 
 int getNumberOfArguments(class_t* class, method_info_t* method) {
     u1* b = class->class_file.constant_pool[method->descriptor_index].info.Utf8.bytes;
@@ -198,12 +222,15 @@ int getNumberOfArguments(class_t* class, method_info_t* method) {
                 break;
             case '[': //reference - array
                 break;
+            case ')':
+                return counter;
             default:
                 printf("Unexpected char on method descriptor: %c\n", b[i]);
                 exit(1);
         }
     }
-    return counter;
+    printf("ERROR: Could not find ')' in method description");
+    exit(1);
 }
 
 void callMethod(class_t* class, method_info_t* method) {
@@ -257,6 +284,75 @@ void callMethod(class_t* class, method_info_t* method) {
     return;
 }
 
+u2 get_utf8_length_from_char(char* string) {
+    u2 counter = 0;
+    u2 length = strlen(string);
+
+    u2 i = 0;
+    for (i = 0; i < length; ) {
+        if((string[i] & 0xe0) == 0xe0) {
+            counter++;
+            i = i + 3;
+        } else if((string[i] & 0xc0) == 0xc0) {
+            counter++;
+            i = i + 2;
+        } else {
+            counter++;
+            i++;
+        }
+    }
+    return counter;
+}
+
+
+uint16_t scan_utf8_char_from_char(char* string, u2 *pos) {
+    u2 original_pos = *pos;
+
+    if((string[original_pos] & 0xe0) == 0xe0) {
+        // 3 bytes 
+        *pos = *pos + 3;
+        assert(original_pos + 2 < strlen(string));
+        char x = string[original_pos];
+        char y = string[original_pos + 1];
+        char z = string[original_pos + 2];
+
+        return ((x & 0xf) << 12) + ((y & 0x3f) << 6) + (z & 0x3f);
+    } else if((string[original_pos] & 0xc0) == 0xc0) {
+        // 2 bytes 
+        *pos = *pos + 2;
+        assert(original_pos + 1 < strlen(string));
+        char x = string[original_pos];
+        char y = string[original_pos + 1];
+
+        return ((x & 0x1f) << 6) + (y & 0x3f);
+    } else {
+        // 1 bytes 
+        *pos = *pos + 1;
+        return string[original_pos];
+    }
+}
+
+any_type_t* char_to_array_reference(char* string) {
+    any_type_t* value = (any_type_t *) malloc(sizeof(any_type_t));
+
+    u2 length = get_utf8_length_from_char(string);
+
+    value->tag = REFERENCE;
+    value->val.reference_val.tag = ARRAY;
+    value->val.reference_val.val.array.length = length;
+    value->val.reference_val.val.array.components = (any_type_t *) malloc(length * sizeof(any_type_t));
+
+    u2 i = 0;
+    u2 j = 0;
+    for (i = 0; i < length && j < strlen(string); i++) {
+        value->val.reference_val.val.array.components[i].tag = PRIMITIVE;
+        value->val.reference_val.val.array.components[i].val.primitive_val.tag = CHAR;
+        value->val.reference_val.val.array.components[i].val.primitive_val.val.val_char = scan_utf8_char_from_char(string, &j);
+    }
+
+    return value;
+}
+
 int main(int argc, char* argv[]) {
 
     if (argc < 2) {
@@ -273,18 +369,7 @@ int main(int argc, char* argv[]) {
 
     uint32_t i = 0;
     for (i = 0; i < args->val.reference_val.val.array.length; i++) {
-        args->val.reference_val.val.array.components[i].tag = REFERENCE;
-        args->val.reference_val.val.array.components[i].val.reference_val.tag = ARRAY;
-        args->val.reference_val.val.array.components[i].val.reference_val.val.array.length = strlen(argv[i+2]);
-        args->val.reference_val.val.array.components[i].val.reference_val.val.array.components = (any_type_t *) malloc(strlen(argv[i+2]) * sizeof(any_type_t));
-
-        // TODO add support to unicode, it's only supporting ascii arguments for now
-        unsigned long j = 0;
-        for (j = 0; j < strlen(argv[i+2]); j++) {
-            args->val.reference_val.val.array.components[i].val.reference_val.val.array.components[j].tag = PRIMITIVE;
-            args->val.reference_val.val.array.components[i].val.reference_val.val.array.components[j].val.primitive_val.tag = CHAR;
-            args->val.reference_val.val.array.components[i].val.reference_val.val.array.components[j].val.primitive_val.val.val_char = argv[i+2][j];
-        }
+        args->val.reference_val.val.array.components[i] = *(char_to_array_reference(argv[i+2]));
     }
 
     class_t *class = createClass(utf8_from_string(argv[1]));
