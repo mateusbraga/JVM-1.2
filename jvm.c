@@ -386,10 +386,9 @@ void goToNextOpcode() {
 
     jvm_pc.code_pc += getNumberOfOpcodeOperandsInBytes(code_attribute->code, jvm_pc.code_pc) + 1;
 }
-
-
 // OPCODE STUFF - END
 
+// JVM OPERATION STUFF - START
 void throwException(class_t* exception_class) {
     // check for handlers 
     code_attribute_t* code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
@@ -497,6 +496,7 @@ void callMethod(class_t* class, method_info_t* method) {
 
     return;
 }
+// JVM OPERATION STUFF - END
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -552,61 +552,3 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
-
-// Example code of how to work with any_type_t
-/*pop them from operand stack*/
-/*insert them on local_var*/
-/*int i = 0;*/
-/*int local_var_index = 0;*/
-
-/*array_t* array = NULL;*/
-/*object_t* object = NULL;*/
-/*primitive_type_t* primitive = NULL;*/
-
-/*for (i = 0; i < number_of_arguments; i++) {*/
-/*any_type_t *operand = pop_operand_stack(&(invokerFrame->operand_stack));*/
-/*switch(operand->tag) {*/
-/*case REFERENCE:*/
-/*switch(operand->val.reference_val.tag) {*/
-/*case ARRAY:*/
-/*array = &(operand->val.reference_val.val.array);*/
-/*frame->local_var.var[local_var_index] = (uint32_t) array;*/
-/*local_var_index++;*/
-/*break;*/
-/*case OBJECT:*/
-/*object = &(operand->val.reference_val.val.object);*/
-/*frame->local_var.var[local_var_index] = (uint32_t) object;*/
-/*local_var_index++;*/
-/*break;*/
-/*}*/
-/*break;*/
-/*case PRIMITIVE:*/
-/*primitive = &operand->val.primitive_val;*/
-/*switch (primitive->tag) {*/
-/*case BYTE:*/
-/*frame->local_var.var[local_var_index] = (uint32_t) primitive->val.val8;*/
-/*local_var_index++;*/
-/*break;*/
-/*case SHORT:*/
-/*frame->local_var.var[local_var_index] = (uint32_t) primitive->val.val16;*/
-/*local_var_index++;*/
-/*break;*/
-/*case INT:*/
-/*frame->local_var.var[local_var_index] = (uint32_t) primitive->val.val32;*/
-/*local_var_index++;*/
-/*break;*/
-/*case CHAR:*/
-/*frame->local_var.var[local_var_index] = (uint32_t) primitive->val.val16;*/
-/*local_var_index++;*/
-/*break;*/
-/*case LONG:*/
-/*frame->local_var.var[local_var_index] = (uint32_t) (primitive->val.val64 >> 32);*/
-/*local_var_index++;*/
-/*frame->local_var.var[local_var_index] = (uint32_t) ((primitive->val.val64 << 32) >> 32);*/
-/*local_var_index++;*/
-/*break;*/
-/*}*/
-/*break;*/
-/*}*/
-/*}*/
-/*assert(local_var_index == frame->local_var.size);*/

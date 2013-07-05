@@ -36,5 +36,6 @@ void goToNextOpcode();
 void throwException(class_t* exception_class);
 void returnFromFunction();
 void callMethod(class_t* class, method_info_t* method);
+// JVM OPERATION STUFF - END
 
 #endif 
