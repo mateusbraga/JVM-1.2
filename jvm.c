@@ -15,9 +15,7 @@
 
 pc_t jvm_pc = {0, 0, 0};
 frame_stack_t *jvm_stack;
-
 extern void (*jvm_opcode[])(void);
-
 /*heap_t *jvm_heap;*/
 /*method_area_t *jvm_method_area;*/
 
@@ -25,7 +23,9 @@ extern void (*jvm_opcode[])(void);
 int jvm_number_of_classes = 0;
 class_t *jvm_classes[MAX_NUM_OF_CLASSES];
 
-Utf8_info_t* utf8_from_string(char* a) {
+
+// UTF8 STUFF - BEGIN
+Utf8_info_t* string_to_utf8(char* a) {
     Utf8_info_t* utf8 = (Utf8_info_t*) malloc(sizeof(Utf8_info_t));
     utf8->length = strlen(a);
     utf8->bytes = (u1*) a;
@@ -39,6 +39,78 @@ int compare_utf8(Utf8_info_t* a, Utf8_info_t* b) {
     return -1;
 }
 
+u2 get_utf8_length_from_char(char* string) {
+    u2 counter = 0;
+    u2 length = strlen(string);
+
+    u2 i = 0;
+    for (i = 0; i < length; ) {
+        if((string[i] & 0xe0) == 0xe0) {
+            counter++;
+            i = i + 3;
+        } else if((string[i] & 0xc0) == 0xc0) {
+            counter++;
+            i = i + 2;
+        } else {
+            counter++;
+            i++;
+        }
+    }
+    return counter;
+}
+
+uint16_t scan_utf8_char_from_char(char* string, u2 *pos) {
+    u2 original_pos = *pos;
+
+    if((string[original_pos] & 0xe0) == 0xe0) {
+        // 3 bytes 
+        *pos = *pos + 3;
+        assert(original_pos + 2 < strlen(string));
+        char x = string[original_pos];
+        char y = string[original_pos + 1];
+        char z = string[original_pos + 2];
+
+        return ((x & 0xf) << 12) + ((y & 0x3f) << 6) + (z & 0x3f);
+    } else if((string[original_pos] & 0xc0) == 0xc0) {
+        // 2 bytes 
+        *pos = *pos + 2;
+        assert(original_pos + 1 < strlen(string));
+        char x = string[original_pos];
+        char y = string[original_pos + 1];
+
+        return ((x & 0x1f) << 6) + (y & 0x3f);
+    } else {
+        // 1 bytes 
+        *pos = *pos + 1;
+        return string[original_pos];
+    }
+}
+
+any_type_t* char_to_array_reference(char* string) {
+    any_type_t* value = (any_type_t *) malloc(sizeof(any_type_t));
+
+    u2 length = get_utf8_length_from_char(string);
+
+    value->tag = REFERENCE;
+    value->val.reference_val.tag = ARRAY;
+    value->val.reference_val.val.array.length = length;
+    value->val.reference_val.val.array.components = (any_type_t *) malloc(length * sizeof(any_type_t));
+
+    u2 i = 0;
+    u2 j = 0;
+    for (i = 0; i < length && j < strlen(string); i++) {
+        value->val.reference_val.val.array.components[i].tag = PRIMITIVE;
+        value->val.reference_val.val.array.components[i].val.primitive_val.tag = CHAR;
+        value->val.reference_val.val.array.components[i].val.primitive_val.val.val_char = scan_utf8_char_from_char(string, &j);
+    }
+
+    return value;
+}
+
+// UTF8 STUFF - END
+
+
+// CLASS_T STUFF - BEGIN
 
 /* Procura e retorna classe com nome
  *
@@ -69,6 +141,28 @@ class_t *createClass(Utf8_info_t* class_name) {
     return jvm_classes[jvm_number_of_classes];
 }
 
+class_t* getSuperClass(class_t* sub_class) {
+    u2 class_name_index = sub_class->class_file.constant_pool[sub_class->class_file.super_class].info.Class.name_index;
+    return getClass(&(sub_class->class_file.constant_pool[class_name_index].info.Utf8));
+}
+
+int isSameClass(class_t* a, class_t* b) {
+    return (compare_utf8(a->class_name, b->class_name) == 0);
+}
+
+int isSuperClassOf(class_t* super_class, class_t* sub_class) {
+    class_t* class = sub_class;
+    while(compare_utf8(string_to_utf8("java/lang/Object"), class->class_name) != 0) {
+        if(isSameClass(super_class, getSuperClass(class))) {
+            return 1;
+        }
+        class = getSuperClass(class);
+    }
+    return 0;
+}
+// CLASS_T STUFF - END
+
+// METHOD STUFF - BEGIN
 code_attribute_t* getCodeAttribute(class_t* class, method_info_t* method) {
     int i = 0;
     for (i = 0; method->attributes_count; i++) {
@@ -85,60 +179,6 @@ code_attribute_t* getCodeAttribute(class_t* class, method_info_t* method) {
     exit(1);
 }
 
-class_t* getSuperClass(class_t* sub_class) {
-    u2 class_name_index = sub_class->class_file.constant_pool[sub_class->class_file.super_class].info.Class.name_index;
-    return getClass(&(sub_class->class_file.constant_pool[class_name_index].info.Utf8));
-}
-
-int isSameClass(class_t* a, class_t* b) {
-    return (compare_utf8(a->class_name, b->class_name) == 0);
-}
-
-int isSuperClassOf(class_t* super_class, class_t* sub_class) {
-    class_t* class = sub_class;
-    while(compare_utf8(utf8_from_string("java/lang/Object"), class->class_name) != 0) {
-        if(isSameClass(super_class, getSuperClass(class))) {
-            return 1;
-        }
-        class = getSuperClass(class);
-    }
-    return 0;
-}
-
-void throwException(class_t* exception_class) {
-    // check for handlers 
-    code_attribute_t* code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
-    u2 exception_table_length = code_attribute->exception_table_length;
-    u2 i = 0;
-    for (i = 0; i< exception_table_length; i++) {
-        u2 catch_exception_class_index = jvm_pc.class->class_file.constant_pool[code_attribute->exception_table[i].catch_type].info.Class.name_index;
-        class_t* catch_exception_class = getClass(&(jvm_pc.class->class_file.constant_pool[catch_exception_class_index].info.Utf8));
-        if (code_attribute->exception_table[i].catch_type == 0 || (isSameClass(exception_class, catch_exception_class) || isSuperClassOf(catch_exception_class, exception_class))) {
-            if (code_attribute->exception_table[i].start_pc >= jvm_pc.code_pc && code_attribute->exception_table[i].end_pc < jvm_pc.code_pc) {
-                // Executar catch code
-                jvm_pc.code_pc = code_attribute->exception_table[i].handler_pc;
-                return;
-            }
-        }
-    }
-
-    //Exception não foi tratada
-    // pop stack
-    frame_t *frame = pop_frame_stack(&jvm_stack);
-    if (frame == NULL) {
-        printf("Exception não foi tratada. JVM será terminada.\n");
-        exit(1);
-    }
-
-    // change PC
-    jvm_pc = frame->return_address;
-
-    // re-throw exception
-    throwException(exception_class);
-
-    free(frame);
-}
-
 int hasReturnValue(class_t* class, method_info_t* method) {
     u1* b = class->class_file.constant_pool[method->descriptor_index].info.Utf8.bytes;
     u2 length = class->class_file.constant_pool[method->descriptor_index].info.Utf8.length;
@@ -151,6 +191,72 @@ int hasReturnValue(class_t* class, method_info_t* method) {
     }
     return 1;
 }
+
+method_info_t* getMethod(class_t* class, Utf8_info_t* method_name) {
+    if (class->status == CLASSE_NAO_CARREGADA) {
+        loadClass(class);
+    }
+    if (class->status == CLASSE_NAO_LINKADA) {
+        linkClass(class);
+    }
+    if (class->status == CLASSE_NAO_INICIALIZADA) {
+        initializeClass(class);
+    }
+
+    int i = 0;
+    for (i = 0; class->class_file.methods_count; i++) {
+        method_info_t* method = &(class->class_file.methods[i]);
+        Utf8_info_t* method_name2 = &(class->class_file.constant_pool[method->name_index].info.Utf8);
+
+        if (compare_utf8(method_name, method_name2) == 0) {
+            return method;
+        }
+    }
+    printf("ERROR: Could not find method");
+    exit(1);
+}
+
+int getNumberOfArguments(class_t* class, method_info_t* method) {
+    u1* b = class->class_file.constant_pool[method->descriptor_index].info.Utf8.bytes;
+    u2 length = class->class_file.constant_pool[method->descriptor_index].info.Utf8.length;
+
+    int counter = 0;
+    int i = 1;
+    for (i = 1; i < length; i++) {
+        switch (b[i]) {
+            case 'B': //byte
+            case 'C': //char
+            case 'D': //double
+            case 'F': //float
+            case 'I': //integer
+            case 'J': //long
+            case 'S': //short
+            case 'Z': //boolean
+                counter++;
+                break;
+            case 'L': //reference
+                for(;i < length && b[i] != ';'; i++); //go until ';'
+                i++; // jump ';'
+
+                counter++;
+
+                break;
+            case '[': //reference - array
+                break;
+            case ')':
+                return counter;
+            default:
+                printf("Unexpected char on method descriptor: %c\n", b[i]);
+                exit(1);
+        }
+    }
+    printf("ERROR: Could not find ')' in method description");
+    exit(1);
+}
+
+// METHOD STUFF - END
+
+// OPCODE STUFF - BEGIN
 
 int getNumberOfOpcodeOperandsInBytes(u1* code, u1 index) {
     int counter = 0;
@@ -281,6 +387,43 @@ void goToNextOpcode() {
     jvm_pc.code_pc += getNumberOfOpcodeOperandsInBytes(code_attribute->code, jvm_pc.code_pc) + 1;
 }
 
+
+// OPCODE STUFF - END
+
+void throwException(class_t* exception_class) {
+    // check for handlers 
+    code_attribute_t* code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    u2 exception_table_length = code_attribute->exception_table_length;
+    u2 i = 0;
+    for (i = 0; i< exception_table_length; i++) {
+        u2 catch_exception_class_index = jvm_pc.class->class_file.constant_pool[code_attribute->exception_table[i].catch_type].info.Class.name_index;
+        class_t* catch_exception_class = getClass(&(jvm_pc.class->class_file.constant_pool[catch_exception_class_index].info.Utf8));
+        if (code_attribute->exception_table[i].catch_type == 0 || (isSameClass(exception_class, catch_exception_class) || isSuperClassOf(catch_exception_class, exception_class))) {
+            if (code_attribute->exception_table[i].start_pc >= jvm_pc.code_pc && code_attribute->exception_table[i].end_pc < jvm_pc.code_pc) {
+                // Executar catch code
+                jvm_pc.code_pc = code_attribute->exception_table[i].handler_pc;
+                return;
+            }
+        }
+    }
+
+    //Exception não foi tratada
+    // pop stack
+    frame_t *frame = pop_frame_stack(&jvm_stack);
+    if (frame == NULL) {
+        printf("Exception não foi tratada. JVM será terminada.\n");
+        exit(1);
+    }
+
+    // change PC
+    jvm_pc = frame->return_address;
+
+    // re-throw exception
+    throwException(exception_class);
+
+    free(frame);
+}
+
 void returnFromFunction() {
     // pop stack
     frame_t *frame = pop_frame_stack(&jvm_stack);
@@ -303,67 +446,6 @@ void returnFromFunction() {
     free(frame);
 }
 
-method_info_t* getMethod(class_t* class, Utf8_info_t* method_name) {
-    if (class->status == CLASSE_NAO_CARREGADA) {
-        loadClass(class);
-    }
-    if (class->status == CLASSE_NAO_LINKADA) {
-        linkClass(class);
-    }
-    if (class->status == CLASSE_NAO_INICIALIZADA) {
-        initializeClass(class);
-    }
-
-    int i = 0;
-    for (i = 0; class->class_file.methods_count; i++) {
-        method_info_t* method = &(class->class_file.methods[i]);
-        Utf8_info_t* method_name2 = &(class->class_file.constant_pool[method->name_index].info.Utf8);
-
-        if (compare_utf8(method_name, method_name2) == 0) {
-            return method;
-        }
-    }
-    printf("ERROR: Could not find method");
-    exit(1);
-}
-
-int getNumberOfArguments(class_t* class, method_info_t* method) {
-    u1* b = class->class_file.constant_pool[method->descriptor_index].info.Utf8.bytes;
-    u2 length = class->class_file.constant_pool[method->descriptor_index].info.Utf8.length;
-
-    int counter = 0;
-    int i = 1;
-    for (i = 1; i < length; i++) {
-        switch (b[i]) {
-            case 'B': //byte
-            case 'C': //char
-            case 'D': //double
-            case 'F': //float
-            case 'I': //integer
-            case 'J': //long
-            case 'S': //short
-            case 'Z': //boolean
-                counter++;
-                break;
-            case 'L': //reference
-                for(;i < length && b[i] != ';'; i++); //go until ';'
-                i++; // jump ';'
-
-                counter++;
-
-                break;
-            case '[': //reference - array
-                break;
-            case ')':
-                return counter;
-            default:
-                printf("Unexpected char on method descriptor: %c\n", b[i]);
-                exit(1);
-        }
-    }
-    printf("ERROR: Could not find ')' in method description");
-    exit(1);
-}
 
 void callMethod(class_t* class, method_info_t* method) {
     if (class->status == CLASSE_NAO_CARREGADA) {
@@ -416,77 +498,7 @@ void callMethod(class_t* class, method_info_t* method) {
     return;
 }
 
-u2 get_utf8_length_from_char(char* string) {
-    u2 counter = 0;
-    u2 length = strlen(string);
-
-    u2 i = 0;
-    for (i = 0; i < length; ) {
-        if((string[i] & 0xe0) == 0xe0) {
-            counter++;
-            i = i + 3;
-        } else if((string[i] & 0xc0) == 0xc0) {
-            counter++;
-            i = i + 2;
-        } else {
-            counter++;
-            i++;
-        }
-    }
-    return counter;
-}
-
-
-uint16_t scan_utf8_char_from_char(char* string, u2 *pos) {
-    u2 original_pos = *pos;
-
-    if((string[original_pos] & 0xe0) == 0xe0) {
-        // 3 bytes 
-        *pos = *pos + 3;
-        assert(original_pos + 2 < strlen(string));
-        char x = string[original_pos];
-        char y = string[original_pos + 1];
-        char z = string[original_pos + 2];
-
-        return ((x & 0xf) << 12) + ((y & 0x3f) << 6) + (z & 0x3f);
-    } else if((string[original_pos] & 0xc0) == 0xc0) {
-        // 2 bytes 
-        *pos = *pos + 2;
-        assert(original_pos + 1 < strlen(string));
-        char x = string[original_pos];
-        char y = string[original_pos + 1];
-
-        return ((x & 0x1f) << 6) + (y & 0x3f);
-    } else {
-        // 1 bytes 
-        *pos = *pos + 1;
-        return string[original_pos];
-    }
-}
-
-any_type_t* char_to_array_reference(char* string) {
-    any_type_t* value = (any_type_t *) malloc(sizeof(any_type_t));
-
-    u2 length = get_utf8_length_from_char(string);
-
-    value->tag = REFERENCE;
-    value->val.reference_val.tag = ARRAY;
-    value->val.reference_val.val.array.length = length;
-    value->val.reference_val.val.array.components = (any_type_t *) malloc(length * sizeof(any_type_t));
-
-    u2 i = 0;
-    u2 j = 0;
-    for (i = 0; i < length && j < strlen(string); i++) {
-        value->val.reference_val.val.array.components[i].tag = PRIMITIVE;
-        value->val.reference_val.val.array.components[i].val.primitive_val.tag = CHAR;
-        value->val.reference_val.val.array.components[i].val.primitive_val.val.val_char = scan_utf8_char_from_char(string, &j);
-    }
-
-    return value;
-}
-
 int main(int argc, char* argv[]) {
-
     if (argc < 2) {
         printf("Instrução: Rode com 'jvm class_identifier [args]'\n");
         return 1;
@@ -504,9 +516,9 @@ int main(int argc, char* argv[]) {
         args->val.reference_val.val.array.components[i] = *(char_to_array_reference(argv[i+2]));
     }
 
-    class_t *class = createClass(utf8_from_string(argv[1]));
+    class_t *class = createClass(string_to_utf8(argv[1]));
 
-    method_info_t *main_method = getMethod(class, utf8_from_string("main"));
+    method_info_t *main_method = getMethod(class, string_to_utf8("main"));
 
     // frame inicial
     frame_t *frame = (frame_t*) malloc(sizeof(frame_t));
