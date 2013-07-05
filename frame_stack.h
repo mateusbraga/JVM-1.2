@@ -25,29 +25,29 @@ typedef struct object_struct {
 
 typedef struct primitive_type_struct {
     primitive_type_tag_t tag;
-    union {
+    union primitive_type_struct_union{
         int8_t val8;
         int16_t val16;
         int32_t val32;
         int64_t val64;
         uint16_t val_char;
-    };
+    } val;
 } primitive_type_t;
 
 typedef struct reference_type_struct {
     reference_type_tag_t tag;
-    union {
+    union reference_type_struct_union {
         array_t array;
         object_t object;
-    };
+    } val;
 } reference_type_t;
 
 struct any_type_struct {
     any_type_tag_t tag;
-    union {
+    union any_type_struct_union {
         primitive_type_t primitive_val;
         reference_type_t reference_val;
-    };
+    } val;
 };
 
 // --------------- Operand stack Stuff -----------------

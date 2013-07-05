@@ -38,6 +38,11 @@ typedef uint8_t u1;
 typedef uint16_t u2;
 typedef uint32_t u4;
 
+typedef struct Utf8_info_struct {
+    u2 length;
+    u1 *bytes;
+} Utf8_info_t;
+
 typedef struct cp_info_struct
 {
     u1 tag;
@@ -88,10 +93,8 @@ typedef struct cp_info_struct
             u2 descriptor_index;
         } Nameandtype;
 
-        struct Utf8_info_struct {
-            u2 length;
-            u1 *bytes;
-        } Utf8;
+        Utf8_info_t Utf8;
+
     } info;
 } cp_info_t;
 
@@ -275,13 +278,14 @@ typedef struct class_file_struct {
 typedef enum {CLASSE_NAO_CARREGADA, CLASSE_NAO_LINKADA, CLASSE_NAO_INICIALIZADA, CLASSE_PRONTA } class_status_t;
 
 typedef struct class_struct {
-    char *class_name;
+    Utf8_info_t *class_name;
     class_status_t status;
     class_file_t class_file;
     //method* method_table; //TODO
 } class_t;
 
 typedef struct pc_struct {
+    class_t* class;
     method_info_t* method;
     u2 code_pc;
 } pc_t;

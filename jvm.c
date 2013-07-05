@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <assert.h>
 
 #include "structs.h"
 #include "frame_stack.h"
@@ -12,7 +13,7 @@
 
 #define MAX_NUM_OF_CLASSES 65535
 
-pc_t jvm_pc = NULL;
+pc_t jvm_pc = {0, 0, 0};
 frame_stack_t *jvm_stack;
 /*heap_t *jvm_heap;*/
 /*method_area_t *jvm_method_area;*/
@@ -21,15 +22,30 @@ frame_stack_t *jvm_stack;
 int jvm_number_of_classes = 0;
 class_t *jvm_classes[MAX_NUM_OF_CLASSES];
 
+Utf8_info_t* utf8_from_string(char* a) {
+    Utf8_info_t* utf8 = (Utf8_info_t*) malloc(sizeof(Utf8_info_t));
+    utf8->length = strlen(a);
+    utf8->bytes = (u1*) a;
+    return utf8;
+}
+
+int compare_utf8(Utf8_info_t* a, Utf8_info_t* b) {
+    if (a->length == b->length) {
+        return strncmp((char*) a->bytes,(char*) b->bytes, b->length);
+    }
+    return -1;
+}
+
+
 /* Procura e retorna classe com nome
  *
  * input: class_name Nome da classe
  * return: class ou NULL se não achar
  */
-class_t *getClass(char* class_name) {
+class_t *getClass(Utf8_info_t* class_name) {
     int i = 0;
     for (i = 0; i < jvm_number_of_classes; ++i) {
-        if (strcmp(jvm_classes[i]->class_name, class_name) == 0) {
+        if(compare_utf8(jvm_classes[i]->class_name, class_name) == 0) {
             return jvm_classes[i];
         }
     }
@@ -41,32 +57,71 @@ class_t *getClass(char* class_name) {
  * input: class_name Nome da classe
  * return: Classe criada
  */
-class_t *createClass(char* class_name) {
+class_t *createClass(Utf8_info_t* class_name) {
     jvm_number_of_classes++;
     jvm_classes[jvm_number_of_classes] = (class_t*) malloc(sizeof(class_t));
     jvm_classes[jvm_number_of_classes]->class_name = class_name;
     jvm_classes[jvm_number_of_classes]->status = CLASSE_NAO_CARREGADA;
-    
+
     return jvm_classes[jvm_number_of_classes];
 }
 
+code_attribute_t* getCodeAttribute(class_t* class, method_info_t* method) {
+    int i = 0;
+    for (i = 0; method->attributes_count; i++) {
+        attribute_info_t* attribute = &(method->attributes[i]);
 
-void throwException() {
-    // check for handlers TODO
+        u1* b = class->class_file.constant_pool[attribute->attribute_name_index].info.Utf8.bytes;
+        u2 length = class->class_file.constant_pool[attribute->attribute_name_index].info.Utf8.length;
 
+        if (strncmp("Code", (char*) b, length) == 0) {
+            return &(attribute->info.code);
+        }
+    }
+    printf("ERROR: Could not find Code attribute");
+    exit(1);
+}
+
+int isSuperClassOf(class_t* super_class, class_t* sub_class) {
+    //TODO
+}
+
+int isSameClass(class_t* a, class_t* b) {
+    return (compare_utf8(a->class_name, b->class_name) == 0);
+}
+
+
+void throwException(class_t* exception_class) {
+    // check for handlers 
+    code_attribute_t* code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    u2 exception_table_length = code_attribute->exception_table_length;
+    u2 i = 0;
+    for (i = 0; i< exception_table_length; i++) {
+        u2 catch_exception_class_index = jvm_pc.class->class_file.constant_pool[code_attribute->exception_table[i].catch_type].info.Class.name_index;
+        class_t* catch_exception_class = getClass(&(jvm_pc.class->class_file.constant_pool[catch_exception_class_index].info.Utf8));
+        if (code_attribute->exception_table[i].catch_type == 0 || (isSameClass(exception_class, catch_exception_class) || isSuperClassOf(catch_exception_class, exception_class))) {
+            if (code_attribute->exception_table[i].start_pc >= jvm_pc.code_pc && code_attribute->exception_table[i].end_pc < jvm_pc.code_pc) {
+                // Executar catch code
+                jvm_pc.code_pc = code_attribute->exception_table[i].handler_pc;
+                return;
+            }
+        }
+    }
+
+    //Exception não foi tratada
     // pop stack
     frame_t *frame = pop_frame_stack(&jvm_stack);
     if (frame == NULL) {
         printf("Exception não foi tratada. JVM será terminada.\n");
         exit(1);
     }
-    
+
     // change PC
     jvm_pc = frame->return_address;
 
     // re-throw exception
-    throwException();
-    
+    throwException(exception_class);
+
     free(frame);
 }
 
@@ -83,22 +138,11 @@ void returnFromFunction() {
     jvm_pc.code_pc++;
 
     // put return value on the new frame's operand stack 
-    // TODO testar esse código
     frame_t *invokerFrame = peek_frame_stack(jvm_stack);
     any_type_t *operand = pop_operand_stack(&(frame->operand_stack));
     push_operand_stack(&(invokerFrame->operand_stack), operand);
 
     free(frame);
-}
-
-int utf8_compare(u1* a, u1* b, u2 length) {
-    int i = 0;
-    for (i = 0; i < length; i++) {
-        if(a[i] != b[i]) {
-            return a[i] - b[i];
-        }
-    }
-    return 0;
 }
 
 method_info_t* getMethod(class_t* class, u1* method_name) {
@@ -118,7 +162,7 @@ method_info_t* getMethod(class_t* class, u1* method_name) {
         u1* b = class->class_file.constant_pool[method->name_index].info.Utf8.bytes;
         u2 length = class->class_file.constant_pool[method->name_index].info.Utf8.length;
 
-        if (utf8_compare(method_name, b, length) == 0) {
+        if (strncmp((char*) method_name, (char*) b, length) == 0) {
             return method;
         }
     }
@@ -126,20 +170,40 @@ method_info_t* getMethod(class_t* class, u1* method_name) {
     exit(1);
 }
 
-code_attribute_t* getCodeAttribute(class_t* class, method_info_t* method) {
-    int i = 0;
-    for (i = 0; method->attributes_count; i++) {
-        attribute_info_t* attribute = &(method->attributes[i]);
 
-        u1* b = class->class_file.constant_pool[attribute->attribute_name_index].info.Utf8.bytes;
-        u2 length = class->class_file.constant_pool[attribute->attribute_name_index].info.Utf8.length;
+int getNumberOfArguments(class_t* class, method_info_t* method) {
+    u1* b = class->class_file.constant_pool[method->descriptor_index].info.Utf8.bytes;
+    u2 length = class->class_file.constant_pool[method->descriptor_index].info.Utf8.length;
 
-        if (utf8_compare((u1*) "Code", b, length) == 0) {
-            return &(attribute->info.code);
+    int counter = 0;
+    int i = 1;
+    for (i = 1; i < length; i++) {
+        switch (b[i]) {
+            case 'B': //byte
+            case 'C': //char
+            case 'D': //double
+            case 'F': //float
+            case 'I': //integer
+            case 'J': //long
+            case 'S': //short
+            case 'Z': //boolean
+                counter++;
+                break;
+            case 'L': //reference
+                for(;i < length && b[i] != ';'; i++); //go until ';'
+                i++; // jump ';'
+
+                counter++;
+
+                break;
+            case '[': //reference - array
+                break;
+            default:
+                printf("Unexpected char on method descriptor: %c\n", b[i]);
+                exit(1);
         }
     }
-    printf("ERROR: Could not find Code attribute");
-    exit(1);
+    return counter;
 }
 
 void callMethod(class_t* class, method_info_t* method) {
@@ -166,22 +230,30 @@ void callMethod(class_t* class, method_info_t* method) {
     frame->operand_stack.head = 0;
     frame->operand_stack.size = code_attribute->max_stack;
     frame->operand_stack.operand = (any_type_t**) malloc(frame->operand_stack.size * sizeof(any_type_t**));
-    
 
-    //TODO get number of arguments from classfile
-    // pop them from operand stack
+
+    //get number of arguments from classfile
+    int number_of_arguments = getNumberOfArguments(class, method);
+
+    // pop arguments from operand stack and
     // insert them on local_var
+    int i = 0;
+    int local_var_index = 0;
+    for (i = 0; i < number_of_arguments; i++) {
+        any_type_t *operand = pop_operand_stack(&(invokerFrame->operand_stack));
+        frame->local_var.var[local_var_index] = (uint32_t) operand;
+        local_var_index++;
+    }
+    assert(local_var_index == frame->local_var.size);
+
 
     push_frame_stack(&jvm_stack, frame);
 
+    //set pc
+    jvm_pc.class = class;
+    jvm_pc.method = method;
+    jvm_pc.code_pc = 0;
 
-    /*
-     * criar frame usando tamanhos estabelecidos no classfile para method_name
-     * preparar local variables e adicionar args no inicio(está na pilha de operando)
-     * preparar operand stack
-     * mudar pc
-     */
-    //TODO set pc
     return;
 }
 
@@ -195,27 +267,27 @@ int main(int argc, char* argv[]) {
     // passar argv[2:] como argumento (array de strings)
     any_type_t *args = (any_type_t*) malloc(sizeof(any_type_t)); 
     args->tag = REFERENCE;
-    args->reference_val.tag = ARRAY;
-    args->reference_val.array.length = argc-2;
-    args->reference_val.array.components = (any_type_t *) malloc(args->reference_val.array.length * sizeof(any_type_t));
+    args->val.reference_val.tag = ARRAY;
+    args->val.reference_val.val.array.length = argc-2;
+    args->val.reference_val.val.array.components = (any_type_t *) malloc(args->val.reference_val.val.array.length * sizeof(any_type_t));
 
     uint32_t i = 0;
-    for (i = 0; i < args->reference_val.array.length; i++) {
-        args->reference_val.array.components[i].tag = REFERENCE;
-        args->reference_val.array.components[i].reference_val.tag = ARRAY;
-        args->reference_val.array.components[i].reference_val.array.length = strlen(argv[i+2]);
-        args->reference_val.array.components[i].reference_val.array.components = (any_type_t *) malloc(strlen(argv[i+2]) * sizeof(any_type_t));
+    for (i = 0; i < args->val.reference_val.val.array.length; i++) {
+        args->val.reference_val.val.array.components[i].tag = REFERENCE;
+        args->val.reference_val.val.array.components[i].val.reference_val.tag = ARRAY;
+        args->val.reference_val.val.array.components[i].val.reference_val.val.array.length = strlen(argv[i+2]);
+        args->val.reference_val.val.array.components[i].val.reference_val.val.array.components = (any_type_t *) malloc(strlen(argv[i+2]) * sizeof(any_type_t));
 
         // TODO add support to unicode, it's only supporting ascii arguments for now
         unsigned long j = 0;
         for (j = 0; j < strlen(argv[i+2]); j++) {
-            args->reference_val.array.components[i].reference_val.array.components[j].tag = PRIMITIVE;
-            args->reference_val.array.components[i].reference_val.array.components[j].primitive_val.tag = CHAR;
-            args->reference_val.array.components[i].reference_val.array.components[j].primitive_val.val_char = argv[i+2][j];
+            args->val.reference_val.val.array.components[i].val.reference_val.val.array.components[j].tag = PRIMITIVE;
+            args->val.reference_val.val.array.components[i].val.reference_val.val.array.components[j].val.primitive_val.tag = CHAR;
+            args->val.reference_val.val.array.components[i].val.reference_val.val.array.components[j].val.primitive_val.val.val_char = argv[i+2][j];
         }
     }
 
-    class_t *class = createClass(argv[1]);
+    class_t *class = createClass(utf8_from_string(argv[1]));
 
     method_info_t *main_method = getMethod(class, (u1*) "main");
 
@@ -238,11 +310,68 @@ int main(int argc, char* argv[]) {
     callMethod(class, main_method);
 
     /*do {*/
-        /*fetch an opcode;*/
-        /*if (operands) fetch operands;*/
-        /*execute the action for the opcode;*/
+    /*fetch an opcode;*/
+    /*if (operands) fetch operands;*/
+    /*execute the action for the opcode;*/
     /*} while (there is more to do);*/
 
     return 0;
 }
 
+// Example code of how to work with any_type_t
+/*pop them from operand stack*/
+/*insert them on local_var*/
+/*int i = 0;*/
+/*int local_var_index = 0;*/
+
+/*array_t* array = NULL;*/
+/*object_t* object = NULL;*/
+/*primitive_type_t* primitive = NULL;*/
+
+/*for (i = 0; i < number_of_arguments; i++) {*/
+/*any_type_t *operand = pop_operand_stack(&(invokerFrame->operand_stack));*/
+/*switch(operand->tag) {*/
+/*case REFERENCE:*/
+/*switch(operand->val.reference_val.tag) {*/
+/*case ARRAY:*/
+/*array = &(operand->val.reference_val.val.array);*/
+/*frame->local_var.var[local_var_index] = (uint32_t) array;*/
+/*local_var_index++;*/
+/*break;*/
+/*case OBJECT:*/
+/*object = &(operand->val.reference_val.val.object);*/
+/*frame->local_var.var[local_var_index] = (uint32_t) object;*/
+/*local_var_index++;*/
+/*break;*/
+/*}*/
+/*break;*/
+/*case PRIMITIVE:*/
+/*primitive = &operand->val.primitive_val;*/
+/*switch (primitive->tag) {*/
+/*case BYTE:*/
+/*frame->local_var.var[local_var_index] = (uint32_t) primitive->val.val8;*/
+/*local_var_index++;*/
+/*break;*/
+/*case SHORT:*/
+/*frame->local_var.var[local_var_index] = (uint32_t) primitive->val.val16;*/
+/*local_var_index++;*/
+/*break;*/
+/*case INT:*/
+/*frame->local_var.var[local_var_index] = (uint32_t) primitive->val.val32;*/
+/*local_var_index++;*/
+/*break;*/
+/*case CHAR:*/
+/*frame->local_var.var[local_var_index] = (uint32_t) primitive->val.val16;*/
+/*local_var_index++;*/
+/*break;*/
+/*case LONG:*/
+/*frame->local_var.var[local_var_index] = (uint32_t) (primitive->val.val64 >> 32);*/
+/*local_var_index++;*/
+/*frame->local_var.var[local_var_index] = (uint32_t) ((primitive->val.val64 << 32) >> 32);*/
+/*local_var_index++;*/
+/*break;*/
+/*}*/
+/*break;*/
+/*}*/
+/*}*/
+/*assert(local_var_index == frame->local_var.size);*/
