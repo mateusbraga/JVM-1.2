@@ -138,6 +138,7 @@ void returnFromFunction() {
     jvm_pc.code_pc++;
 
     // put return value on the new frame's operand stack 
+    // TODO talvez a funcao nao retorna nada!
     frame_t *invokerFrame = peek_frame_stack(jvm_stack);
     any_type_t *operand = pop_operand_stack(&(frame->operand_stack));
     push_operand_stack(&(invokerFrame->operand_stack), operand);
@@ -145,7 +146,7 @@ void returnFromFunction() {
     free(frame);
 }
 
-method_info_t* getMethod(class_t* class, u1* method_name) {
+method_info_t* getMethod(class_t* class, Utf8_info_t* method_name) {
     if (class->status == CLASSE_NAO_CARREGADA) {
         loadClass(class);
     }
@@ -159,10 +160,9 @@ method_info_t* getMethod(class_t* class, u1* method_name) {
     int i = 0;
     for (i = 0; class->class_file.methods_count; i++) {
         method_info_t* method = &(class->class_file.methods[i]);
-        u1* b = class->class_file.constant_pool[method->name_index].info.Utf8.bytes;
-        u2 length = class->class_file.constant_pool[method->name_index].info.Utf8.length;
+        Utf8_info_t* method_name2 = class->class_file.constant_pool[method->name_index].info.Utf8;
 
-        if (strncmp((char*) method_name, (char*) b, length) == 0) {
+        if (compare_utf8(method_name, method_name2) == 0) {
             return method;
         }
     }
@@ -289,7 +289,7 @@ int main(int argc, char* argv[]) {
 
     class_t *class = createClass(utf8_from_string(argv[1]));
 
-    method_info_t *main_method = getMethod(class, (u1*) "main");
+    method_info_t *main_method = getMethod(class, utf8_from_string("main"));
 
     // frame inicial
     frame_t *frame = (frame_t*) malloc(sizeof(frame_t));
