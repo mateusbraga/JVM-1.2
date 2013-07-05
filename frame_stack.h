@@ -9,7 +9,7 @@
 
 typedef enum any_type_tag_enum {PRIMITIVE, REFERENCE} any_type_tag_t;
 typedef enum reference_type_tag_enum {ARRAY, OBJECT} reference_type_tag_t;
-typedef enum primitive_type_tag_enum {BYTE, SHORT, INT, LONG, CHAR} primitive_type_tag_t;
+typedef enum primitive_type_tag_enum {BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE} primitive_type_tag_t;
 
 typedef struct any_type_struct any_type_t;
 
@@ -31,6 +31,9 @@ typedef struct primitive_type_struct {
         int32_t val32;
         int64_t val64;
         uint16_t val_char;
+
+        float val_float;
+        double val_double;
     } val;
 } primitive_type_t;
 
