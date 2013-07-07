@@ -1,15 +1,18 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "linker.h"
 #include "structs.h"
 #include "jvm.h"
 
 void preparar (class_t* class) {
+
+	class->class_file.static_fields = (any_type_t*) malloc(sizeof(any_type_t*)*class->class_file.fields_count);
 	u2 i;
 	for (i = 1; i < class->class_file.fields_count; i++) {
 		if ((class->class_file.fields[i]->access_flags & ACC_STATIC) == ACC_STATIC)  {
 			any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-			u1* b = class->class_file.constant_pool[class->class_file.constant_pool[class->class_file.fields[i]->descriptor_index]].info.Utf8.bytes;
+			u1* b = class->class_file.constant_pool[class->class_file.fields[i].descriptor_index].info.Utf8.bytes;
 			switch(b[0]) {
 				case 'B': //byte
 					operand->tag = PRIMITIVE;
@@ -54,19 +57,20 @@ void preparar (class_t* class) {
 	            case 'L': //reference
 					operand->tag = REFERENCE;
             		operand->val.reference_val.tag = OBJECT;
-            		operand->val.reference_val.val.object = NULL;
+            		operand->val.reference_val.val.object.length = 0;
+            		operand->val.reference_val.val.object.attributes = NULL;
 	                break;
 	            case '[': //reference - array
 					operand->tag = REFERENCE;
             		operand->val.reference_val.tag = ARRAY;
-            		operand->val.reference_val.val.array = NULL;
+            		operand->val.reference_val.val.array.length = 0;
+            		operand->val.reference_val.val.array.attributes = NULL;
 	                break;
 	            default:
 	                printf("Unexpected char on method descriptor: %c\n", b[0]);
 	                exit(1);
 			}
-            class->class_file.static_fields_length++;
-          	class->class_file.static_fields[class->class_file.static_fields_length] = operand;
+          	class->class_file.static_fields[i] = operand;
 		}
 	}
 }
