@@ -290,7 +290,7 @@ typedef struct array_struct {
 
 typedef struct object_struct {
     uint32_t length;
-    any_type_t *atributes;
+    any_type_t *attributes;
 } object_t;
 
 typedef struct primitive_type_struct {
