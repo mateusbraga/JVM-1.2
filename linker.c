@@ -6,12 +6,10 @@
 
 void preparar (class_t* class) {
 	u2 i;
-	Utf8_info_t* tipo_campo;
 	for (i = 1; i < class->class_file.fields_count; i++) {
 		if ((class->class_file.fields[i]->access_flags & ACC_STATIC) == ACC_STATIC)  {
 			any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-			tipo_campo = class->class_file.constant_pool[class->class_file.fields[i]->descriptor_index];
-			u1* b = class->class_file.constant_pool[tipo_campo].info.Utf8.bytes;
+			u1* b = class->class_file.constant_pool[class->class_file.constant_pool[class->class_file.fields[i]->descriptor_index]].info.Utf8.bytes;
 			switch(b[0]) {
 				case 'B': //byte
 					operand->tag = PRIMITIVE;
@@ -51,17 +49,17 @@ void preparar (class_t* class) {
 	            case 'Z': //boolean
 					operand->tag = PRIMITIVE;
             		operand->val.primitive_val.tag = BOOLEAN;
-            		operand->val.primitive_val.val.val_bool = 0;
+            		operand->val.primitive_val.val.val_boolean = 0;
             		break;
 	            case 'L': //reference
-					operand->tag = REFERECE;
+					operand->tag = REFERENCE;
             		operand->val.reference_val.tag = OBJECT;
-            		operand->val.reference_val.val.object = null;
+            		operand->val.reference_val.val.object = NULL;
 	                break;
 	            case '[': //reference - array
-					operand->tag = REFERECE;
+					operand->tag = REFERENCE;
             		operand->val.reference_val.tag = ARRAY;
-            		operand->val.reference_val.val.array = null;
+            		operand->val.reference_val.val.array = NULL;
 	                break;
 	            default:
 	                printf("Unexpected char on method descriptor: %c\n", b[0]);
@@ -81,55 +79,55 @@ void verificar (class_t* class) {
 	u2 i;
 	u1 tag, tag1;
 	for (i = 1; i < (class->class_file.constant_pool_count); i++) {
-		tag = class->class_file.constant_pool[i]->tag;
+		tag = class->class_file.constant_pool[i].tag;
 		if (tag == CONSTANT_Class) {
-			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->name_index] != CONSTANT_Utf8) {
+			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Class.name_index] != CONSTANT_Utf8) {
 				printf("Erro: Indice apontado pela classe invalido.\n");
 				exit(1);		
 			}
 		}
 		if (tag == CONSTANT_Fieldref) {
-			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->class_index] != CONSTANT_Utf8) {
+			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Fieldref.class_index] != CONSTANT_Utf8) {
 				printf("Erro: Indice do class_index apontado pela fieldref invalido.\n");
 				exit(1);
 			}
-			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->name_and_type_index] != CONSTANT_NameAndType) {
+			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Fieldref.name_and_type_index] != CONSTANT_NameAndType) {
 				printf("Erro: Indice do name_and_type_index apontado pela fieldref invalido.\n");
 				exit(1);
 			}
 		}
 		if (tag == CONSTANT_NameAndType) {
-			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->name_index] != CONSTANT_Utf8) {
+			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Nameandtype.name_index] != CONSTANT_Utf8) {
 				printf("Erro: Indice do name_index apontado pelo name_and_type invalido.\n");
 				exit(1);
 			}
-			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->descriptor_index] != CONSTANT_Utf8) {
+			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Nameandtype.descriptor_index] != CONSTANT_Utf8) {
 				printf("Erro: Indice do descriptor_index apontado pela name_and_type invalido.\n");
 				exit(1);
 			}
 		}
 		if (tag == CONSTANT_Methodref) {
-			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->class_index] != CONSTANT_Utf8) {
+			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Methodref.class_index] != CONSTANT_Utf8) {
 				printf("Erro: Indice do class_index apontado pela methodref invalido.\n");
 				exit(1);
 			}
-			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->name_and_type_index] != CONSTANT_NameAndType) {
+			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Methodref.name_and_type_index] != CONSTANT_NameAndType) {
 				printf("Erro: Indice do name_and_type_index apontado pela methodref invalido.\n");
 				exit(1);
 			}
 		}
 		if (tag == CONSTANT_InterfaceMethodref) {
-			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->class_index] != CONSTANT_Utf8) {
+			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Interfacemethod.class_index] != CONSTANT_Utf8) {
 				printf("Erro: Indice do class_index apontado pela interfacemethodref invalido.\n");
 				exit(1);
 			}
-			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->name_and_type_index] != CONSTANT_NameAndType) {
+			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Interfacemethod.name_and_type_index] != CONSTANT_NameAndType) {
 				printf("Erro: Indice do name_and_type_index apontado pela interfacemethodref invalido.\n");
 				exit(1);
 			}
 		}
 		if (tag == CONSTANT_String) {
-			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->string_index] != CONSTANT_Utf8) {
+			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.String.string_index] != CONSTANT_Utf8) {
 				printf("Erro: Indice apontado pela string invalido.\n");
 				exit(1);		
 			}
