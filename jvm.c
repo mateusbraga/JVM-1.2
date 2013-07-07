@@ -321,15 +321,8 @@ method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* 
 
     method_info_t* method = getMethod2(class, method_name, descriptor);
     while (method == NULL) {
-        u2 class_index = class->class_file.constant_pool[class->class_file.super_class].info.Class.name_index;
-        Utf8_info_t* class_name = &(class->class_file.constant_pool[class_index].info.Utf8);
-        if (compare_utf8(class_name, string_to_utf8("java/lang/Object")) != 0) {
-            class = getClass(class_name);
-        } else {
-            //TODO see if it is an Object method
-            printf("ERROR: Could not found method\n");
-            exit(1);
-        }
+        //TODO see if it is an Object method
+        class = getSuperClass(class);
 
         method = getMethod2(class, method_name, descriptor);
         if ((method->access_flags & ACC_PRIVATE) == ACC_PRIVATE) {
