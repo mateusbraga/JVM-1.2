@@ -277,13 +277,38 @@ int hasReturnValue(class_t* class, method_info_t* method) {
 }
 
 /**
- * Retorna método com nome method_name da classe.
+ * Retorna método com nome method_name da classe sem ser recursivo
  *
  * @param Classe do método
  * @param Nome do método em utf8
+ * @param Descriptor do método em utf8
  * @return Método
  */
-method_info_t* getMethod(class_t* class, Utf8_info_t* method_name) {
+method_info_t* getMethod2(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
+    int i = 0;
+    for (i = 0; class->class_file.methods_count; i++) {
+        method_info_t* method = &(class->class_file.methods[i]);
+        Utf8_info_t* method_name_aux = &(class->class_file.constant_pool[method->name_index].info.Utf8);
+
+        if (compare_utf8(method_name, method_name_aux) == 0) {
+            Utf8_info_t* descriptor_aux = &(class->class_file.constant_pool[method->descriptor_index].info.Utf8);
+            if (compare_utf8(descriptor, descriptor_aux) == 0) {
+                return method;
+            }
+        }
+    }
+    return NULL;
+}
+
+/**
+ * Retorna método com nome method_name da classe fazendo resolução completa
+ *
+ * @param Classe do método
+ * @param Nome do método em utf8
+ * @param Descriptor do método em utf8
+ * @return Método
+ */
+method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
     if (class->status == CLASSE_NAO_CARREGADA) {
         loadClass(class);
     }
@@ -294,17 +319,25 @@ method_info_t* getMethod(class_t* class, Utf8_info_t* method_name) {
         initializeClass(class);
     }
 
-    int i = 0;
-    for (i = 0; class->class_file.methods_count; i++) {
-        method_info_t* method = &(class->class_file.methods[i]);
-        Utf8_info_t* method_name2 = &(class->class_file.constant_pool[method->name_index].info.Utf8);
+    method_info_t* method = getMethod2(class, method_name, descriptor);
+    while (method == NULL) {
+        u2 class_index = class->class_file.constant_pool[class->class_file.super_class].info.Class.name_index;
+        Utf8_info_t* class_name = &(class->class_file.constant_pool[class_index].info.Utf8);
+        if (compare_utf8(class_name, string_to_utf8("java/lang/Object")) != 0) {
+            class = getClass(class_name);
+        } else {
+            //TODO see if it is an Object method
+            printf("ERROR: Could not found method\n");
+            exit(1);
+        }
 
-        if (compare_utf8(method_name, method_name2) == 0) {
-            return method;
+        method = getMethod2(class, method_name, descriptor);
+        if ((method->access_flags & ACC_PRIVATE) == ACC_PRIVATE) {
+            printf("ERROR: Founded method is private\n");
+            exit(1);
         }
     }
-    printf("ERROR: Could not find method");
-    exit(1);
+    return method;
 }
 
 /**
@@ -648,7 +681,7 @@ int main(int argc, char* argv[]) {
 
     class_t *class = createClass(string_to_utf8(argv[1]));
 
-    method_info_t *main_method = getMethod(class, string_to_utf8("main"));
+    method_info_t *main_method = getMethod(class, string_to_utf8("main"), string_to_utf8("([Ljava/lang/String;)V"));
 
     // frame inicial
     frame_t *frame = (frame_t*) malloc(sizeof(frame_t));
