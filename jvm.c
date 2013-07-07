@@ -107,6 +107,13 @@ any_type_t* char_to_array_reference(char* string) {
     return value;
 }
 
+any_type_t* utf8_to_array_reference(Utf8_info_t* utf8) {
+
+    char* string = (char*) malloc(utf8->length + 1);
+    strncpy(string, (char*) utf8->bytes, utf8->length);
+    string[utf8->length] = '\0';
+    return char_to_array_reference(string);
+}
 // UTF8 STUFF - END
 
 

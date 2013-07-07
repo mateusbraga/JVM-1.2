@@ -10,6 +10,7 @@ int compare_utf8(Utf8_info_t* a, Utf8_info_t* b);
 u2 get_utf8_length_from_char(char* string);
 uint16_t scan_utf8_char_from_char(char* string, u2 *pos);
 any_type_t* char_to_array_reference(char* string);
+any_type_t* utf8_to_array_reference(Utf8_info_t* utf8);
 // UTF8 STUFF - END
 
 // CLASS_T STUFF - BEGIN
