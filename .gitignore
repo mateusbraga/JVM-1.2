@@ -16,4 +16,7 @@
 *.out
 *.app
 
+.depend
 .ycm_extra_conf.py*
+
+docs/*

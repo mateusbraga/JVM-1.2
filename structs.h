@@ -279,7 +279,7 @@ typedef struct class_file_struct {
 
 typedef enum any_type_tag_enum {PRIMITIVE, REFERENCE} any_type_tag_t;
 typedef enum reference_type_tag_enum {ARRAY, OBJECT, NULL_REFERENCE} reference_type_tag_t;
-typedef enum primitive_type_tag_enum {BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE} primitive_type_tag_t;
+typedef enum primitive_type_tag_enum {BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE} primitive_type_tag_t;
 
 typedef struct any_type_struct any_type_t;
 
@@ -296,6 +296,7 @@ typedef struct object_struct {
 typedef struct primitive_type_struct {
     primitive_type_tag_t tag;
     union primitive_type_struct_union{
+        uint8_t val_boolean;
         int8_t val8;
         int16_t val16;
         int32_t val32;
