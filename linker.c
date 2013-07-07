@@ -1,4 +1,224 @@
-
-
+#include <stdio.h>
 
 #include "linker.h"
+#include "structs.h"
+#include "jvm.h"
+
+void preparar (class_t* class) {
+	u2 i;
+	Utf8_info_t* tipo_campo;
+	for (i = 1; i < class->class_file.fields_count; i++) {
+		if ((class->class_file.fields[i]->access_flags & ACC_STATIC) == ACC_STATIC)  {
+			any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
+			tipo_campo = class->class_file.constant_pool[class->class_file.fields[i]->descriptor_index];
+			u1* b = class->class_file.constant_pool[tipo_campo].info.Utf8.bytes;
+			switch(b[0]) {
+				case 'B': //byte
+					operand->tag = PRIMITIVE;
+            		operand->val.primitive_val.tag = BYTE;
+            		operand->val.primitive_val.val.val8 = 0;
+            		break;
+	            case 'C': //char
+					operand->tag = PRIMITIVE;
+            		operand->val.primitive_val.tag = CHAR;
+            		operand->val.primitive_val.val.val_char = 0;
+            		break;
+	            case 'D': //double
+					operand->tag = PRIMITIVE;
+            		operand->val.primitive_val.tag = DOUBLE;
+            		operand->val.primitive_val.val.val_double = 0;
+            		break;
+	            case 'F': //float
+					operand->tag = PRIMITIVE;
+            		operand->val.primitive_val.tag = FLOAT;
+            		operand->val.primitive_val.val.val_float = 0;
+            		break;
+	            case 'I': //integer
+					operand->tag = PRIMITIVE;
+            		operand->val.primitive_val.tag = INT;
+            		operand->val.primitive_val.val.val32 = 0;
+            		break;
+	            case 'J': //long
+					operand->tag = PRIMITIVE;
+            		operand->val.primitive_val.tag = LONG;
+            		operand->val.primitive_val.val.val64 = 0;
+            		break;
+	            case 'S': //short
+					operand->tag = PRIMITIVE;
+            		operand->val.primitive_val.tag = SHORT;
+            		operand->val.primitive_val.val.val16 = 0;
+            		break;
+	            case 'Z': //boolean
+					operand->tag = PRIMITIVE;
+            		operand->val.primitive_val.tag = BOOLEAN;
+            		operand->val.primitive_val.val.val_bool = 0;
+            		break;
+	            case 'L': //reference
+					operand->tag = REFERECE;
+            		operand->val.reference_val.tag = OBJECT;
+            		operand->val.reference_val.val.object = null;
+	                break;
+	            case '[': //reference - array
+					operand->tag = REFERECE;
+            		operand->val.reference_val.tag = ARRAY;
+            		operand->val.reference_val.val.array = null;
+	                break;
+	            default:
+	                printf("Unexpected char on method descriptor: %c\n", b[0]);
+	                exit(1);
+			}
+            class->class_file.static_fields_length++;
+          	class->class_file.static_fields[class->class_file.static_fields_length] = operand;
+		}
+	}
+}
+
+void verificar (class_t* class) {
+	if (class->status == CLASSE_NAO_CARREGADA) {
+        loadClass(class);
+    }
+	//Verificar se os indices apontam para o lugar correto na Constant Pool
+	u2 i;
+	u1 tag, tag1;
+	for (i = 1; i < (class->class_file.constant_pool_count); i++) {
+		tag = class->class_file.constant_pool[i]->tag;
+		if (tag == CONSTANT_Class) {
+			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->name_index] != CONSTANT_Utf8) {
+				printf("Erro: Indice apontado pela classe invalido.\n");
+				exit(1);		
+			}
+		}
+		if (tag == CONSTANT_Fieldref) {
+			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->class_index] != CONSTANT_Utf8) {
+				printf("Erro: Indice do class_index apontado pela fieldref invalido.\n");
+				exit(1);
+			}
+			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->name_and_type_index] != CONSTANT_NameAndType) {
+				printf("Erro: Indice do name_and_type_index apontado pela fieldref invalido.\n");
+				exit(1);
+			}
+		}
+		if (tag == CONSTANT_NameAndType) {
+			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->name_index] != CONSTANT_Utf8) {
+				printf("Erro: Indice do name_index apontado pelo name_and_type invalido.\n");
+				exit(1);
+			}
+			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->descriptor_index] != CONSTANT_Utf8) {
+				printf("Erro: Indice do descriptor_index apontado pela name_and_type invalido.\n");
+				exit(1);
+			}
+		}
+		if (tag == CONSTANT_Methodref) {
+			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->class_index] != CONSTANT_Utf8) {
+				printf("Erro: Indice do class_index apontado pela methodref invalido.\n");
+				exit(1);
+			}
+			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->name_and_type_index] != CONSTANT_NameAndType) {
+				printf("Erro: Indice do name_and_type_index apontado pela methodref invalido.\n");
+				exit(1);
+			}
+		}
+		if (tag == CONSTANT_InterfaceMethodref) {
+			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->class_index] != CONSTANT_Utf8) {
+				printf("Erro: Indice do class_index apontado pela interfacemethodref invalido.\n");
+				exit(1);
+			}
+			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->name_and_type_index] != CONSTANT_NameAndType) {
+				printf("Erro: Indice do name_and_type_index apontado pela interfacemethodref invalido.\n");
+				exit(1);
+			}
+		}
+		if (tag == CONSTANT_String) {
+			if (class->class_file.clonstant_pool[class->class_file.constant_pool[i]->string_index] != CONSTANT_Utf8) {
+				printf("Erro: Indice apontado pela string invalido.\n");
+				exit(1);		
+			}
+		}
+	}
+	//Verificar se classes Final nao estao sendo extendidas, ou Metodos Final estao sendo sobrescritos.
+	if ((class->class_file.super_class >=  class->class_file.constant_pool_count) || (class->class_file.this_class < 0)) {
+		printf("Erro: Indice da super classe eh maior ou menor que o tamanho da constante pool\n");
+		exit(1);
+	}
+    class_t *super_class = getSuperClass(class);
+    if (super_class->class_file.access_flags == ACC_FINAL) {
+		printf("Erro: Class Final possui uma subclasse.\n");
+		exit(1);
+    }
+	if ((class->class_file.this_class >=  class->class_file.constant_pool_count) || (class->class_file.this_class < 0)) {
+		printf("Erro: Indice da classe eh maior ou menor que o tamanho da constante pool\n");
+		exit(1);
+	}
+	
+	//Verificar se toda classe (Menos Object) tem superclass.
+	if (class->class_file.super_class == 0) {
+		//Pego o nome em Utf8 da classe. Comparar se ela eh Object.
+	    Utf8_info_t* this_class_name, name_compare;
+	    this_class_name = class->class_file.class_name;
+	    name_compare = string_to_utf8("java/lang/Object");
+	    if (compare_utf8(this_class_name, name_compare) != 0) {
+	    	printf("Erro: Class nao possui super classe\n", this_class_name);
+			exit(1);
+	    }
+	}
+
+	//Checkar se os fieldsref e methodsref da Constant Pool possuem nomes, classes e tipos validos. Como????
+	//Analisar apenas se esses itens sao bem formados.
+	//Poderia fazer junto com a checagem se o indice aponta para o lugar certo.
+
+
+}
+
+void linkClass (class_t* class) {
+	verificar(class);
+	preparar(class); //Estrutura montada para busca de metodos
+	//resolver(class);
+	class->status = CLASSE_NAO_INICIALIZADA; // Se nenhum erro ocorrer muda o estado da classe e retorna para a função.
+}
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// 	//Verificar se o code_length eh maior do que 0 e menor do que 65536.
+	// u2 i;
+	// u2 j;
+	// u4 tamanho;
+	// //Comeca do 0 ou do 1?
+	// for (i = 0; i < (class->class_file.fields_count - 1); i++) {
+	// 	/*Metodo que recebe um ponteiro para um atributo e retorna o code_length dele*/
+	// 	for (j = 0; j < (class->class_file.fields[i]->attributes_count - 1); j++) {
+	// 		tamanho = getCodeLength(class->class_file.fields[i]->attributes[j]);
+	// 		if ((tamanho < 0) || (tamanho > 65536)) {
+	// 	    	printf("Erro: code_length do campo com tamanho menor do que 0 ou maior do que 65536\n", this_class_name);
+	// 			exit(1);
+	// 		}
+	// 	}
+	// }
+ //    for (i = 0; i < (class->class_file.methods_counts - 1); i++) {
+	// 	for (j = 0; j < (class->class_file.methods[i]->attributes_count - 1); j++) {
+	// 		tamanho = getCodeLength(class->class_file.methods[i]->attributes[j]);
+	// 		if ((tamanho < 0) || (tamanho > 65536)) {
+	// 	    	printf("Erro: code_length do campo com tamanho menor do que 0 ou maior do que 65536\n", this_class_name);
+	// 			exit(1);
+	// 		}
+	// 	}
+	// }
+		//Tem que verificar varias static constraints sobre instrucao, como??
