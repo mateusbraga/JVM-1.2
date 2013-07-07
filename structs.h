@@ -275,12 +275,64 @@ typedef struct class_file_struct {
 
 // CLASS FILE FORMAT STUFF - END
 
+// JVM Types - BEGIN
+
+typedef enum any_type_tag_enum {PRIMITIVE, REFERENCE} any_type_tag_t;
+typedef enum reference_type_tag_enum {ARRAY, OBJECT} reference_type_tag_t;
+typedef enum primitive_type_tag_enum {BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE} primitive_type_tag_t;
+
+typedef struct any_type_struct any_type_t;
+
+typedef struct array_struct {
+    uint32_t length;
+    any_type_t *components;
+} array_t;
+
+typedef struct object_struct {
+    uint32_t length;
+    any_type_t *atributes;
+} object_t;
+
+typedef struct primitive_type_struct {
+    primitive_type_tag_t tag;
+    union primitive_type_struct_union{
+        int8_t val8;
+        int16_t val16;
+        int32_t val32;
+        int64_t val64;
+        uint16_t val_char;
+
+        float val_float;
+        double val_double;
+    } val;
+} primitive_type_t;
+
+typedef struct reference_type_struct {
+    reference_type_tag_t tag;
+    union reference_type_struct_union {
+        array_t array;
+        object_t object;
+    } val;
+} reference_type_t;
+
+struct any_type_struct {
+    any_type_tag_t tag;
+    union any_type_struct_union {
+        primitive_type_t primitive_val;
+        reference_type_t reference_val;
+    } val;
+};
+
+// JVM Types - END
+
 typedef enum {CLASSE_NAO_CARREGADA, CLASSE_NAO_LINKADA, CLASSE_NAO_INICIALIZADA, CLASSE_PRONTA } class_status_t;
 
 typedef struct class_struct {
     Utf8_info_t *class_name;
     class_status_t status;
     class_file_t class_file;
+    any_type_t** static_fields; // Array de ponteiros para campos estaticos
+    u2 static_field_length;
     //method* method_table; //TODO
 } class_t;
 
