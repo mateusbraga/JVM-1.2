@@ -278,7 +278,7 @@ typedef struct class_file_struct {
 // JVM Types - BEGIN
 
 typedef enum any_type_tag_enum {PRIMITIVE, REFERENCE} any_type_tag_t;
-typedef enum reference_type_tag_enum {ARRAY, OBJECT} reference_type_tag_t;
+typedef enum reference_type_tag_enum {ARRAY, OBJECT, NULL_REFERENCE} reference_type_tag_t;
 typedef enum primitive_type_tag_enum {BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE} primitive_type_tag_t;
 
 typedef struct any_type_struct any_type_t;
