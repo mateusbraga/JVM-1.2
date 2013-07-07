@@ -312,6 +312,7 @@ typedef struct reference_type_struct {
     union reference_type_struct_union {
         array_t array;
         object_t object;
+        void* val_null;
     } val;
 } reference_type_t;
 
