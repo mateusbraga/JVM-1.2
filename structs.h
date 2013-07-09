@@ -290,7 +290,7 @@ typedef struct array_struct {
 
 typedef struct object_struct {
     uint32_t length;
-    any_type_t *atributes;
+    any_type_t *attributes;
 } object_t;
 
 typedef struct primitive_type_struct {
@@ -334,8 +334,6 @@ typedef struct class_struct {
     class_status_t status;
     class_file_t class_file;
     any_type_t** static_fields; // Array de ponteiros para campos estaticos
-    u2 static_field_length;
-    //method* method_table; //TODO
 } class_t;
 
 typedef struct pc_struct {
