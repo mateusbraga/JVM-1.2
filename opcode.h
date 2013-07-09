@@ -1,3 +1,4 @@
+#include <stdlib.h>
 // Lista de opcode utilizada: http://en.wikipedia.org/wiki/Java_bytecode_instruction_listings
 // ------- Opcode functions ------
 
@@ -26,7 +27,7 @@ void sipush();
 // ------- Opcode array -------
 
 void (*jvm_opcode[])(void) = {
-    void ,aconst_null, iconst_m1, iconst_0, iconst_1, iconst_2, iconst_3, iconst_4, iconst_5, lconst_0, lconst_1,
+    NULL ,aconst_null, iconst_m1, iconst_0, iconst_1, iconst_2, iconst_3, iconst_4, iconst_5, lconst_0, lconst_1,
     fconst_0, fconst_1, dconst_0, dconst_1, bipush, sipush
     };
 
