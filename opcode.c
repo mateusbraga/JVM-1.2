@@ -8,12 +8,9 @@ extern frame_stack_t *jvm_stack;
 extern pc_t jvm_pc;
 
 /**
-* name: aconst_null
-* desc: push a null reference onto the stack
-* params: void
-* return: void
-**/
-
+ * Empilha uma referência nula na pilha de operandos
+ *
+ */
 void aconst_null(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -26,11 +23,9 @@ void aconst_null(){
 }
 
 /**
-* name: iconst_m1
-* desc: load the int value -1 onto the stack
-* params: void
-* return: void
-**/
+ * Empilha o valor int -1 na pilha de operandos
+ *
+ */
 void iconst_m1(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -43,11 +38,9 @@ void iconst_m1(){
 }
 
 /**
-* name: iconst_0
-* desc: load the int value 0 onto the stack
-* params: void
-* return: void
-**/
+ * Empilha o valor int 0 na pilha de operandos
+ *
+ */
 void iconst_0(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -60,11 +53,9 @@ void iconst_0(){
 }
 
 /**
-* name: iconst_1
-* desc: load the int value 1 onto the stack
-* params: void
-* return: void
-**/
+ * Empilha o valor int 1 na pilha de operandos
+ *
+ */
 void iconst_1(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -77,11 +68,9 @@ void iconst_1(){
 }
 
 /**
-* name: iconst_2
-* desc: load the int value 2 onto the stack
-* params: void
-* return: void
-**/
+ * Empilha o valor int 2 na pilha de operandos
+ *
+ */
 void iconst_2(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -94,11 +83,9 @@ void iconst_2(){
 }
 
 /**
-* name: iconst_3
-* desc: load the int value 3 onto the stack
-* params: void
-* return: void
-**/
+ * Empilha o valor int 3 na pilha de operandos
+ *
+ */
 void iconst_3(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -111,11 +98,9 @@ void iconst_3(){
 }
 
 /**
-* name: iconst_4
-* desc: load the int value 4 onto the stack
-* params: void
-* return: void
-**/
+ * Empilha o valor int 4 na pilha de operandos
+ *
+ */
 void iconst_4(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -128,11 +113,9 @@ void iconst_4(){
 }
 
 /**
-* name: iconst_5
-* desc: load the int value 5 onto the stack
-* params: void
-* return: void
-**/
+ * Empilha o valor int 5 na pilha de operandos
+ *
+ */
 void iconst_5(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -145,11 +128,9 @@ void iconst_5(){
 }
 
 /**
-* name: lconst_0
-* desc: load the long value 0 onto the stack
-* params: void
-* return: void
-**/
+ * Empilha o valor long 0 na pilha de operandos
+ *
+ */
 void lconst_0(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -162,11 +143,9 @@ void lconst_0(){
 }
 
 /**
-* name: lconst_1
-* desc: load the long value 1 onto the stack
-* params: void
-* return: void
-**/
+ * Empilha o valor long 1 na pilha de operandos
+ *
+ */
 void lconst_1(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -180,11 +159,9 @@ void lconst_1(){
 
 
 /**
-* name: fconst_0
-* desc: load the float value 0 onto the stack
-* params: void
-* return: void
-**/
+ * Empilha o valor float 0 na pilha de operandos
+ *
+ */
 void fconst_0(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -197,11 +174,9 @@ void fconst_0(){
 }
 
 /**
-* name: fconst_1
-* desc: load the float value 1 onto the stack
-* params: void
-* return: void
-**/
+ * Empilha o valor float 1 na pilha de operandos
+ *
+ */
 void fconst_1(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -214,11 +189,9 @@ void fconst_1(){
 }
 
 /**
-* name: fconst_2
-* desc: load the float value 2 onto the stack
-* params: void
-* return: void
-**/
+ * Empilha o valor float 2 na pilha de operandos
+ *
+ */
 void fconst_2(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -231,11 +204,9 @@ void fconst_2(){
 }
 
 /**
-* name: dconst_0
-* desc: load the double value 0 onto the stack
-* params: void
-* return: void
-**/
+ * Empilha o valor double 0 na pilha de operandos
+ *
+ */
 void dconst_0(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -248,11 +219,9 @@ void dconst_0(){
 }
 
 /**
-* name: dconst_1
-* desc: load the double value 1 onto the stack
-* params: void
-* return: void
-**/
+ * Empilha o valor double 1 na pilha de operandos
+ *
+ */
 void dconst_1(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -265,15 +234,13 @@ void dconst_1(){
 }
 
 /**
-* name: bipush
-* desc: push a byte onto the stack as an integer value
-* params: byte b
-* return: void
-**/
+ * Empilha byte b como int value na pilha de operandos.
+ *
+ */
 void bipush(){
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 b = code_attribute->code[jvm_pc.code_pc+1];
-    int value = (int32_t) b;
+    int32_t value = (int32_t) b;
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -287,11 +254,9 @@ void bipush(){
 }
 
 /**
-* name: sipush
-* desc: push a short onto the stack
-* params: byte b1, b2
-* return: void
-**/
+ * Empilha short b como int value na pilha de operandos.
+ *
+ */
 void sipush(){
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
@@ -311,11 +276,9 @@ void sipush(){
 
 
 /**
-* name: ldc
-* desc: push a constant #index from a constant pool (String, int or float) onto the stack
-* params: byte b
-* return: void
-**/
+ * Empilha (String, Integer, Float) constant_pool[index] na pilha de operandos.
+ *
+ */
 void ldc(){
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 b = code_attribute->code[jvm_pc.code_pc+1];
@@ -351,11 +314,9 @@ void ldc(){
 }
 
 /**
-* name: ldc_w
-* desc: push a constant #index from a constant pool (String, int or float) onto the stack (wide index is constructed as indexbyte1 << 8 + indexbyte2)
-* params: byte b1, byte b2
-* return: void
-**/
+ * Empilha (String, Integer, Float) constant_pool[wide_index] na pilha de operandos.
+ *
+ */
 void ldc_w(){
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
@@ -393,11 +354,9 @@ void ldc_w(){
 }
 
 /**
-* name: ldc2_w
-* desc: push a constant #index from a constant pool (double or long) onto the stack (wide index is constructed as indexbyte1 << 8 + indexbyte2)
-* params: byte b1, byte b2
-* return: void
-**/
+ * Empilha (Long, Double) constant_pool[index] na pilha de operandos.
+ *
+ */
 void ldc2_w(){
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
@@ -431,417 +390,212 @@ void ldc2_w(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
-void iload(){
-    uint32_t campo;
+/**
+ * Empilha na pilha de operandos any_type_t value de uma local_var[index]. Valida para todos os tload()
+ *
+ */
+void tload(){
+    any_type_t* operand;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var.var[index];
-
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = INT;
-    operand->val.primitive_val.val.val32 = campo;
+    operand = frame->local_var.var[index];
 
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
-void lload(){
-    uint32_t campo1;
-    uint32_t campo2;
+/**
+ * Empilha na pilha de operandos any_type_t value de uma local_var[0]. Valida para todos os tload_0()
+ *
+ */
+void tload_0(){
+    any_type_t* operand;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var.var[index];
-    campo2 = frame->local_var.var[index+1];
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = LONG;
-    operand->val.primitive_val.val.val64 = (int64_t) ((campo1<<8)|campo2);
-
-    push_operand_stack(&(frame->operand_stack), operand);
-
-}
-
-void fload(){
-    uint32_t campo;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var.var[index];
-
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = FLOAT;
-    operand->val.primitive_val.val.val_float = (float) campo;
-
-    push_operand_stack(&(frame->operand_stack), operand);
-
-}
-
-void dload(){
-    uint32_t campo1;
-    uint32_t campo2;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var.var[index];
-    campo2 = frame->local_var.var[index+1];
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = DOUBLE;
-    operand->val.primitive_val.val.val_double = (double)((campo1<<8)|campo2);
-
-    push_operand_stack(&(frame->operand_stack), operand);
-
-}
-
-void aload(){
-    uint32_t campo;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var.var[index];
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = REFERENCE;
-    operand->val.primitive_val.tag = ARRA;
-    operand->val.primitive_val.val.val_double = (double)((campo1<<8)|campo2);
+    operand = frame->local_var.var[0];
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
-void iload_0(){
-    uint32_t campo;
+/**
+ * Empilha na pilha de operandos any_type_t value de uma local_var[1]. Valida para todos os tload_1()
+ *
+ */
+void tload_1(){
+    any_type_t* operand;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var.var[0];
-
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = INT;
-    operand->val.primitive_val.val.val32 = campo;
-
-    push_operand_stack(&(frame->operand_stack), operand);
-
-}
-
-void iload_1(){
-    uint32_t campo;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var.var[1];
-
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = INT;
-    operand->val.primitive_val.val.val32 = campo;
-
-    push_operand_stack(&(frame->operand_stack), operand);
-
-}
-
-void iload_2(){
-    uint32_t campo;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var.var[2];
-
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = INT;
-    operand->val.primitive_val.val.val32 = campo;
-
-    push_operand_stack(&(frame->operand_stack), operand);
-
-}
-
-void iload_3(){
-    uint32_t campo;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var.var[3];
-
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = INT;
-    operand->val.primitive_val.val.val32 = campo;
-
-    push_operand_stack(&(frame->operand_stack), operand);
-
-}
-
-void lload_0(){
-    uint32_t campo1;
-    uint32_t campo2;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var.var[0];
-    campo2 = frame->local_var.var[1];
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = LONG;
-    operand->val.primitive_val.val.val64 = (int64_t) ((campo1<<8)|campo2);
+    operand = frame->local_var.var[1];
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
-void lload_1(){
-    uint32_t campo1;
-    uint32_t campo2;
+/**
+ * Empilha na pilha de operandos any_type_t value de uma local_var[2]. Valida para todos os tload_2()
+ *
+ */
+void tload_2(){
+    any_type_t* operand;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var.var[1];
-    campo2 = frame->local_var.var[2];
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = LONG;
-    operand->val.primitive_val.val.val64 = (int64_t) ((campo1<<8)|campo2);
-
-    push_operand_stack(&(frame->operand_stack), operand);
-
-}
-
-void lload_2(){
-    uint32_t campo1;
-    uint32_t campo2;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var.var[2];
-    campo2 = frame->local_var.var[3];
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = LONG;
-    operand->val.primitive_val.val.val64 = (int64_t) ((campo1<<8)|campo2);
-
-    push_operand_stack(&(frame->operand_stack), operand);
-
-}
-
-void lload_3(){
-    uint32_t campo1;
-    uint32_t campo2;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var.var[3];
-    campo2 = frame->local_var.var[4];
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = LONG;
-    operand->val.primitive_val.val.val64 = (int64_t) ((campo1<<8)|campo2);
+    operand = frame->local_var.var[2];
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
-void fload_0(){
-    uint32_t campo;
+/**
+ * Empilha na pilha de operandos any_type_t value de uma local_var[3]. Valida para todos os tload_3()
+ *
+ */
+void tload_3(){
+    any_type_t* operand;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var.var[0];
-
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = FLOAT;
-    operand->val.primitive_val.val.val_float = (float) campo;
+    operand = frame->local_var.var[3];
 
     push_operand_stack(&(frame->operand_stack), operand);
-
 }
 
-void fload_1(){
-    uint32_t campo;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-
+/**
+ * Carrega um anytype_t value de uma local_var[index]. Valida para todos os taload()
+ *
+ */
+void taload(){
+    any_type_t *index, *arrayref, *operand;
+    uint32_t int_index;
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var.var[1];
 
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    arrayref = pop_operand_stack(&(frame->operand_stack));
+    index = pop_operand_stack(&(frame->operand_stack));
 
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = FLOAT;
-    operand->val.primitive_val.val.val_float = (float) campo;
+    int_index = index->val.primitive_val.val.val32;
 
+    *operand = arrayref->val.reference_val.val.array.components[int_index];
     push_operand_stack(&(frame->operand_stack), operand);
-
 }
 
-void fload_2(){
-    uint32_t campo;
+/**
+ * Atribui any_type_t value a local_var[index]. Valida para todos os tstore()
+ *
+ */
+void tstore(){
+    any_type_t *value;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var.var[2];
+    value = pop_operand_stack(&(frame->operand_stack));
 
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = FLOAT;
-    operand->val.primitive_val.val.val_float = (float) campo;
-
-    push_operand_stack(&(frame->operand_stack), operand);
-
+    frame->local_var.var[index] = value;
+    if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
+            frame->local_var.var[index+1] = value;
 }
 
-void fload_3(){
-    uint32_t campo;
+/**
+ * Atribui any_type_t value a local_var[index]. Valida para todos os tstore_0()
+ *
+ */
+void tstore_0(){
+    any_type_t *value;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var.var[3];
+    value = pop_operand_stack(&(frame->operand_stack));
 
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = FLOAT;
-    operand->val.primitive_val.val.val_float = (float) campo;
-
-    push_operand_stack(&(frame->operand_stack), operand);
-
+    frame->local_var.var[0] = value;
+    if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
+            frame->local_var.var[1] = value;
 }
 
-void dload_0(){
-    uint32_t campo1;
-    uint32_t campo2;
-    int64_t campo;
+/**
+ * Atribui any_type_t value a local_var[index]. Valida para todos os tstore_1()
+ *
+ */
+void tstore_1(){
+    any_type_t *value;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var.var[0];
-    campo2 = frame->local_var.var[1];
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-    campo = (campo1<<8)|campo2;
+    value = pop_operand_stack(&(frame->operand_stack));
 
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = DOUBLE;
-    operand->val.primitive_val.val.val_double = (double) campo;
-
-    push_operand_stack(&(frame->operand_stack), operand);
-
+    frame->local_var.var[1] = value;
+    if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
+            frame->local_var.var[2] = value;
 }
 
-void dload_1(){
-    uint32_t campo1;
-    uint32_t campo2;
-    int64_t campo;
+/**
+ * Atribui any_type_t value a local_var[index]. Valida para todos os tstore_2()
+ *
+ */
+void tstore_2(){
+    any_type_t *value;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var.var[1];
-    campo2 = frame->local_var.var[2];
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-    campo = (campo1<<8)|campo2;
+    value = pop_operand_stack(&(frame->operand_stack));
 
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = DOUBLE;
-    operand->val.primitive_val.val.val_double = (double) campo;
-
-    push_operand_stack(&(frame->operand_stack), operand);
-
+    frame->local_var.var[2] = value;
+    if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
+            frame->local_var.var[3] = value;
 }
 
-void dload_2(){
-    uint32_t campo1;
-    uint32_t campo2;
-    int64_t campo;
+/**
+ * Atribui any_type_t value a local_var[index]. Valida para todos os tstore_3()
+ *
+ */
+void tstore_3(){
+    any_type_t *value;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var.var[2];
-    campo2 = frame->local_var.var[3];
-    campo = (campo1<<8)|campo2;
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
+    value = pop_operand_stack(&(frame->operand_stack));
 
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = DOUBLE;
-    operand->val.primitive_val.val.val_double = (double) campo;
-
-    push_operand_stack(&(frame->operand_stack), operand);
-
+    frame->local_var.var[3] = value;
+    if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
+            frame->local_var.var[4] = value;
 }
 
-void dload_3(){
-    uint32_t campo1;
-    uint32_t campo2;
-    int64_t campo;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-
+void tastore(){
+    any_type_t *index, *arrayref, *value;
+    uint32_t int_index;
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var.var[3];
-    campo2 = frame->local_var.var[4];
-    campo = (campo1<<8)|campo2;
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = DOUBLE;
-    operand->val.primitive_val.val.val_double = (double) campo;
+    arrayref = pop_operand_stack(&(frame->operand_stack));
+    index = pop_operand_stack(&(frame->operand_stack));
+    value = pop_operand_stack(&(frame->operand_stack));
 
-    push_operand_stack(&(frame->operand_stack), operand);
+    int_index = index->val.primitive_val.val.val32;
 
+    arrayref->val.reference_val.val.array.components[int_index] = *value;
 }
 
 void tableswitch() {
