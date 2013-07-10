@@ -1,5 +1,5 @@
 EXE = jvm
-SOURCES = jvm.c frame_stack.c loader.c linker.c initializer.c
+SOURCES = jvm.c frame_stack.c loader.c linker.c initializer.c opcode.c
 OBJECTS := $(SOURCES:%.c=%.o)
 CFLAGS = -Wall -std=c99 -pedantic
 CC = gcc
