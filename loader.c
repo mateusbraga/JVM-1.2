@@ -15,11 +15,14 @@ attribute_info_t* GetAtributos(class_file_t* classe, FILE *fp, u2 attributesCoun
         atributos[i].attribute_name_index = readu2(fp);
         atributos[i].attribute_length = readu4(fp);
         nome = &(classe->constant_pool[atributos[i].attribute_name_index].info.Utf8);
+        printf("Nome do atributo: %s\n", utf8_to_string(nome));
         if(compare_utf8(nome, string_to_utf8("ConstantValue")) == 0) {
             atributos[i].info.constant_value.attribute_name_index = atributos[i].attribute_name_index;
             atributos[i].info.constant_value.attribute_length = atributos[i].attribute_length;
             atributos[i].info.constant_value.constantvalue_index = readu2(fp);
         } else if(compare_utf8(nome, string_to_utf8("Code")) == 0) {
+            printf("Nome do atributo: %s\n", utf8_to_string(nome));
+
             atributos[i].info.code.attribute_name_index = atributos[i].attribute_name_index;
             atributos[i].info.code.attribute_length = atributos[i].attribute_length;
             atributos[i].info.code.max_stack = readu2(fp);
@@ -38,7 +41,7 @@ attribute_info_t* GetAtributos(class_file_t* classe, FILE *fp, u2 attributesCoun
                 atributos[i].info.code.exception_table->catch_type = readu2(fp);
             }
             atributos[i].info.code.attributes_count = readu2(fp);
-            /*atributos[i].info.code.attributes = GetAtributos(classe, fp,atributos[i].info.code.attributes_count);*/
+            atributos[i].info.code.attributes = GetAtributos(classe, fp,atributos[i].info.code.attributes_count);
         } else if(compare_utf8(nome, string_to_utf8("Exceptions")) == 0) {
             atributos[i].info.exception.attribute_name_index = atributos[i].attribute_name_index;
             atributos[i].info.exception.attribute_length = atributos[i].attribute_length;
@@ -48,11 +51,7 @@ attribute_info_t* GetAtributos(class_file_t* classe, FILE *fp, u2 attributesCoun
                 atributos[i].info.exception.exception_index_table[j] = readu2(fp);
             }
         } else {
-            printf("GetAttributos ignorou attributo\n");
-            /*atributos[i].info = (u1*)calloc(sizeof(u1), atributos[i].attribute_length);*/
-            /*for(j = 0; j < atributos[i].attribute_length; j++){*/
-                /*((u1*)(atributos[i].info))[j] = readu1(fp);                      */
-            /*}*/
+           printf("GetAttributos ignorou attributo: %s\n", utf8_to_string(nome));
         }
 
     }
@@ -71,7 +70,10 @@ method_info_t* GetMetodo(class_file_t* classe,  FILE *fp, u2 methodsCount){
         metodos[i].name_index = readu2(fp);
         metodos[i].descriptor_index = readu2(fp);
         metodos[i].attributes_count = readu2(fp);
+        Utf8_info_t* method_name = &(classe->constant_pool[metodos[i].name_index].info.Utf8);
+        printf("Method %s - %d atributos\n", utf8_to_string(method_name), metodos[i].attributes_count);
         metodos[i].attributes = GetAtributos(classe, fp, metodos[i].attributes_count);
+        printf("Done2\n");
     }
 
     return metodos;
@@ -208,6 +210,7 @@ void set_class_file(class_t* class){
     classe->fields = GetFields(classe, fp, classe->fields_count);
     classe->methods_count = readu2(fp);
     classe->methods = GetMetodo(classe, fp, classe->methods_count);
+    printf("Done\n");
     classe->attributes_count = readu2(fp);
     classe->attributes = GetAtributos(classe, fp , classe->attributes_count);
 }
@@ -217,6 +220,7 @@ void set_class_file(class_t* class){
 void loadClass(class_t* class){
     set_class_file(class);
     class->status = CLASSE_NAO_LINKADA;
+    printf("Done loadClass\n");
 }
 
 
