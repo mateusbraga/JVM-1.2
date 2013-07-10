@@ -1,8 +1,9 @@
 #/* Estrutura do arquivo CLASS */
 
-#ifndef LOADER_H_
+#ifndef loADER_H_
 #define LOADER_H_
 
+#include <stdio.h>
 #include "structs.h"
 
 /* macro para leitura dos dados do arquivo */
@@ -18,15 +19,15 @@ u1 readu1(FILE *fp);
    */
 
 /*
-A partir de um nome passado a função lê um arquivo e monta a classe a partir
+A partir do nome no argumento a função lê um arquivo e monta a classe a partir
 dele.
  
 Parâmetros
-        filename - nome do arquivo a ser lido
+        class - estrutura de uma classe
 
-Retorno: ponteiro para a estrutura onde a classe está armazenada
+Retorno: nada
 */
-class_file* class_file(char* filename);
+void set_class_file(class_t* class);
 /*
 Lê um arquivo e monta a tabela de constantes a partir dele
 
@@ -36,7 +37,7 @@ Parâmetros:
 
 Retorno: ponteiro para a tabela de constantes
 */
-cp_info_t* GetConstantes(FILE *fp, int constantCount);
+cp_info_t* GetConstantes(FILE *fp, u2 constantCount);
 /*
 Lê um arquivo e monta a tabela de atributos
  
@@ -47,7 +48,7 @@ Parâmetros
 
 Retorno: ponteiro para a tabela de atributos
 */
-attribute_info_t* GetAtributos(class_file* classe, FILE *fp, int attributesCount);
+attribute_info_t* GetAtributos(class_file_t* classe, FILE *fp, u2 attributesCount);
 /*
 Lê um arquivo e monta a tabela de métodos
  
@@ -58,7 +59,7 @@ Parâmetros
        
 Retorno: ponteiro para a tabela de métodos
 */
-method_info_t* GetMetodo(class_file* classe,  FILE *fp, int methodsCount);
+method_info_t* GetMetodo(class_file_t* classe,  FILE *fp, u2 methodsCount);
 /*
 Lê um arquivo e monta a tabela de campos
  
@@ -69,7 +70,7 @@ Parâmetros
 
 Retorno: ponteiro para a tabela de campos
 */
-field_info_t* GetFields(class_file* classe, FILE *fp, int fieldCount);
+field_info_t* GetFields(class_file_t* classe, FILE *fp, u2 fieldCount);
 
 
 
