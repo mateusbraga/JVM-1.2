@@ -519,8 +519,8 @@ void aload(){
     campo = frame->local_var.var[index];
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = DOUBLE;
+    operand->tag = REFERENCE;
+    operand->val.primitive_val.tag = ARRA;
     operand->val.primitive_val.val.val_double = (double)((campo1<<8)|campo2);
 
     push_operand_stack(&(frame->operand_stack), operand);
