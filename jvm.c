@@ -40,6 +40,20 @@ Utf8_info_t* string_to_utf8(char* a) {
 }
 
 /**
+ * Converte um Utf8_info_t* em um char*
+ *
+ * @param String utf8 a ser convertida
+ * @return string criada.
+ */
+char* utf8_to_string(Utf8_info_t* utf8) {
+    char* string = NULL;
+    string = (char*) malloc(sizeof(char) * utf8->length + 1);
+    strncpy(string, (char*) utf8->bytes, utf8->length);
+    string[utf8->length] = '\0';
+    return string;
+}
+
+/**
  * Compara dois utf8.
  *
  * @param Primeiro utf8
