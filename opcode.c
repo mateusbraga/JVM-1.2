@@ -432,411 +432,415 @@ void ldc2_w(){
 }
 
 void iload(){
-    uint32_t *campo;
+    uint32_t campo;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    *campo = frame->local_var[index].var;
+    campo = frame->local_var.var[index];
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
-    operand->val.primitive_val.val.val32 = *campo;
+    operand->val.primitive_val.val.val32 = campo;
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void lload(){
-    uint32_t *campo1;
-    uint32_t *campo2;
+    uint32_t campo1;
+    uint32_t campo2;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var[index].var;
-    campo2 = frame->local_var[index+1].var;
+    campo1 = frame->local_var.var[index];
+    campo2 = frame->local_var.var[index+1];
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = LONG;
-    operand->val.primitive_val.val.val64 = ((*campo1)<<8)|(*campo2);
+    operand->val.primitive_val.val.val64 = (int64_t) ((campo1<<8)|campo2);
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void fload(){
-    uint32_t *campo;
+    uint32_t campo;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    *campo = frame->local_var[index].var;
+    campo = frame->local_var.var[index];
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
-    operand->val.primitive_val.val.val_float = *campo;
+    operand->val.primitive_val.val.val_float = (float) campo;
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void dload(){
-    uint32_t *campo1;
-    uint32_t *campo2;
+    uint32_t campo1;
+    uint32_t campo2;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var[index].var;
-    campo2 = frame->local_var[index+1].var;
+    campo1 = frame->local_var.var[index];
+    campo2 = frame->local_var.var[index+1];
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = DOUBLE;
-    operand->val.primitive_val.val.val_double = ((*campo1)<<8)|(*campo2);
+    operand->val.primitive_val.val.val_double = (double)((campo1<<8)|campo2);
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
-void iload_0(){
-    uint32_t *campo;
+void aload(){
+    uint32_t campo;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var[0].var;
+    campo = frame->local_var.var[index];
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
+
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = DOUBLE;
+    operand->val.primitive_val.val.val_double = (double)((campo1<<8)|campo2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void iload_0(){
+    uint32_t campo;
+
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
+    u1 index = code_attribute->code[jvm_pc.code_pc+1];
+
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    campo = frame->local_var.var[0];
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
-    operand->val.primitive_val.val.val32 = *campo;
+    operand->val.primitive_val.val.val32 = campo;
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void iload_1(){
-    uint32_t *campo;
+    uint32_t campo;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var[1].var;
+    campo = frame->local_var.var[1];
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
-    operand->val.primitive_val.val.val32 = *campo;
+    operand->val.primitive_val.val.val32 = campo;
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void iload_2(){
-    uint32_t *campo;
+    uint32_t campo;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var[2].var;
+    campo = frame->local_var.var[2];
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
-    operand->val.primitive_val.val.val32 = *campo;
+    operand->val.primitive_val.val.val32 = campo;
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
-void iload_3(){}
-    uint32_t *campo;
+void iload_3(){
+    uint32_t campo;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo = frame->local_var[3].var;
+    campo = frame->local_var.var[3];
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
-    operand->val.primitive_val.val.val32 = *campo;
+    operand->val.primitive_val.val.val32 = campo;
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void lload_0(){
-    uint32_t *campo1;
-    uint32_t *campo2;
+    uint32_t campo1;
+    uint32_t campo2;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var[0].var;
-    campo2 = frame->local_var[1].var;
+    campo1 = frame->local_var.var[0];
+    campo2 = frame->local_var.var[1];
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = LONG;
-    operand->val.primitive_val.val.val64 = ((*campo1)<<8)|(*campo2);
+    operand->val.primitive_val.val.val64 = (int64_t) ((campo1<<8)|campo2);
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
-
 }
 
 void lload_1(){
-    uint32_t *campo1;
-    uint32_t *campo2;
+    uint32_t campo1;
+    uint32_t campo2;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var[1].var;
-    campo2 = frame->local_var[2].var;
+    campo1 = frame->local_var.var[1];
+    campo2 = frame->local_var.var[2];
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = LONG;
-    operand->val.primitive_val.val.val64 = ((*campo1)<<8)|(*campo2);
+    operand->val.primitive_val.val.val64 = (int64_t) ((campo1<<8)|campo2);
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void lload_2(){
-    uint32_t *campo1;
-    uint32_t *campo2;
+    uint32_t campo1;
+    uint32_t campo2;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var[2].var;
-    campo2 = frame->local_var[3].var;
+    campo1 = frame->local_var.var[2];
+    campo2 = frame->local_var.var[3];
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = LONG;
-    operand->val.primitive_val.val.val64 = ((*campo1)<<8)|(*campo2);
+    operand->val.primitive_val.val.val64 = (int64_t) ((campo1<<8)|campo2);
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void lload_3(){
-    uint32_t *campo1;
-    uint32_t *campo2;
+    uint32_t campo1;
+    uint32_t campo2;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var[3].var;
-    campo2 = frame->local_var[4].var;
+    campo1 = frame->local_var.var[3];
+    campo2 = frame->local_var.var[4];
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = LONG;
-    operand->val.primitive_val.val.val64 = ((*campo1)<<8)|(*campo2);
+    operand->val.primitive_val.val.val64 = (int64_t) ((campo1<<8)|campo2);
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void fload_0(){
-    uint32_t *campo;
+    uint32_t campo;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    *campo = frame->local_var[0].var;
+    campo = frame->local_var.var[0];
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
-    operand->val.primitive_val.val.val_float = *campo;
+    operand->val.primitive_val.val.val_float = (float) campo;
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void fload_1(){
-    uint32_t *campo;
+    uint32_t campo;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    *campo = frame->local_var[1].var;
+    campo = frame->local_var.var[1];
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
-    operand->val.primitive_val.val.val_float = *campo;
+    operand->val.primitive_val.val.val_float = (float) campo;
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void fload_2(){
-    uint32_t *campo;
+    uint32_t campo;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    *campo = frame->local_var[2].var;
+    campo = frame->local_var.var[2];
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
-    operand->val.primitive_val.val.val_float = *campo;
+    operand->val.primitive_val.val.val_float = (float) campo;
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void fload_3(){
-    uint32_t *campo;
+    uint32_t campo;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    *campo = frame->local_var[3].var;
+    campo = frame->local_var.var[3];
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
-    operand->val.primitive_val.val.val_float = *campo;
+    operand->val.primitive_val.val.val_float = (float) campo;
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void dload_0(){
-    uint32_t *campo1;
-    uint32_t *campo2;
+    uint32_t campo1;
+    uint32_t campo2;
+    int64_t campo;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var[0].var;
-    campo2 = frame->local_var[1].var;
+    campo1 = frame->local_var.var[0];
+    campo2 = frame->local_var.var[1];
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
+    campo = (campo1<<8)|campo2;
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = DOUBLE;
-    operand->val.primitive_val.val.val_double = ((*campo1)<<8)|(*campo2);
+    operand->val.primitive_val.val.val_double = (double) campo;
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void dload_1(){
-    uint32_t *campo1;
-    uint32_t *campo2;
+    uint32_t campo1;
+    uint32_t campo2;
+    int64_t campo;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var[1].var;
-    campo2 = frame->local_var[2].var;
+    campo1 = frame->local_var.var[1];
+    campo2 = frame->local_var.var[2];
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
+    campo = (campo1<<8)|campo2;
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = DOUBLE;
-    operand->val.primitive_val.val.val_double = ((*campo1)<<8)|(*campo2);
+    operand->val.primitive_val.val.val_double = (double) campo;
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void dload_2(){
-    uint32_t *campo1;
-    uint32_t *campo2;
+    uint32_t campo1;
+    uint32_t campo2;
+    int64_t campo;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var[2].var;
-    campo2 = frame->local_var[3].var;
+    campo1 = frame->local_var.var[2];
+    campo2 = frame->local_var.var[3];
+    campo = (campo1<<8)|campo2;
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = DOUBLE;
-    operand->val.primitive_val.val.val_double = ((*campo1)<<8)|(*campo2);
+    operand->val.primitive_val.val.val_double = (double) campo;
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
 
 void dload_3(){
-    uint32_t *campo1;
-    uint32_t *campo2;
+    uint32_t campo1;
+    uint32_t campo2;
+    int64_t campo;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    campo1 = frame->local_var[3].var;
-    campo2 = frame->local_var[4].var;
+    campo1 = frame->local_var.var[3];
+    campo2 = frame->local_var.var[4];
+    campo = (campo1<<8)|campo2;
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = DOUBLE;
-    operand->val.primitive_val.val.val_double = ((*campo1)<<8)|(*campo2);
+    operand->val.primitive_val.val.val_double = (double) campo;
 
-    frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
