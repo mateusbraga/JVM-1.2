@@ -10,7 +10,6 @@
 #include "loader.h"
 #include "linker.h"
 #include "initializer.h"
-#include "opcode.h"
 
 #define MAX_NUM_OF_CLASSES 65535
 

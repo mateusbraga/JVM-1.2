@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "opcode.h"
 #include "frame_stack.h"
 #include "structs.h"
@@ -6,6 +7,16 @@
 extern frame_stack_t *jvm_stack;
 
 extern pc_t jvm_pc;
+
+void (*jvm_opcode[])(void) = {
+    NULL ,aconst_null, iconst_m1, iconst_0, iconst_1, iconst_2, iconst_3, iconst_4, iconst_5, lconst_0, lconst_1,
+    fconst_0, fconst_1, dconst_0, dconst_1, bipush, sipush, ldc, ldc_w, ldc2_w, tload, tload, tload, tload, tload,
+    tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3,
+    tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3, taload, taload, taload, taload, taload,
+    taload, taload, taload, tstore, tstore, tstore, tstore, tstore, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1,
+    tstore_3, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1, tstore_3, tstore_0,
+    tstore_1, tstore_3, tastore, tastore, tastore, tastore, tastore, tastore, tastore, tastore
+    };
 
 /**
  * Empilha uma referência nula na pilha de operandos
@@ -238,7 +249,7 @@ void dconst_1(){
  *
  */
 void bipush(){
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
     u1 b = code_attribute->code[jvm_pc.code_pc+1];
     int32_t value = (int32_t) b;
 
@@ -258,7 +269,7 @@ void bipush(){
  *
  */
 void sipush(){
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     int16_t aux = (b1 << 8) | b2;
@@ -280,7 +291,7 @@ void sipush(){
  *
  */
 void ldc(){
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
     u1 b = code_attribute->code[jvm_pc.code_pc+1];
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     u4 bytes;
@@ -318,7 +329,7 @@ void ldc(){
  *
  */
 void ldc_w(){
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 b = (b1<<8)|b2;
@@ -358,7 +369,7 @@ void ldc_w(){
  *
  */
 void ldc2_w(){
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 b = (b1<<8)|b2;
@@ -397,7 +408,7 @@ void ldc2_w(){
 void tload(){
     any_type_t* operand;
 
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
     operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -415,10 +426,6 @@ void tload(){
 void tload_0(){
     any_type_t* operand;
 
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-    operand = (any_type_t*) malloc(sizeof(any_type_t));
-
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[0];
 
@@ -431,10 +438,6 @@ void tload_0(){
  */
 void tload_1(){
     any_type_t* operand;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-    operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[1];
@@ -449,10 +452,6 @@ void tload_1(){
 void tload_2(){
     any_type_t* operand;
 
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-    operand = (any_type_t*) malloc(sizeof(any_type_t));
-
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[2];
 
@@ -465,10 +464,6 @@ void tload_2(){
  */
 void tload_3(){
     any_type_t* operand;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-    operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[3];
@@ -502,7 +497,7 @@ void taload(){
 void tstore(){
     any_type_t *value;
 
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -520,9 +515,6 @@ void tstore(){
 void tstore_0(){
     any_type_t *value;
 
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-
     frame_t *frame = peek_frame_stack(jvm_stack);
     value = pop_operand_stack(&(frame->operand_stack));
 
@@ -537,9 +529,6 @@ void tstore_0(){
  */
 void tstore_1(){
     any_type_t *value;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     value = pop_operand_stack(&(frame->operand_stack));
@@ -556,9 +545,6 @@ void tstore_1(){
 void tstore_2(){
     any_type_t *value;
 
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
-    u1 index = code_attribute->code[jvm_pc.code_pc+1];
-
     frame_t *frame = peek_frame_stack(jvm_stack);
     value = pop_operand_stack(&(frame->operand_stack));
 
@@ -573,8 +559,6 @@ void tstore_2(){
  */
 void tstore_3(){
     any_type_t *value;
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     value = pop_operand_stack(&(frame->operand_stack));
@@ -606,7 +590,7 @@ void tableswitch() {
     u1 byte3 = 0;
     u1 byte4 = 0;
 
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
 
     offset += 4 - (jvm_pc.code_pc % 4); //allignment bytes
 
