@@ -8,7 +8,7 @@
 Utf8_info_t* string_to_utf8(char* a);
 int compare_utf8(Utf8_info_t* a, Utf8_info_t* b);
 u2 get_utf8_length_from_char(char* string);
-uint16_t scan_utf8_char_from_char(char* string, u2 *pos);
+u2 scan_utf8_char_from_char(char* string, u2 *pos);
 any_type_t* char_to_array_reference(char* string);
 any_type_t* utf8_to_array_reference(Utf8_info_t* utf8);
 // UTF8 STUFF - END
@@ -24,7 +24,7 @@ int isSuperClassOf(class_t* super_class, class_t* sub_class);
 // METHOD STUFF - BEGIN
 code_attribute_t* getCodeAttribute(class_t* class, method_info_t* method);
 int hasReturnValue(class_t* class, method_info_t* method);
-method_info_t* getMethod(class_t* class, Utf8_info_t* method_name);
+method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor);
 int getNumberOfArguments(class_t* class, method_info_t* method);
 // METHOD STUFF - END
 

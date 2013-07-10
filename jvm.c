@@ -10,6 +10,7 @@
 #include "loader.h"
 #include "linker.h"
 #include "initializer.h"
+#include "opcode.h"
 
 #define MAX_NUM_OF_CLASSES 65535
 
@@ -25,6 +26,13 @@ class_t *jvm_classes[MAX_NUM_OF_CLASSES];
 
 
 // UTF8 STUFF - BEGIN
+
+/**
+ * Converte um char* para um Utf8_info_t*
+ *
+ * @param String a ser convertida
+ * @return Estrutura Utf8 criada.
+ */
 Utf8_info_t* string_to_utf8(char* a) {
     Utf8_info_t* utf8 = (Utf8_info_t*) malloc(sizeof(Utf8_info_t));
     utf8->length = strlen(a);
@@ -32,6 +40,13 @@ Utf8_info_t* string_to_utf8(char* a) {
     return utf8;
 }
 
+/**
+ * Compara dois utf8.
+ *
+ * @param Primeiro utf8
+ * @param Segundo utf8
+ * @return 0 se os utf8s são iguais.
+ */
 int compare_utf8(Utf8_info_t* a, Utf8_info_t* b) {
     if (a->length == b->length) {
         return strncmp((char*) a->bytes,(char*) b->bytes, b->length);
@@ -39,6 +54,12 @@ int compare_utf8(Utf8_info_t* a, Utf8_info_t* b) {
     return -1;
 }
 
+/**
+ * Retorna o numero de caracteres em utf8 representada na string.
+ *
+ * @param String com possíveis caracteres em utf8.
+ * @return número de caractéres em utf8
+ */
 u2 get_utf8_length_from_char(char* string) {
     u2 counter = 0;
     u2 length = strlen(string);
@@ -59,7 +80,14 @@ u2 get_utf8_length_from_char(char* string) {
     return counter;
 }
 
-uint16_t scan_utf8_char_from_char(char* string, u2 *pos) {
+/**
+ * Leia o próximo caractere que começa em pos. Altera pos para o possível próximo caractere a ler.
+ *
+ * @param String com possíveis caracteres em utf8.
+ * @param Posição em string do caractere a ler
+ * @return valor do caractere em u2
+ */
+u2 scan_utf8_char_from_char(char* string, u2 *pos) {
     u2 original_pos = *pos;
 
     if((string[original_pos] & 0xe0) == 0xe0) {
@@ -86,6 +114,12 @@ uint16_t scan_utf8_char_from_char(char* string, u2 *pos) {
     }
 }
 
+/**
+ * Cria um any_type_t que é uma array de caracteres a partir da string.
+ *
+ * @param String com caracteres
+ * @return any_type_t* criada
+ */
 any_type_t* char_to_array_reference(char* string) {
     any_type_t* value = (any_type_t *) malloc(sizeof(any_type_t));
 
@@ -107,6 +141,12 @@ any_type_t* char_to_array_reference(char* string) {
     return value;
 }
 
+/**
+ * Cria um any_type_t que é uma array de caracteres a partir da utf8.
+ *
+ * @param UTF8 base
+ * @return any_type_t* criada
+ */
 any_type_t* utf8_to_array_reference(Utf8_info_t* utf8) {
     char* string = (char*) malloc(utf8->length + 1);
     strncpy(string, (char*) utf8->bytes, utf8->length);
@@ -118,25 +158,12 @@ any_type_t* utf8_to_array_reference(Utf8_info_t* utf8) {
 
 // CLASS_T STUFF - BEGIN
 
-/* Procura e retorna classe com nome
- *
- * input: class_name Nome da classe
- * return: class ou NULL se não achar
- */
-class_t *getClass(Utf8_info_t* class_name) {
-    int i = 0;
-    for (i = 0; i < jvm_number_of_classes; ++i) {
-        if(compare_utf8(jvm_classes[i]->class_name, class_name) == 0) {
-            return jvm_classes[i];
-        }
-    }
-    return NULL;
-}
 
-/* Cria e retorna classe com nome
+/**
+ * Cria a estrutura class_t da classe com nome class_name
  *
- * input: class_name Nome da classe
- * return: Classe criada
+ * @param Nome da classe em UTF8
+ * @return Estrutura da classe criada
  */
 class_t *createClass(Utf8_info_t* class_name) {
     jvm_number_of_classes++;
@@ -147,15 +174,51 @@ class_t *createClass(Utf8_info_t* class_name) {
     return jvm_classes[jvm_number_of_classes];
 }
 
+/**
+ * Retorna a classe com nome class_name
+ *
+ * @param Nome da classe em UTF8
+ * @return Classe procurada
+ */
+class_t *getClass(Utf8_info_t* class_name) {
+    int i = 0;
+    for (i = 0; i < jvm_number_of_classes; ++i) {
+        if(compare_utf8(jvm_classes[i]->class_name, class_name) == 0) {
+            return jvm_classes[i];
+        }
+    }
+    return createClass(class_name);
+}
+
+/**
+ * Retorna a classe pai da classe sub_class
+ *
+ * @param Classe subclasse
+ * @return Classe superclasse
+ */
 class_t* getSuperClass(class_t* sub_class) {
     u2 class_name_index = sub_class->class_file.constant_pool[sub_class->class_file.super_class].info.Class.name_index;
     return getClass(&(sub_class->class_file.constant_pool[class_name_index].info.Utf8));
 }
 
+/**
+ * Retorna se as classes são as mesmas
+ *
+ * @param Classe
+ * @param Classe
+ * @return 1 ou 0
+ */
 int isSameClass(class_t* a, class_t* b) {
     return (compare_utf8(a->class_name, b->class_name) == 0);
 }
 
+/**
+ * Retorna se a classe super_class é uma classe ancestral de sub_class
+ *
+ * @param Classe
+ * @param Classe
+ * @return 1 ou 0
+ */
 int isSuperClassOf(class_t* super_class, class_t* sub_class) {
     class_t* class = sub_class;
     while(compare_utf8(string_to_utf8("java/lang/Object"), class->class_name) != 0) {
@@ -169,6 +232,14 @@ int isSuperClassOf(class_t* super_class, class_t* sub_class) {
 // CLASS_T STUFF - END
 
 // METHOD STUFF - BEGIN
+
+/**
+ * Retorna Code attribute do método method da classe class.
+ *
+ * @param Classe do método
+ * @param Método do code attribute
+ * @return Code attribute
+ */
 code_attribute_t* getCodeAttribute(class_t* class, method_info_t* method) {
     int i = 0;
     for (i = 0; method->attributes_count; i++) {
@@ -185,6 +256,13 @@ code_attribute_t* getCodeAttribute(class_t* class, method_info_t* method) {
     exit(1);
 }
 
+/**
+ * Retorna se método retorna algo
+ *
+ * @param Classe do método
+ * @param Método
+ * @return 1 ou 0
+ */
 int hasReturnValue(class_t* class, method_info_t* method) {
     u1* b = class->class_file.constant_pool[method->descriptor_index].info.Utf8.bytes;
     u2 length = class->class_file.constant_pool[method->descriptor_index].info.Utf8.length;
@@ -198,7 +276,39 @@ int hasReturnValue(class_t* class, method_info_t* method) {
     return 1;
 }
 
-method_info_t* getMethod(class_t* class, Utf8_info_t* method_name) {
+/**
+ * Retorna método com nome method_name da classe sem ser recursivo
+ *
+ * @param Classe do método
+ * @param Nome do método em utf8
+ * @param Descriptor do método em utf8
+ * @return Método
+ */
+method_info_t* getMethod2(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
+    int i = 0;
+    for (i = 0; class->class_file.methods_count; i++) {
+        method_info_t* method = &(class->class_file.methods[i]);
+        Utf8_info_t* method_name_aux = &(class->class_file.constant_pool[method->name_index].info.Utf8);
+
+        if (compare_utf8(method_name, method_name_aux) == 0) {
+            Utf8_info_t* descriptor_aux = &(class->class_file.constant_pool[method->descriptor_index].info.Utf8);
+            if (compare_utf8(descriptor, descriptor_aux) == 0) {
+                return method;
+            }
+        }
+    }
+    return NULL;
+}
+
+/**
+ * Retorna método com nome method_name da classe fazendo resolução completa
+ *
+ * @param Classe do método
+ * @param Nome do método em utf8
+ * @param Descriptor do método em utf8
+ * @return Método
+ */
+method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
     if (class->status == CLASSE_NAO_CARREGADA) {
         loadClass(class);
     }
@@ -209,19 +319,27 @@ method_info_t* getMethod(class_t* class, Utf8_info_t* method_name) {
         initializeClass(class);
     }
 
-    int i = 0;
-    for (i = 0; class->class_file.methods_count; i++) {
-        method_info_t* method = &(class->class_file.methods[i]);
-        Utf8_info_t* method_name2 = &(class->class_file.constant_pool[method->name_index].info.Utf8);
+    method_info_t* method = getMethod2(class, method_name, descriptor);
+    while (method == NULL) {
+        //TODO see if it is an Object method
+        class = getSuperClass(class);
 
-        if (compare_utf8(method_name, method_name2) == 0) {
-            return method;
+        method = getMethod2(class, method_name, descriptor);
+        if ((method->access_flags & ACC_PRIVATE) == ACC_PRIVATE) {
+            printf("ERROR: Founded method is private\n");
+            exit(1);
         }
     }
-    printf("ERROR: Could not find method");
-    exit(1);
+    return method;
 }
 
+/**
+ * Retorna o número de argumentos que o método precisa
+ *
+ * @param Classe do método
+ * @param Método
+ * @return Número de argumentos
+ */
 int getNumberOfArguments(class_t* class, method_info_t* method) {
     u1* b = class->class_file.constant_pool[method->descriptor_index].info.Utf8.bytes;
     u2 length = class->class_file.constant_pool[method->descriptor_index].info.Utf8.length;
@@ -264,6 +382,13 @@ int getNumberOfArguments(class_t* class, method_info_t* method) {
 
 // OPCODE STUFF - BEGIN
 
+/**
+ * Retorna o número de bytes com operandos do opcode que começa em code[index]
+ *
+ * @param Array dos opcode
+ * @param Index do opcode
+ * @return Número de bytes com operandos
+ */
 int getNumberOfOpcodeOperandsInBytes(u1* code, u1 index) {
     int counter = 0;
     int padding = 0;
@@ -387,6 +512,10 @@ int getNumberOfOpcodeOperandsInBytes(u1* code, u1 index) {
     return 0;
 }
 
+/**
+ * Avança jvm_pc.code_pc para o próximo opcode
+ *
+ */
 void goToNextOpcode() {
     code_attribute_t* code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
 
@@ -395,6 +524,11 @@ void goToNextOpcode() {
 // OPCODE STUFF - END
 
 // JVM OPERATION STUFF - START
+/**
+ * Levanta uma exceção
+ *
+ * @param Classe da exceção
+ */
 void throwException(class_t* exception_class) {
     // check for handlers 
     code_attribute_t* code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
@@ -429,6 +563,10 @@ void throwException(class_t* exception_class) {
     free(frame);
 }
 
+/**
+ * Retorna da função atual
+ *
+ */
 void returnFromFunction() {
     // pop stack
     frame_t *frame = pop_frame_stack(&jvm_stack);
@@ -452,6 +590,12 @@ void returnFromFunction() {
 }
 
 
+/**
+ * Chama método
+ *
+ * @param Classe do método
+ * @param Método a ser chamado
+ */
 void callMethod(class_t* class, method_info_t* method) {
     if (class->status == CLASSE_NAO_CARREGADA) {
         loadClass(class);
@@ -471,7 +615,7 @@ void callMethod(class_t* class, method_info_t* method) {
     frame->current_method = method;
     frame->return_address = jvm_pc;
     frame->local_var.size = code_attribute->max_locals; 
-    frame->local_var.var = (uint32_t*) malloc(frame->local_var.size * sizeof(uint32_t));
+    frame->local_var.var = (any_type_t**) malloc(frame->local_var.size * sizeof(any_type_t*));
     frame->operand_stack.depth = 0;
     frame->operand_stack.head = 0;
     frame->operand_stack.size = code_attribute->max_stack;
@@ -487,7 +631,7 @@ void callMethod(class_t* class, method_info_t* method) {
     int local_var_index = 0;
     for (i = 0; i < number_of_arguments; i++) {
         any_type_t *operand = pop_operand_stack(&(invokerFrame->operand_stack));
-        frame->local_var.var[local_var_index] = (uint32_t) operand;
+        frame->local_var.var[local_var_index] = operand;
         local_var_index++;
     }
     assert(local_var_index == frame->local_var.size);
@@ -504,6 +648,12 @@ void callMethod(class_t* class, method_info_t* method) {
 }
 // JVM OPERATION STUFF - END
 
+/**
+ * Função main. Inicio da JVM
+ *
+ * @param Tamanho do argv
+ * @param Argumentos passados por linha de comando
+ */
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         printf("Instrução: Rode com 'jvm class_identifier [args]'\n");
@@ -524,7 +674,7 @@ int main(int argc, char* argv[]) {
 
     class_t *class = createClass(string_to_utf8(argv[1]));
 
-    method_info_t *main_method = getMethod(class, string_to_utf8("main"));
+    method_info_t *main_method = getMethod(class, string_to_utf8("main"), string_to_utf8("([Ljava/lang/String;)V"));
 
     // frame inicial
     frame_t *frame = (frame_t*) malloc(sizeof(frame_t));
