@@ -615,7 +615,7 @@ void callMethod(class_t* class, method_info_t* method) {
     frame->current_method = method;
     frame->return_address = jvm_pc;
     frame->local_var.size = code_attribute->max_locals; 
-    frame->local_var.var = (uint32_t*) malloc(frame->local_var.size * sizeof(uint32_t));
+    frame->local_var.var = (any_type_t**) malloc(frame->local_var.size * sizeof(any_type_t*));
     frame->operand_stack.depth = 0;
     frame->operand_stack.head = 0;
     frame->operand_stack.size = code_attribute->max_stack;
@@ -631,7 +631,7 @@ void callMethod(class_t* class, method_info_t* method) {
     int local_var_index = 0;
     for (i = 0; i < number_of_arguments; i++) {
         any_type_t *operand = pop_operand_stack(&(invokerFrame->operand_stack));
-        frame->local_var.var[local_var_index] = (uint32_t) operand;
+        frame->local_var.var[local_var_index] = operand;
         local_var_index++;
     }
     assert(local_var_index == frame->local_var.size);
