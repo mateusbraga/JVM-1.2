@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "opcode.h"
+#include <stdlib.h>
 #include "frame_stack.h"
 #include "structs.h"
 #include "jvm.h"
@@ -8,15 +8,6 @@ extern frame_stack_t *jvm_stack;
 
 extern pc_t jvm_pc;
 
-void (*jvm_opcode[])(void) = {
-    NULL ,aconst_null, iconst_m1, iconst_0, iconst_1, iconst_2, iconst_3, iconst_4, iconst_5, lconst_0, lconst_1,
-    fconst_0, fconst_1, dconst_0, dconst_1, bipush, sipush, ldc, ldc_w, ldc2_w, tload, tload, tload, tload, tload,
-    tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3,
-    tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3, taload, taload, taload, taload, taload,
-    taload, taload, taload, tstore, tstore, tstore, tstore, tstore, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1,
-    tstore_3, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1, tstore_3, tstore_0,
-    tstore_1, tstore_3, tastore, tastore, tastore, tastore, tastore, tastore, tastore, tastore
-    };
 
 /**
  * Empilha uma referência nula na pilha de operandos
@@ -638,3 +629,13 @@ void tableswitch() {
 
     jvm_pc.jumped = 1;
 }
+
+void (*jvm_opcode[])(void) = {
+    NULL ,aconst_null, iconst_m1, iconst_0, iconst_1, iconst_2, iconst_3, iconst_4, iconst_5, lconst_0, lconst_1,
+    fconst_0, fconst_1, dconst_0, dconst_1, bipush, sipush, ldc, ldc_w, ldc2_w, tload, tload, tload, tload, tload,
+    tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3,
+    tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3, taload, taload, taload, taload, taload,
+    taload, taload, taload, tstore, tstore, tstore, tstore, tstore, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1,
+    tstore_3, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1, tstore_3, tstore_0,
+    tstore_1, tstore_3, tastore, tastore, tastore, tastore, tastore, tastore, tastore, tastore
+    };
