@@ -678,7 +678,6 @@ void lload_3(){
     operand->val.primitive_val.val.val64 = (int64_t) ((campo1<<8)|campo2);
 
     push_operand_stack(&(frame->operand_stack), operand);
-
 }
 
 void fload_0(){
@@ -843,4 +842,61 @@ void dload_3(){
 
     push_operand_stack(&(frame->operand_stack), operand);
 
+}
+
+void tableswitch() {
+    int offset = 0;
+    u4 low, high, myDefault, targetOffset;
+    u1 byte1 = 0;
+    u1 byte2 = 0;
+    u1 byte3 = 0;
+    u1 byte4 = 0;
+
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.code_pc, jvm_pc.method);
+
+    offset += 4 - (jvm_pc.code_pc % 4); //allignment bytes
+
+    byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+    byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+    byte3 = code_attribute->code[jvm_pc.code_pc + offset + 2];
+    byte4 = code_attribute->code[jvm_pc.code_pc + offset + 3];
+    myDefault = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+    offset += 4; // count default
+
+    byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+    byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+    byte3 = code_attribute->code[jvm_pc.code_pc + offset + 2];
+    byte4 = code_attribute->code[jvm_pc.code_pc + offset + 3];
+    low = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+    offset += 4; // count low
+
+    byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+    byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+    byte3 = code_attribute->code[jvm_pc.code_pc + offset + 2];
+    byte4 = code_attribute->code[jvm_pc.code_pc + offset + 3];
+    high = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+    offset += 4; // count high
+
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    any_type_t *operand = pop_operand_stack(&(frame->operand_stack));
+    u4 index = operand->val.primitive_val.val.val32;
+
+    if (index < low && index > high) {
+        jvm_pc.code_pc = myDefault + jvm_pc.code_pc;
+    } else {
+        offset += index - low;
+
+        byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+        byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+        byte3 = code_attribute->code[jvm_pc.code_pc + offset + 2];
+        byte4 = code_attribute->code[jvm_pc.code_pc + offset + 3];
+        targetOffset = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+        jvm_pc.code_pc = targetOffset + jvm_pc.code_pc;
+    }
+
+    jvm_pc.jumped = 1;
 }

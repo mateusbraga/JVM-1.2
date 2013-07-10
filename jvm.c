@@ -14,7 +14,7 @@
 
 #define MAX_NUM_OF_CLASSES 65535
 
-pc_t jvm_pc = {0, 0, 0};
+pc_t jvm_pc = {0, 0, 0, 0};
 frame_stack_t *jvm_stack;
 extern void (*jvm_opcode[])(void);
 /*heap_t *jvm_heap;*/
@@ -392,9 +392,9 @@ int getNumberOfArguments(class_t* class, method_info_t* method) {
 int getNumberOfOpcodeOperandsInBytes(u1* code, u1 index) {
     int counter = 0;
     int padding = 0;
-    u1 low = 0;
-    u1 high = 0;
-    u1 npairs = 0;
+    u4 low = 0;
+    u4 high = 0;
+    u4 npairs = 0;
     u1 byte1 = 0;
     u1 byte2 = 0;
     u1 byte3 = 0;
@@ -410,6 +410,8 @@ int getNumberOfOpcodeOperandsInBytes(u1* code, u1 index) {
             counter = 1;
             padding = 4 - (index % 4) - 1;
             counter += padding; // 1 byte do opcode + allignment bytes
+
+            counter += 4; // jump default
 
             byte1 = code[index + counter];
             byte2 = code[index + counter + 1];
@@ -517,6 +519,13 @@ int getNumberOfOpcodeOperandsInBytes(u1* code, u1 index) {
  *
  */
 void goToNextOpcode() {
+    if (jvm_pc.jumped) {
+        jvm_pc.jumped = 0;
+        return;
+    }
+
+    jvm_pc.jumped = 0;
+
     code_attribute_t* code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
 
     jvm_pc.code_pc += getNumberOfOpcodeOperandsInBytes(code_attribute->code, jvm_pc.code_pc) + 1;
@@ -577,7 +586,6 @@ void returnFromFunction() {
 
     // change PC
     jvm_pc = frame->return_address;
-    goToNextOpcode();
 
     // put return value on the new frame's operand stack if any
     if(hasReturnValue(frame->current_class, frame->current_method)) {
@@ -643,6 +651,7 @@ void callMethod(class_t* class, method_info_t* method) {
     jvm_pc.class = class;
     jvm_pc.method = method;
     jvm_pc.code_pc = 0;
+    jvm_pc.jumped = 0;
 
     return;
 }

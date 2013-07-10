@@ -340,6 +340,7 @@ typedef struct pc_struct {
     class_t* class;
     method_info_t* method;
     u2 code_pc;
+    u1 jumped; //boolean set when we jump
 } pc_t;
 
 
