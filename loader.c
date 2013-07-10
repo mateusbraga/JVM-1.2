@@ -167,9 +167,15 @@ void set_class_file(class_t* class){
     class_file_t *classe;
     char* filename = NULL;
 
-    filename = (char*) malloc(sizeof(char) * class->class_name->length + 1);
+    filename = (char*) malloc(sizeof(char) * class->class_name->length + 6 + 1);
     strncpy(filename, (char*) class->class_name->bytes, class->class_name->length);
-    filename[class->class_name->length] = '\0';
+    filename[class->class_name->length] = '.';
+    filename[class->class_name->length + 1] = 'c';
+    filename[class->class_name->length + 2] = 'l';
+    filename[class->class_name->length + 3] = 'a';
+    filename[class->class_name->length + 4] = 's';
+    filename[class->class_name->length + 5] = 's';
+    filename[class->class_name->length + 6] = '\0';
 
     if( (fp = fopen(filename, "rb")) == NULL){
         printf("Erro! Nao foi possivel abrir o arquivo!\n");
