@@ -1,0 +1,21 @@
+/**
+\mainpage JVM 01/2013
+
+Documentação da JVM desenvolvida no primeiro semestre de 2013 em grupo na disciplina de Software Básica.
+
+Os integrantes do grupo foram:
+
+    - Mateus Antunes
+    - Hermano Portella
+    - Paulo Ricardo Xavier
+    - Patrick Kabongo
+
+Nossa JVM implementa parte da especificação em: http://docs.oracle.com/javase/specs/jvms/se5.0/html/VMSpecTOC.doc.html
+
+-----
+
+INSERIR DIAGRAMA DE ATIVAÇÂO (DIAGRAMA DE COMUNICAÇÂO ENTRE OS MÓDULOS)
+
+INSERIR DESCRIÇÂO DAS PRINCIPAIS ESTRUTURAS DE DADOS UTILIZADAS
+
+*/
