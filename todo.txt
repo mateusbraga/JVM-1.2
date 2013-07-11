@@ -1,2 +1,3 @@
-Implementar stack_t (stack de frames)
+Checkar versao do classfile e emitir erro caso nome do classfile nao
+existe.
 
