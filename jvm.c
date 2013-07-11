@@ -16,8 +16,6 @@
 pc_t jvm_pc = {0, 0, 0, 0};
 frame_stack_t *jvm_stack;
 extern void (*jvm_opcode[])(void);
-/*heap_t *jvm_heap;*/
-/*method_area_t *jvm_method_area;*/
 
 // Array com as classes na memória
 int jvm_number_of_classes = 0;
@@ -26,8 +24,12 @@ class_t *jvm_classes[MAX_NUM_OF_CLASSES];
 
 // UTF8 STUFF - BEGIN
 
+/** \addtogroup Funções-Utilitárias
+ * @{
+ */
+
 /**
- * Converte um char* para um Utf8_info_t*
+ * @brief Converte um char* para um Utf8_info_t*
  *
  * @param String a ser convertida
  * @return Estrutura Utf8 criada.
@@ -40,7 +42,7 @@ Utf8_info_t* string_to_utf8(char* a) {
 }
 
 /**
- * Converte um Utf8_info_t* em um char*
+ * @brief Converte um Utf8_info_t* em um char*
  *
  * @param String utf8 a ser convertida
  * @return string criada.
@@ -54,7 +56,7 @@ char* utf8_to_string(Utf8_info_t* utf8) {
 }
 
 /**
- * Compara dois utf8.
+ * @brief Compara dois utf8.
  *
  * @param Primeiro utf8
  * @param Segundo utf8
@@ -68,7 +70,7 @@ int compare_utf8(Utf8_info_t* a, Utf8_info_t* b) {
 }
 
 /**
- * Retorna o numero de caracteres em utf8 representada na string.
+ * @brief Retorna o numero de caracteres em utf8 representada na string.
  *
  * @param String com possíveis caracteres em utf8.
  * @return número de caractéres em utf8
@@ -94,7 +96,7 @@ u2 get_utf8_length_from_char(char* string) {
 }
 
 /**
- * Leia o próximo caractere que começa em pos. Altera pos para o possível próximo caractere a ler.
+ * @brief Leia o próximo caractere que começa em pos. Altera pos para o possível próximo caractere a ler.
  *
  * @param String com possíveis caracteres em utf8.
  * @param Posição em string do caractere a ler
@@ -128,10 +130,12 @@ u2 scan_utf8_char_from_char(char* string, u2 *pos) {
 }
 
 /**
- * Cria um any_type_t que é uma array de caracteres a partir da string.
+ * @brief Cria um any_type_t que é uma array de caracteres a partir da string.
  *
  * @param String com caracteres
  * @return any_type_t* criada
+ *
+ * @see get_utf8_length_from_char, scan_utf8_char_from_char
  */
 any_type_t* char_to_array_reference(char* string) {
     any_type_t* value = (any_type_t *) malloc(sizeof(any_type_t));
@@ -155,10 +159,12 @@ any_type_t* char_to_array_reference(char* string) {
 }
 
 /**
- * Cria um any_type_t que é uma array de caracteres a partir da utf8.
+ * @brief Cria um any_type_t que é uma array de caracteres a partir da utf8.
  *
  * @param UTF8 base
  * @return any_type_t* criada
+ *
+ * @see char_to_array_reference
  */
 any_type_t* utf8_to_array_reference(Utf8_info_t* utf8) {
     char* string = (char*) malloc(utf8->length + 1);
@@ -166,14 +172,14 @@ any_type_t* utf8_to_array_reference(Utf8_info_t* utf8) {
     string[utf8->length] = '\0';
     return char_to_array_reference(string);
 }
+
 // UTF8 STUFF - END
 
 
 // CLASS_T STUFF - BEGIN
 
-
 /**
- * Cria a estrutura class_t da classe com nome class_name
+ * @brief Cria a estrutura class_t da classe com nome class_name
  *
  * @param Nome da classe em UTF8
  * @return Estrutura da classe criada
@@ -188,10 +194,12 @@ class_t *createClass(Utf8_info_t* class_name) {
 }
 
 /**
- * Retorna a classe com nome class_name
+ * @brief Retorna a classe com nome class_name
  *
  * @param Nome da classe em UTF8
  * @return Classe procurada
+ *
+ * @see compare_utf8, createClass
  */
 class_t *getClass(Utf8_info_t* class_name) {
     int i = 0;
@@ -204,10 +212,12 @@ class_t *getClass(Utf8_info_t* class_name) {
 }
 
 /**
- * Retorna a classe pai da classe sub_class
+ * @brief Retorna a classe pai da classe sub_class
  *
  * @param Classe subclasse
  * @return Classe superclasse
+ *
+ * @see getClass
  */
 class_t* getSuperClass(class_t* sub_class) {
     u2 class_name_index = sub_class->class_file.constant_pool[sub_class->class_file.super_class].info.Class.name_index;
@@ -215,22 +225,26 @@ class_t* getSuperClass(class_t* sub_class) {
 }
 
 /**
- * Retorna se as classes são as mesmas
+ * @brief Retorna se as classes são as mesmas
  *
  * @param Classe
  * @param Classe
  * @return 1 ou 0
+ *
+ * @see compare_utf8
  */
 int isSameClass(class_t* a, class_t* b) {
     return (compare_utf8(a->class_name, b->class_name) == 0);
 }
 
 /**
- * Retorna se a classe super_class é uma classe ancestral de sub_class
+ * @brief Retorna se a classe super_class é uma classe ancestral de sub_class
  *
  * @param Classe
  * @param Classe
  * @return 1 ou 0
+ *
+ * @see string_to_utf8, compare_utf8, getSuperClass, isSameClass
  */
 int isSuperClassOf(class_t* super_class, class_t* sub_class) {
     class_t* class = sub_class;
@@ -247,7 +261,7 @@ int isSuperClassOf(class_t* super_class, class_t* sub_class) {
 // METHOD STUFF - BEGIN
 
 /**
- * Retorna Code attribute do método method da classe class.
+ * @brief Retorna Code attribute do método method da classe class.
  *
  * @param Classe do método
  * @param Método do code attribute
@@ -270,7 +284,7 @@ code_attribute_t* getCodeAttribute(class_t* class, method_info_t* method) {
 }
 
 /**
- * Retorna se método retorna algo
+ * @brief Retorna se método retorna algo
  *
  * @param Classe do método
  * @param Método
@@ -290,14 +304,16 @@ int hasReturnValue(class_t* class, method_info_t* method) {
 }
 
 /**
- * Retorna método com nome method_name da classe sem ser recursivo
+ * @brief Retorna método com nome method_name da classe sem ser recursivo
  *
  * @param Classe do método
  * @param Nome do método em utf8
  * @param Descriptor do método em utf8
  * @return Método
+ *
+ * @see compare_utf8
  */
-method_info_t* getMethod2(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
+method_info_t* getMethodOnThisClass(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
     int i = 0;
     for (i = 0; class->class_file.methods_count; i++) {
         method_info_t* method = &(class->class_file.methods[i]);
@@ -314,12 +330,14 @@ method_info_t* getMethod2(class_t* class, Utf8_info_t* method_name, Utf8_info_t*
 }
 
 /**
- * Retorna método com nome method_name da classe fazendo resolução completa
+ * @brief Retorna método com nome method_name da classe fazendo resolução completa
  *
  * @param Classe do método
  * @param Nome do método em utf8
  * @param Descriptor do método em utf8
  * @return Método
+ *
+ * @see getSuperClass, getMethodOnThisClass
  */
 method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
     if (class->status == CLASSE_NAO_CARREGADA) {
@@ -332,12 +350,12 @@ method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* 
         initializeClass(class);
     }
 
-    method_info_t* method = getMethod2(class, method_name, descriptor);
+    method_info_t* method = getMethodOnThisClass(class, method_name, descriptor);
     while (method == NULL) {
         //TODO see if it is an Object method
         class = getSuperClass(class);
 
-        method = getMethod2(class, method_name, descriptor);
+        method = getMethodOnThisClass(class, method_name, descriptor);
         if ((method->access_flags & ACC_PRIVATE) == ACC_PRIVATE) {
             printf("ERROR: Founded method is private\n");
             exit(1);
@@ -347,7 +365,7 @@ method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* 
 }
 
 /**
- * Retorna o número de argumentos que o método precisa
+ * @brief Retorna o número de argumentos que o método precisa
  *
  * @param Classe do método
  * @param Método
@@ -396,7 +414,7 @@ int getNumberOfArguments(class_t* class, method_info_t* method) {
 // OPCODE STUFF - BEGIN
 
 /**
- * Retorna o número de bytes com operandos do opcode que começa em code[index]
+ * @brief Retorna o número de bytes com operandos do opcode que começa em code[index]
  *
  * @param Array dos opcode
  * @param Index do opcode
@@ -528,8 +546,9 @@ int getNumberOfOpcodeOperandsInBytes(u1* code, u1 index) {
 }
 
 /**
- * Avança jvm_pc.code_pc para o próximo opcode
+ * @brief Avança jvm_pc.code_pc para o próximo opcode
  *
+ * @see getCodeAttribute, getNumberOfOpcodeOperandsInBytes
  */
 void goToNextOpcode() {
     if (jvm_pc.jumped) {
@@ -546,10 +565,13 @@ void goToNextOpcode() {
 // OPCODE STUFF - END
 
 // JVM OPERATION STUFF - START
+
 /**
- * Levanta uma exceção
+ * @brief Levanta uma exceção
  *
  * @param Classe da exceção
+ *
+ * @see getClass, isSameClass, isSuperClassOf, getCodeAttribute
  */
 void throwException(class_t* exception_class) {
     // check for handlers 
@@ -586,8 +608,9 @@ void throwException(class_t* exception_class) {
 }
 
 /**
- * Retorna da função atual
+ * @brief Retorna da função atual
  *
+ * @see hasReturnValue
  */
 void returnFromFunction() {
     // pop stack
@@ -612,10 +635,12 @@ void returnFromFunction() {
 
 
 /**
- * Chama método
+ * @brief Chama método
  *
  * @param Classe do método
  * @param Método a ser chamado
+ *
+ * @see getCodeAttribute, getNumberOfArguments
  */
 void callMethod(class_t* class, method_info_t* method) {
     if (class->status == CLASSE_NAO_CARREGADA) {
@@ -668,13 +693,16 @@ void callMethod(class_t* class, method_info_t* method) {
 
     return;
 }
+/** @} */
 // JVM OPERATION STUFF - END
 
 /**
- * Função main. Inicio da JVM
+ * @brief Função main. Inicio da JVM
  *
  * @param Tamanho do argv
  * @param Argumentos passados por linha de comando
+ *
+ * @see string_to_utf8, char_to_array_reference, createClass, getCodeAttribute, getMethod, goToNextOpcode, callMethod
  */
 int main(int argc, char* argv[]) {
     if (argc < 2) {
