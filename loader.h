@@ -1,4 +1,4 @@
-#/* Estrutura do arquivo CLASS */
+/* Estrutura do arquivo CLASS */
 
 #ifndef loADER_H_
 #define LOADER_H_
@@ -18,6 +18,8 @@ u2 readu2(FILE *fp);
 u1 readu1(FILE *fp);
    */
 
+void MostraClasse(class_file_t* classe);
+void ImprimeFields(class_file_t* classe);
 /*
 A partir do nome no argumento a função lê um arquivo e monta a classe a partir
 dele.

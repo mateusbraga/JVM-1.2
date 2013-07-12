@@ -96,6 +96,24 @@ field_info_t* GetFields(class_file_t* classe, FILE *fp, u2 fieldCount){
 
     return fields;
 }
+/*------------------------------------------------------------------------------------------------------------------*/
+void ImprimeFields(class_file_t* classe){
+    u2 qtd;
+    field_info_t* fields;
+    fields = classe->fields;
+    register u2 j;
+   
+    qtd = classe->fields_count;
+    for(j = 0; j < qtd ; j++){
+        printf("\nField %d\n", j);
+                printf("    Access flags: %hi\n",fields[j].access_flags);
+                printf("    Name index: %hi <%s>\n",fields[j].name_index, (char*)(( Utf8_info_t *)(classe->constant_pool[fields[j].name_index].info))->bytes);
+                printf("    Descriptor: %hi\n",fields[j].descriptor_index);
+                printf("    Attributes count: %hi\n",fields[j].attributes_count);
+                ImprimeAtributos(classe,fields[j].attributes,fields[j].attributes_count);
+    }
+}
+
 
 /*-----------------------------------------------------------------------------------------------------------------*/
 
@@ -213,6 +231,39 @@ void set_class_file(class_t* class){
     printf("Done\n");
     classe->attributes_count = readu2(fp);
     classe->attributes = GetAtributos(classe, fp , classe->attributes_count);
+}
+
+/*-----------------------------------------------------------------------------------------------------------------*/
+
+void MostraClasse(class_file_t* classe){
+    register u2 i;
+   
+    printf("Magic: %x\n", classe->magic);
+    printf("minor_version: %hi\n", classe->minor_version);
+    printf("major_version: %hi\n", classe->major_version);
+
+    /* TODO Checar versão correta, se não for apresentar erro */
+    printf("constant_pool_count: %hi\n", classe->constant_pool_count);
+    printf("acess_flags: %hi\n", classe->acess_flags);
+    printf("this_class: %hi\n", classe->this_class);
+    printf("super_class: %hi\n", classe->super_class);
+    printf("interfaces_count: %hi\n", classe->interfaces_count);
+    printf("fields_count: %hi\n",classe->fields_count);
+    printf("methods_count: %hi\n",classe->methods_count);
+    printf("attributes_count: %hi\n",classe->attributes_count);
+    
+    for (i = 0; i< classe->interfaces_count; i++ ){
+                printf("     interface.%d: %hi\n",i, classe->interfaces[i]);
+    }
+
+    printf("\n----Constant Pool----\n");
+    ImprimeConstantes(classe);
+    printf("\n----Fields----\n");
+    ImprimeFields(classe);
+    printf("\n----Methods----\n");
+    ImprimeMetodos(classe);
+    printf("\n----Atributos----\n");
+    ImprimeAtributos(classe, classe->attributes, classe->attributes_count);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------*/
