@@ -63,11 +63,11 @@ void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd
     u4 i, j;
     for( i = 0; i < qtd ; i++){
         printf("\nAttribute %d\n", i);
-        printf("Attribute name index: cp_info #%hi <%s>\n", atributos[i].attribute_name_index, &(classe->constant_pool[atributos[i].attribute_name_index].info.Utf8));
+        printf("Attribute name index: cp_info #%hi <%s>\n", atributos[i].attribute_name_index, (char*)(&(classe->constant_pool[atributos[i].attribute_name_index].info.Utf8)));
         printf("Attribute length: %i\n", atributos[i].attribute_length);
         nome = &(classe->constant_pool[atributos[i].attribute_name_index].info.Utf8);
         if(compare_utf8(nome, string_to_utf8("ConstantValue")) == 0) {
-            
+
 
         }
     }
@@ -104,7 +104,7 @@ void ImprimeMetodos(class_file_t* classe){
         for(i=0 ; i<qtd ; i++ ){
         printf("\nMethod %d\n", i);
                 printf("    Acess flags: %hi\n",metodos[i].acess_flags);
-                printf("    Name index:  %hi <%s>\n",metodos[i].name_index, &(classe->constant_pool[metodos[i].name_index].info.Utf8));
+                printf("    Name index:  %hi <%s>\n",metodos[i].name_index, (char*)(&(classe->constant_pool[metodos[i].name_index].info.Utf8)));
                 printf("    Descriptor: %hi\n",metodos[i].descriptor_index);
                 printf("    Attributes count: %hi\n",metodos[i].attributes_count);
                 ImprimeAtributos(classe,metodos[i].attributes,metodos[i].attributes_count);
@@ -139,7 +139,7 @@ void ImprimeFields(class_file_t* classe){
     for(j = 0; j < qtd ; j++){
         printf("\nField %d\n", j);
                 printf("    Access flags: %hi\n",fields[j].access_flags);
-                printf("    Name index: %hi <%s>\n",fields[j].name_index, &(classe->constant_pool[fields[j].name_index].info.Utf8));
+                printf("    Name index: %hi <%s>\n",fields[j].name_index, (char*)(&(classe->constant_pool[fields[j].name_index].info.Utf8)));
                 printf("    Descriptor: %hi\n",fields[j].descriptor_index);
                 printf("    Attributes count: %hi\n",fields[j].attributes_count);
                 ImprimeAtributos(classe,fields[j].attributes,fields[j].attributes_count);
