@@ -98,7 +98,7 @@ void ImprimeMetodos(class_file_t* classe){
         for(i=0 ; i<qtd ; i++ ){
         printf("\nMethod %d\n", i);
                 printf("    Acess flags: %hi\n",metodos[i].acess_flags);
-                printf("    Name index:  %hi <%s>\n",metodos[i].name_index, &(classe->constant_pool[metodos[i].name_index].info.Utf8);
+                printf("    Name index:  %hi <%s>\n",metodos[i].name_index, &(classe->constant_pool[metodos[i].name_index].info.Utf8));
                 printf("    Descriptor: %hi\n",metodos[i].descriptor_index);
                 printf("    Attributes count: %hi\n",metodos[i].attributes_count);
                 ImprimeAtributos(classe,metodos[i].attributes,metodos[i].attributes_count);
