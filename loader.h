@@ -11,15 +11,39 @@
 #define readu2(fp) ((getc(fp)) << 8) | getc(fp);
 #define readu4(fp) ((getc(fp)) << 24) | ((getc(fp))<<16) | ((getc(fp))<<8) | getc(fp);
 
-/*Funções auxiliares para a leitura de um numero de 4, 2 ou 1 byte(s)*/
-/*
-u4 readu4(FILE *fp);
-u2 readu2(FILE *fp);
-u1 readu1(FILE *fp);
-   */
 
+/*Lê a classe passada (que foi montada a partir da função "void set_class_file" e imprime
+a sua estrutura na tela
+
+Parâmetros
+        classe - Ponteiro para a classe que será mostrada
+
+Retorno: não retorna nada
+*/
 void MostraClasse(class_file_t* classe);
+
+/*
+Lê a tabela de campos e imprime ela na tela
+ 
+Parâmetros
+        fields - ponteiro para a tabela de campos
+        qtd - quantidade de elementos da tabela
+
+Retorno: não retorna nada
+*/
 void ImprimeFields(class_file_t* classe);
+
+/*
+Lê a tabela de métodos e imprime ela na tela
+ 
+Parâmetros
+        metodos - ponteiro para a tabela de métodos
+        qtd - quantidade de elementos da tabela
+
+Retorno: não retorna nada
+*/ 
+void ImprimeMetodos(class_file_t* classe)
+
 /*
 A partir do nome no argumento a função lê um arquivo e monta a classe a partir
 dele.

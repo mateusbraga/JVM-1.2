@@ -57,6 +57,15 @@ attribute_info_t* GetAtributos(class_file_t* classe, FILE *fp, u2 attributesCoun
     }
     return atributos;
 }
+/*-----------------------------------------------------------------------------------------------------------------*/
+void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd){    
+    Utf8_info_t* nome;
+    u4 i, j;
+    for( i = 0; i < qtd ; i++){
+        printf("\nAttribute %d\n", i);
+        printf("Attribute name index: cp_info #%hi <%s>\n", atributos[i].attribute_name_index, (Utf8_info_t*)classe->constant_pool[atributos[i].attributeNameIndex].info.bytes);
+
+
 
 /*-----------------------------------------------------------------------------------------------------------------*/
 
@@ -77,6 +86,23 @@ method_info_t* GetMetodo(class_file_t* classe,  FILE *fp, u2 methodsCount){
     }
 
     return metodos;
+}
+/*-----------------------------------------------------------------------------------------------------------------*/
+
+void ImprimeMetodos(class_file_t* classe){
+    u2 qtd;
+    method_info_t* metodos;
+    metodos = classe->methods;
+    register u2 i;
+    qtd = classe->methods_count;
+        for(i=0 ; i<qtd ; i++ ){
+        printf("\nMethod %d\n", i);
+                printf("    Acess flags: %hi\n",metodos[i].acess_flags);
+                printf("    Name index:  %hi <%s>\n",metodos[i].name_index, &(classe->constant_pool[metodos[i].name_index].info.Utf8);
+                printf("    Descriptor: %hi\n",metodos[i].descriptor_index);
+                printf("    Attributes count: %hi\n",metodos[i].attributes_count);
+                ImprimeAtributos(classe,metodos[i].attributes,metodos[i].attributes_count);
+        }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------*/
@@ -107,7 +133,7 @@ void ImprimeFields(class_file_t* classe){
     for(j = 0; j < qtd ; j++){
         printf("\nField %d\n", j);
                 printf("    Access flags: %hi\n",fields[j].access_flags);
-                printf("    Name index: %hi <%s>\n",fields[j].name_index, (char*)(( Utf8_info_t *)(classe->constant_pool[fields[j].name_index].info))->bytes);
+                printf("    Name index: %hi <%s>\n",fields[j].name_index, &(classe->constant_pool[fields[j].name_index].info.Utf8));
                 printf("    Descriptor: %hi\n",fields[j].descriptor_index);
                 printf("    Attributes count: %hi\n",fields[j].attributes_count);
                 ImprimeAtributos(classe,fields[j].attributes,fields[j].attributes_count);
@@ -242,7 +268,7 @@ void MostraClasse(class_file_t* classe){
     printf("minor_version: %hi\n", classe->minor_version);
     printf("major_version: %hi\n", classe->major_version);
 
-    /* TODO Checar versão correta, se não for apresentar erro */
+
     printf("constant_pool_count: %hi\n", classe->constant_pool_count);
     printf("acess_flags: %hi\n", classe->acess_flags);
     printf("this_class: %hi\n", classe->this_class);
@@ -267,7 +293,6 @@ void MostraClasse(class_file_t* classe){
 }
 
 /*-----------------------------------------------------------------------------------------------------------------*/
-
 void loadClass(class_t* class){
     set_class_file(class);
     class->status = CLASSE_NAO_LINKADA;
