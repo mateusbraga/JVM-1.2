@@ -63,9 +63,15 @@ void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd
     u4 i, j;
     for( i = 0; i < qtd ; i++){
         printf("\nAttribute %d\n", i);
-        printf("Attribute name index: cp_info #%hi <%s>\n", atributos[i].attribute_name_index, (Utf8_info_t*)classe->constant_pool[atributos[i].attributeNameIndex].info.bytes);
+        printf("Attribute name index: cp_info #%hi <%s>\n", atributos[i].attribute_name_index, &(classe->constant_pool[atributos[i].attribute_name_index].info.Utf8));
+        printf("Attribute length: %i\n", atributos[i].attribute_length);
+        nome = &(classe->constant_pool[atributos[i].attribute_name_index].info.Utf8);
+        if(compare_utf8(nome, string_to_utf8("ConstantValue")) == 0) {
+            
 
-
+        }
+    }
+}
 
 /*-----------------------------------------------------------------------------------------------------------------*/
 

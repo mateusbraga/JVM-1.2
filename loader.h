@@ -42,7 +42,19 @@ Parâmetros
 
 Retorno: não retorna nada
 */ 
-void ImprimeMetodos(class_file_t* classe)
+void ImprimeMetodos(class_file_t* classe);
+
+/*
+Lê a tabela de atributos e imprime ela na tela
+ 
+Parâmetros
+        classe - ponteiro para a classe
+        atributos - ponteiro para a tabela de atributos
+        qtd - quantidade de elementos da tabela
+
+Retorno: não retorna nada
+*/ 
+void ImprimeAtributos(class_file_t* classe, attribute_info_t* atributos, u2 qtd);
 
 /*
 A partir do nome no argumento a função lê um arquivo e monta a classe a partir
