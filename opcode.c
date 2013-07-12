@@ -1115,6 +1115,236 @@ void tableswitch() {
     jvm_pc.jumped = 1;
 }
 
+void lookupswitch() {
+    int offset = 0;
+    u4 npairs, myDefault, targetOffset, match;
+    u1 byte1 = 0;
+    u1 byte2 = 0;
+    u1 byte3 = 0;
+    u1 byte4 = 0;
+
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+
+    offset += 4 - (jvm_pc.code_pc % 4); //allignment bytes
+
+    byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+    byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+    byte3 = code_attribute->code[jvm_pc.code_pc + offset + 2];
+    byte4 = code_attribute->code[jvm_pc.code_pc + offset + 3];
+    myDefault = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+    offset += 4; // count default
+
+    byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+    byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+    byte3 = code_attribute->code[jvm_pc.code_pc + offset + 2];
+    byte4 = code_attribute->code[jvm_pc.code_pc + offset + 3];
+    npairs = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+    offset += 4; // count npairs
+
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    any_type_t *operand = pop_operand_stack(&(frame->operand_stack));
+    u4 key = operand->val.primitive_val.val.val32;
+
+    u4 i;
+    for(i = 0; i < npairs; i++) {
+        byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+        byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+        byte3 = code_attribute->code[jvm_pc.code_pc + offset + 2];
+        byte4 = code_attribute->code[jvm_pc.code_pc + offset + 3];
+        match = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+        if (match == key) {
+            byte1 = code_attribute->code[jvm_pc.code_pc + offset + 4];
+            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 5];
+            byte3 = code_attribute->code[jvm_pc.code_pc + offset + 6];
+            byte4 = code_attribute->code[jvm_pc.code_pc + offset + 7];
+            targetOffset = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+            jvm_pc.code_pc = targetOffset + jvm_pc.code_pc;
+            break;
+        } else if (match > key) {
+            jvm_pc.code_pc = myDefault + jvm_pc.code_pc;
+            break;
+        }
+
+        offset += 8; // count match and offset pair
+    }
+
+    jvm_pc.jumped = 1;
+}
+
+void wide() {
+    any_type_t* operand;
+    int offset = 0;
+    u2 index;
+    int16_t inc;
+    u1 opcode;
+    u1 byte1 = 0;
+    u1 byte2 = 0;
+
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+
+    offset += 1; //count wide opcode
+
+    opcode = code_attribute->code[jvm_pc.code_pc + offset];
+
+    offset += 1; //count operation opcode
+
+    switch(opcode) {
+        case 0x84: // caso iinc
+            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+            index = (byte1 << 8) | (byte2);
+
+            offset += 2; // count index
+
+            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+            inc = (byte1 << 8) | (byte2);
+
+            offset += 2; // count count
+
+            operand = frame->local_var.var[index];
+            switch (operand->val.primitive_val.tag) {
+                case BYTE:
+                    operand->val.primitive_val.val.val8 += inc;
+                    break;
+                case SHORT:
+                    operand->val.primitive_val.val.val16 += inc;
+                    break;
+                case INT:
+                    operand->val.primitive_val.val.val32 += inc;
+                    break;
+                case LONG:
+                    operand->val.primitive_val.val.val64 += inc;
+                    break;
+                default:
+                    printf("Unexpected primitive_val tag on iinc()\n");
+                    break;
+            }
+
+            break;
+        case 0x15: // caso iload
+        case 0x17: // caso fload
+        case 0x16: // caso lload
+        case 0x18: // caso dload
+        case 0x19: // caso aload
+            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+            index = (byte1 << 8) | (byte2);
+
+            offset += 2; // count index
+
+            operand = frame->local_var.var[index];
+            push_operand_stack(&(frame->operand_stack), operand);
+            break;
+        case 0x36: // caso istore
+        case 0x37: // caso lstore
+        case 0x38: // caso fstore
+        case 0x39: // caso dstore
+        case 0x3a: // caso astore
+            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+            index = (byte1 << 8) | (byte2);
+
+            offset += 2; // count index
+
+            operand = pop_operand_stack(&(frame->operand_stack));
+
+            frame->local_var.var[index] = operand;
+            if(operand->val.primitive_val.tag == LONG|| operand->val.primitive_val.tag == DOUBLE)
+                frame->local_var.var[index+1] = operand;
+            break;
+        case 0xa9: // caso ret
+            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+            index = (byte1 << 8) | (byte2);
+
+            offset += 2; // count index
+
+            operand = frame->local_var.var[index];
+            switch (operand->val.primitive_val.tag) {
+                case BYTE:
+                    jvm_pc.code_pc = operand->val.primitive_val.val.val8;
+                    break;
+                case SHORT:
+                    jvm_pc.code_pc = operand->val.primitive_val.val.val16;
+                    break;
+                case INT:
+                    jvm_pc.code_pc = operand->val.primitive_val.val.val32;
+                    break;
+                case LONG:
+                    jvm_pc.code_pc = operand->val.primitive_val.val.val64;
+                    break;
+                default:
+                    printf("Unexpected primitive_val tag on ret()\n");
+                    break;
+            }
+
+            jvm_pc.jumped = 1;
+
+            break;
+    }
+}
+
+void ret() {
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    frame_t* frame = peek_frame_stack(jvm_stack);
+
+    u1 index = code_attribute->code[jvm_pc.code_pc + 1];
+
+    any_type_t* operand = frame->local_var.var[index];
+    switch (operand->val.primitive_val.tag) {
+        case BYTE:
+            jvm_pc.code_pc = operand->val.primitive_val.val.val8;
+            break;
+        case SHORT:
+            jvm_pc.code_pc = operand->val.primitive_val.val.val16;
+            break;
+        case INT:
+            jvm_pc.code_pc = operand->val.primitive_val.val.val32;
+            break;
+        case LONG:
+            jvm_pc.code_pc = operand->val.primitive_val.val.val64;
+            break;
+        default:
+            printf("Unexpected primitive_val tag on ret()\n");
+            break;
+    }
+
+    jvm_pc.jumped = 1;
+}
+
+void iinc() {
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    frame_t* frame = peek_frame_stack(jvm_stack);
+
+    u1 index = code_attribute->code[jvm_pc.code_pc + 1];
+    int8_t inc = code_attribute->code[jvm_pc.code_pc + 2];
+
+    any_type_t* operand = frame->local_var.var[index];
+    switch (operand->val.primitive_val.tag) {
+        case BYTE:
+            operand->val.primitive_val.val.val8 += inc;
+            break;
+        case SHORT:
+            operand->val.primitive_val.val.val16 += inc;
+            break;
+        case INT:
+            operand->val.primitive_val.val.val32 += inc;
+            break;
+        case LONG:
+            operand->val.primitive_val.val.val64 += inc;
+            break;
+        default:
+            printf("Unexpected primitive_val tag on iinc()\n");
+            break;
+    }
+}
+
 void (*jvm_opcode[])(void) = {
     NULL ,aconst_null, iconst_m1, iconst_0, iconst_1, iconst_2, iconst_3, iconst_4, iconst_5, lconst_0, lconst_1,
     fconst_0, fconst_1, dconst_0, dconst_1, bipush, sipush, ldc, ldc_w, ldc2_w, tload, tload, tload, tload, tload,
