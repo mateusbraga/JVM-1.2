@@ -573,6 +573,266 @@ void tastore(){
     arrayref->val.reference_val.val.array.components[int_index] = *value;
 }
 
+void pop(){
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    pop_operand_stack(&(frame->operand_stack));
+}
+
+void pop2(){
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    pop_operand_stack(&(frame->operand_stack));
+    pop_operand_stack(&(frame->operand_stack));
+}
+
+void dup(){
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
+
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    operand = pop_operand_stack(&(frame->operand_stack));
+
+    push_operand_stack(&(frame->operand_stack), operand);
+    push_operand_stack(&(frame->operand_stack), operand);
+
+}
+
+void dup_x1(){
+    any_type_t *operand1 = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *operand2 = (any_type_t*) malloc(sizeof(any_type_t));
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    operand1 = pop_operand_stack(&(frame->operand_stack));
+    operand2 = pop_operand_stack(&(frame->operand_stack));
+
+    push_operand_stack(&(frame->operand_stack), operand1);
+    push_operand_stack(&(frame->operand_stack), operand2);
+    push_operand_stack(&(frame->operand_stack), operand1);
+
+
+}
+
+void dup_x2(){
+    any_type_t *operand1, *operand2, *operand3;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    operand1 = pop_operand_stack(&(frame->operand_stack));
+    operand2 = pop_operand_stack(&(frame->operand_stack));
+    operand3 = pop_operand_stack(&(frame->operand_stack));
+
+    push_operand_stack(&(frame->operand_stack), operand1);
+    push_operand_stack(&(frame->operand_stack), operand3);
+    push_operand_stack(&(frame->operand_stack), operand2);
+    push_operand_stack(&(frame->operand_stack), operand1);
+
+}
+
+void dup2(){
+    any_type_t *operand1, *operand2;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    operand1 = pop_operand_stack(&(frame->operand_stack));
+    operand2 = pop_operand_stack(&(frame->operand_stack));
+
+    push_operand_stack(&(frame->operand_stack), operand1);
+    push_operand_stack(&(frame->operand_stack), operand2);
+    push_operand_stack(&(frame->operand_stack), operand1);
+    push_operand_stack(&(frame->operand_stack), operand2);
+
+}
+
+void dup2_x1(){
+    any_type_t *operand1, *operand2, *operand3;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    operand1 = pop_operand_stack(&(frame->operand_stack));
+    operand2 = pop_operand_stack(&(frame->operand_stack));
+    operand3 = pop_operand_stack(&(frame->operand_stack));
+
+    push_operand_stack(&(frame->operand_stack), operand1);
+    push_operand_stack(&(frame->operand_stack), operand2);
+    push_operand_stack(&(frame->operand_stack), operand3);
+    push_operand_stack(&(frame->operand_stack), operand1);
+    push_operand_stack(&(frame->operand_stack), operand2);
+
+}
+
+void iadd(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (op1->val.primitive_val.val.val32)+(op2->val.primitive_val.val.val32);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void fadd(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = FLOAT;
+    operand->val.primitive_val.val.val_float = (op1->val.primitive_val.val.val_float)+(op2->val.primitive_val.val.val_float);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void isub(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (op1->val.primitive_val.val.val32)-(op2->val.primitive_val.val.val32);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void fsub(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = FLOAT;
+    operand->val.primitive_val.val.val_float = (op1->val.primitive_val.val.val_float)-(op2->val.primitive_val.val.val_float);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void imul(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (op1->val.primitive_val.val.val32)*(op2->val.primitive_val.val.val32);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void fmul(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = FLOAT;
+    operand->val.primitive_val.val.val_float = (op1->val.primitive_val.val.val_float)*(op2->val.primitive_val.val.val_float);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void idiv(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (op1->val.primitive_val.val.val32)/(op2->val.primitive_val.val.val32);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void fdiv(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = FLOAT;
+    operand->val.primitive_val.val.val_float = (op1->val.primitive_val.val.val_float)/(op2->val.primitive_val.val.val_float);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void irem(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (op1->val.primitive_val.val.val32)-((op1->val.primitive_val.val.val32)/(op2->val.primitive_val.val.val32))*(op2->val.primitive_val.val.val32);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void frem(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = FLOAT;
+    operand->val.primitive_val.val.val_float = (op1->val.primitive_val.val.val_float)-((op1->val.primitive_val.val.val_float)/(op2->val.primitive_val.val.val_float))*(op2->val.primitive_val.val.val_float);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void ineg(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = 0-(op1->val.primitive_val.val.val32);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void fneg(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = FLOAT;
+    operand->val.primitive_val.val.val_float = 0-(op1->val.primitive_val.val.val_float);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
 void tableswitch() {
     int offset = 0;
     u4 low, high, myDefault, targetOffset;
@@ -867,5 +1127,5 @@ void (*jvm_opcode[])(void) = {
     tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3, taload, taload, taload, taload, taload,
     taload, taload, taload, tstore, tstore, tstore, tstore, tstore, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1,
     tstore_3, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1, tstore_3, tstore_0,
-    tstore_1, tstore_3, tastore, tastore, tastore, tastore, tastore, tastore, tastore, tastore
-};
+    tstore_1, tstore_3, tastore, tastore, tastore, tastore, tastore, tastore, tastore, tastore, pop, pop2, dup
+    };
