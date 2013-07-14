@@ -67,9 +67,37 @@ void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd
         printf("Attribute length: %i\n", atributos[i].attribute_length);
         nome = &(classe->constant_pool[atributos[i].attribute_name_index].info.Utf8);
         if(compare_utf8(nome, string_to_utf8("ConstantValue")) == 0) {
+			 printf("Constant Value Index: cp_info #%hi\n", atributos[i].info.constant_value.constantvalue_index);
+             printf("\n");
+		}else if(compare_utf8(nome, string_to_utf8("Code")) == 0) {
+			 printf("Maximum stack depth: %hi\n",atributos[i].info.code.max_stack);
+             printf("Maximum local variables: %hi\n",atributos[i].info.code.max_locals);
+             printf("Code length: %i\n",atributos[i].info.code.code_length);
+             for(j=0; j < atributos[i].info.code.code_length; j++ ){
+                                //printf("%c",atributos[i].info.code[j]);  
+                        }
+             printf("Excepion table length: %hi\n",atributos[i].info.code.exception_table_length);
+             for(j=0; j < atributos[i].info.code.exception_table_length; j++) {
+                                printf("start_pc: %hi\n", atributos[i].info.code.exception_table.start_pc);
+                                printf("end_pc: %hi\n", atributos[i].info.code.exception_table.end_pc);
+                                printf("handler_pc: %hi\n",atributos[i].info.code.exception_table.handler_pc);
+                                printf("catch_pc: %hi\n",atributos[i].info.code.exception_table.catch_type);
+                        }
+              printf("Nr attributes: %hi\n",atributos[i].info.code.attributes_count);
+              ImprimeAtributos(classe,atributos[i].info.code.attributes, atributos[i].info.code.attributes_count);
+			  printf("\n");
+			  } else if(compare_utf8(nome, string_to_utf8("Exceptions")) == 0) {
+				   printf("catch_pc: %hi\n",atributos[i].info.exception.number_of_exceptions);
+				   for(j=0; j<atributos[i].info.exception.number_of_exceptions; j++){
+                                printf("Exception index table %d: %hi\n",atributos[i].info.exception.exception_index_table[j],j);
+                        }
+            printf("\n");
+              } else {
+            printf("Attribute length: %i\n",atributos[i].attribute_length);
+                        for(j = 0; j < atributos[i].attribute_length; j++){
+                                //printf("%c",((u1*)(atributos[i].info))[j]);                  
+            }
 
-
-        }
     }
 }
 
@@ -209,6 +237,32 @@ cp_info_t* GetConstantes(FILE *fp, u2 constantCount){
         }
     }
     return constantes;
+}
+/*-----------------------------------------------------------------------------------------------------------------*/
+void ImprimeConstantes(cp_info_t *constantes, u2 qtd){
+	cp_info_t *constantes;
+	Fieldref fieldrefAux;
+	Class classAux;
+    u2 i, j;  
+    
+     for(i=1;i<qtd;i++){
+                switch(constantes[i].tag){
+					 case 7:
+                                printf("tag: %u (CONSTANT_Class)\n", constantes[i].tag);
+                                printf("name_index: %u <%s>\n", constantes[i].info.Class.name_index, &(constantes[classAux.nameIndex].info.Utf8));
+                                printf("\n");
+                                break;
+                     case 9:
+                                printf("tag: %u (CONSTANT_Fieldref)\n", constantes[i].tag);
+                    
+                                printf("class_index: %u <%s>\n", constantes[i].info.Fieldref.class_index, &(constantes[(constantes[Fieldref.class_index].info.Class.name_index].info.Utf8));
+                                printf("name_and_type_index: %u <%s%s>\n", constantes[i].info.Fieldref.name_and_type_index, &(constantes[constantes[fieldrefAux.name_and_type_index].info.Nameandtype.name_index].info.Utf8), &(constantes[constantes[fieldrefAux.name_and_type_index].info.Nameandtype.descriptor_index].info.Utf8);
+                                printf("\n");
+                                break;
+	}
+
+
+    
 }
 
 /*-----------------------------------------------------------------------------------------------------------------*/
