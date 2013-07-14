@@ -249,7 +249,7 @@ void ImprimeConstantes(cp_info_t *constantes, u2 qtd){
                 switch(constantes[i].tag){
 					 case 7:
                                 printf("tag: %u (CONSTANT_Class)\n", constantes[i].tag);
-                                printf("name_index: %u <%s>\n", constantes[i].info.Class.name_index, &(constantes[classAux.nameIndex].info.Utf8));
+                                printf("name_index: %u <%s>\n", constantes[i].info.Class.name_index, &(constantes[classAux.name_index].info.Utf8));
                                 printf("\n");
                                 break;
                      case 9:
