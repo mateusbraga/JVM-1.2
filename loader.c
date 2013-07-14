@@ -240,19 +240,19 @@ cp_info_t* GetConstantes(FILE *fp, u2 constantCount){
 }
 /*-----------------------------------------------------------------------------------------------------------------*/
 void ImprimeConstantes(cp_info_t *constantes, u2 qtd){
-	Fieldref fieldrefAux;
-	Class classAux;
-	Nameandtype nameAndTypeAux;
-	Methodref methodrefAux;
-	String stringAux;
-	Interfacemethod interfaceMethodrefAux;
+	Fieldref_t* fieldrefAux;
+	/*Class_t* classAux;
+	Nameandtype_t* nameAndTypeAux;
+	Methodref_t* methodrefAux;
+	String_t* stringAux;
+	Interfacemethod_t* interfaceMethodrefAux;*/
     u2 i, j;  
     
      for(i=1;i<qtd;i++){
                 switch(constantes[i].tag){
 					 case 7:
                                 printf("tag: %u (CONSTANT_Class)\n", constantes[i].tag);
-                                printf("name_index: %u <%s>\n", constantes[i].info.Class.name_index, &(constantes[classAux.name_index].info.Utf8));
+                                printf("name_index: %u <%s>\n", constantes[i].info.Class.name_index, &(constantes[Class.name_index].info.Utf8));
                                 printf("\n");
                                 break;
                      case 9:
