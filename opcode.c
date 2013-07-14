@@ -695,7 +695,7 @@ void swap(){
     operand2 = pop_operand_stack(&(frame->operand_stack));
 
     if(operand1->val.primitive_val.tag == LONG || operand2->val.primitive_val.tag == LONG || operand1->val.primitive_val.tag == DOUBLE || operand2->val.primitive_val.tag == DOUBLE)
-        exit(1) // algum erro
+        exit(1); // algum erro
 
     push_operand_stack(&(frame->operand_stack), operand1);
     push_operand_stack(&(frame->operand_stack), operand2);
@@ -896,7 +896,7 @@ void idiv(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
-void ldiv(){
+void ldiv_op(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1056,6 +1056,907 @@ void dneg(){
     operand->val.primitive_val.val.val_double = 0-(op1->val.primitive_val.val.val_double);
 
     push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void ishl(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    int32_t value_op2;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    value_op2 = op2->val.primitive_val.val.val32;
+    value_op2 = (value_op2 & 0x00FF) & 0x001F;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (op1->val.primitive_val.val.val32 << value_op2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void lshl(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    int64_t value_op2;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    value_op2 = op2->val.primitive_val.val.val64;
+    value_op2 = (value_op2 & 0x00FF) & 0x003F;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = LONG;
+    operand->val.primitive_val.val.val64 = (op1->val.primitive_val.val.val64 << value_op2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void ishr(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    int32_t value_op2;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    value_op2 = op2->val.primitive_val.val.val32;
+    value_op2 = (value_op2 & 0x00FF) & 0x001F;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (op1->val.primitive_val.val.val32 >> value_op2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void lshr(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    int64_t value_op2;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    value_op2 = op2->val.primitive_val.val.val64;
+    value_op2 = (value_op2 & 0x00FF) & 0x003F;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = LONG;
+    operand->val.primitive_val.val.val64 = (op1->val.primitive_val.val.val64 >> value_op2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+// faltam iushr e lushr
+
+void iand(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    int32_t value_op2, value_op1;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    value_op1 = op1->val.primitive_val.val.val32;
+    value_op2 = op2->val.primitive_val.val.val32;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (value_op1 & value_op2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void land(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    int64_t value_op2, value_op1;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    value_op1 = op1->val.primitive_val.val.val64;
+    value_op2 = op2->val.primitive_val.val.val64;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = LONG;
+    operand->val.primitive_val.val.val64 = (value_op1 & value_op2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void ior(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    int32_t value_op2, value_op1;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    value_op1 = op1->val.primitive_val.val.val32;
+    value_op2 = op2->val.primitive_val.val.val32;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (value_op1 | value_op2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void lor(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    int64_t value_op2, value_op1;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    value_op1 = op1->val.primitive_val.val.val64;
+    value_op2 = op2->val.primitive_val.val.val64;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = LONG;
+    operand->val.primitive_val.val.val64 = (value_op1 | value_op2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void ixor(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    int32_t value_op2, value_op1;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    value_op1 = op1->val.primitive_val.val.val32;
+    value_op2 = op2->val.primitive_val.val.val32;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (value_op1 ^ value_op2);
+}
+
+void lxor(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    int64_t value_op2, value_op1;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    value_op1 = op1->val.primitive_val.val.val64;
+    value_op2 = op2->val.primitive_val.val.val64;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = LONG;
+    operand->val.primitive_val.val.val64 = (value_op1 ^ value_op2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void i2l(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = LONG;
+    operand->val.primitive_val.val.val64 = (int64_t) op1->val.primitive_val.val.val32;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void i2f(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = FLOAT;
+    operand->val.primitive_val.val.val_float = (float) op1->val.primitive_val.val.val32;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void i2d(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = DOUBLE;
+    operand->val.primitive_val.val.val_double = (double) op1->val.primitive_val.val.val32;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void l2i(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (int32_t) op1->val.primitive_val.val.val64;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void l2f(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = FLOAT;
+    operand->val.primitive_val.val.val_float = (float) op1->val.primitive_val.val.val64;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void l2d(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = DOUBLE;
+    operand->val.primitive_val.val.val_float = (double) op1->val.primitive_val.val.val64;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void f2i(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (int32_t) op1->val.primitive_val.val.val_float;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void f2l(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = LONG;
+    operand->val.primitive_val.val.val64 = (int64_t) op1->val.primitive_val.val.val_float;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void f2d(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = DOUBLE;
+    operand->val.primitive_val.val.val_double = (double) op1->val.primitive_val.val.val_float;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void d2i(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (int32_t) op1->val.primitive_val.val.val_double;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void d2l(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = LONG;
+    operand->val.primitive_val.val.val64 = (int64_t) op1->val.primitive_val.val.val_double;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void d2f(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = FLOAT;
+    operand->val.primitive_val.val.val64 = (float) op1->val.primitive_val.val.val_double;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void i2b(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = BYTE;
+    operand->val.primitive_val.val.val8 = (int8_t) op1->val.primitive_val.val.val32;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void i2c(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = CHAR;
+    operand->val.primitive_val.val.val_char = (int8_t) op1->val.primitive_val.val.val32;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void i2s(){
+    any_type_t *op1, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = SHORT;
+    operand->val.primitive_val.val.val16 = (uint16_t) op1->val.primitive_val.val.val32;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void lcmp(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    uint8_t value;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    if(op1->val.primitive_val.val.val64 > op2->val.primitive_val.val.val64)
+        value = 1;
+    else
+        value = 0;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = BOOLEAN;
+    operand->val.primitive_val.val.val_boolean = value;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void fcmpl(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    uint8_t value;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    if(op1.val.primitive_val->val.val_float == sqrt(-1) || op2->val.primitive_val.val.val_float == sqrt(-1))
+        value = 0;
+    else if(op1->val.primitive_val.val.val_float > op2->val.primitive_val.val.val_float)
+        value = 1;
+    else
+        value = 0;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = BOOLEAN;
+    operand->val.primitive_val.val.val_boolean = value;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void fcmpg(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    uint8_t value;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    if(op1.val.primitive_val.val.val_float == sqrt(-1) || op2.val.primitive_val.val.val_float == sqrt(-1))
+        value = 1;
+    else if(op1.val.primitive_val.val.val_float > op2.val.primitive_val.val.val_float)
+        value = 1;
+    else
+        value = 0;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = BOOLEAN;
+    operand->val.primitive_val.val.val_boolean = value;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void dcmpl(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    uint8_t value;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    if(op1.val.primitive_val.val.val_double == (double) sqrt(-1) || op2.val.primitive_val.val.val_double == (double) sqrt(-1))
+        value = 0;
+    else if(op1.val.primitive_val.val.val_double > op2.val.primitive_val.val.val_double)
+        value = 1;
+    else
+        value = 0;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = BOOLEAN;
+    operand->val.primitive_val.val.val_boolean = value;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void dcmpg(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    uint8_t value;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    if(op1.val.primitive_val.val.val_double == (double) sqrt(-1) || op2.val.primitive_val.val.val_double == (double) sqrt(-1))
+        value = 1;
+    else if(op1.val.primitive_val.val.val_double > op2.val.primitive_val.val.val_double)
+        value = 1;
+    else
+        value = 0;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = BOOLEAN;
+    operand->val.primitive_val.val.val_boolean = value;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void ifeq(){
+    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value = pop_operand_stack(&(frame->operand_stack));
+    if(value->val.primitive_val.val.val32 == 0){
+        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        indexh = code_attribute->code[jvm_pc.code_pc+1];
+        indexl = code_attribute->code[jvm_pc.code_pc+2];
+
+        index = (indexh<<8)|indexl;
+
+        jvm_pc->code_pc = index;
+        jvm_pc->jumped = 1;
+
+    }
+}
+
+void ifne(){
+    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value = pop_operand_stack(&(frame->operand_stack));
+    if(value->val.primitive_val.val.val32 != 0){
+        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        indexh = code_attribute->code[jvm_pc.code_pc+1];
+        indexl = code_attribute->code[jvm_pc.code_pc+2];
+
+        index = (indexh<<8)|indexl;
+
+        jvm_pc->code_pc = index;
+        jvm_pc->jumped = 1;
+
+    }
+}
+
+void iflt(){
+    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value = pop_operand_stack(&(frame->operand_stack));
+    if(value->val.primitive_val.val.val32 < 0){
+        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        indexh = code_attribute->code[jvm_pc.code_pc+1];
+        indexl = code_attribute->code[jvm_pc.code_pc+2];
+
+        index = (indexh<<8)|indexl;
+
+        jvm_pc->code_pc = index;
+        jvm_pc->jumped = 1;
+
+    }
+}
+
+void ifge(){
+    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value = pop_operand_stack(&(frame->operand_stack));
+    if(value->val.primitive_val.val.val32 >= 0){
+        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        indexh = code_attribute->code[jvm_pc.code_pc+1];
+        indexl = code_attribute->code[jvm_pc.code_pc+2];
+
+        index = (indexh<<8)|indexl;
+
+        jvm_pc->code_pc = index;
+        jvm_pc->jumped = 1;
+
+    }
+}
+
+
+void ifgt(){
+    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value = pop_operand_stack(&(frame->operand_stack));
+    if(value->val.primitive_val.val.val32 > 0){
+        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        indexh = code_attribute->code[jvm_pc.code_pc+1];
+        indexl = code_attribute->code[jvm_pc.code_pc+2];
+
+        index = (indexh<<8)|indexl;
+
+        jvm_pc->code_pc = index;
+        jvm_pc->jumped = 1;
+
+    }
+}
+
+void ifle(){
+    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value = pop_operand_stack(&(frame->operand_stack));
+    if(value->val.primitive_val.val.val32 <= 0){
+        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        indexh = code_attribute->code[jvm_pc.code_pc+1];
+        indexl = code_attribute->code[jvm_pc.code_pc+2];
+
+        index = (indexh<<8)|indexl;
+
+        jvm_pc->code_pc = index;
+        jvm_pc->jumped = 1;
+
+    }
+}
+
+void if_icmpeq(){
+    any_type_t *value1, *value2;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value1 = (any_type_t*) malloc(sizeof(any_type_t));
+    value2 = (any_type_t*) malloc(sizeof(any_type_t));
+    value1 = pop_operand_stack(&(frame->operand_stack));
+    value2 = pop_operand_stack(&(frame->operand_stack));
+
+    if(value1->val.primitive_val.val.val32 == value2->val.primitive_val.val.val32){
+        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        indexh = code_attribute->code[jvm_pc.code_pc+1];
+        indexl = code_attribute->code[jvm_pc.code_pc+2];
+
+        index = (indexh<<8)|indexl;
+
+        jvm_pc->code_pc = index;
+        jvm_pc->jumped = 1;
+
+    }
+}
+
+void if_icmpne(){
+    any_type_t *value1, *value2;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value1 = (any_type_t*) malloc(sizeof(any_type_t));
+    value2 = (any_type_t*) malloc(sizeof(any_type_t));
+    value1 = pop_operand_stack(&(frame->operand_stack));
+    value2 = pop_operand_stack(&(frame->operand_stack));
+
+    if(value1->val.primitive_val.val.val32 != value2->val.primitive_val.val.val32){
+        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        indexh = code_attribute->code[jvm_pc.code_pc+1];
+        indexl = code_attribute->code[jvm_pc.code_pc+2];
+
+        index = (indexh<<8)|indexl;
+
+        jvm_pc->code_pc = index;
+        jvm_pc->jumped = 1;
+
+    }
+}
+
+void if_icmplt(){
+    any_type_t *value1, *value2;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value1 = (any_type_t*) malloc(sizeof(any_type_t));
+    value2 = (any_type_t*) malloc(sizeof(any_type_t));
+    value1 = pop_operand_stack(&(frame->operand_stack));
+    value2 = pop_operand_stack(&(frame->operand_stack));
+
+    if(value1->val.primitive_val.val.val32 < value2->val.primitive_val.val.val32){
+        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        indexh = code_attribute->code[jvm_pc.code_pc+1];
+        indexl = code_attribute->code[jvm_pc.code_pc+2];
+
+        index = (indexh<<8)|indexl;
+
+        jvm_pc->code_pc = index;
+        jvm_pc->jumped = 1;
+
+    }
+}
+
+void if_icmpge(){
+    any_type_t *value1, *value2;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value1 = (any_type_t*) malloc(sizeof(any_type_t));
+    value2 = (any_type_t*) malloc(sizeof(any_type_t));
+    value1 = pop_operand_stack(&(frame->operand_stack));
+    value2 = pop_operand_stack(&(frame->operand_stack));
+
+    if(value1->val.primitive_val.val.val32 >= value2->val.primitive_val.val.val32){
+        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        indexh = code_attribute->code[jvm_pc.code_pc+1];
+        indexl = code_attribute->code[jvm_pc.code_pc+2];
+
+        index = (indexh<<8)|indexl;
+
+        jvm_pc->code_pc = index;
+        jvm_pc->jumped = 1;
+
+    }
+}
+
+void if_icmpgt(){
+    any_type_t *value1, *value2;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value1 = (any_type_t*) malloc(sizeof(any_type_t));
+    value2 = (any_type_t*) malloc(sizeof(any_type_t));
+    value1 = pop_operand_stack(&(frame->operand_stack));
+    value2 = pop_operand_stack(&(frame->operand_stack));
+
+    if(value1->val.primitive_val.val.val32 > value2->val.primitive_val.val.val32){
+        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        indexh = code_attribute->code[jvm_pc.code_pc+1];
+        indexl = code_attribute->code[jvm_pc.code_pc+2];
+
+        index = (indexh<<8)|indexl;
+
+        jvm_pc->code_pc = index;
+        jvm_pc->jumped = 1;
+
+    }
+}
+
+void if_icmple(){
+    any_type_t *value1, *value2;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value1 = (any_type_t*) malloc(sizeof(any_type_t));
+    value2 = (any_type_t*) malloc(sizeof(any_type_t));
+    value1 = pop_operand_stack(&(frame->operand_stack));
+    value2 = pop_operand_stack(&(frame->operand_stack));
+
+    if(value1->val.primitive_val.val.val32 <= value2->val.primitive_val.val.val32){
+        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        indexh = code_attribute->code[jvm_pc.code_pc+1];
+        indexl = code_attribute->code[jvm_pc.code_pc+2];
+        index = (indexh<<8)|indexl;
+
+        jvm_pc->code_pc = index;
+        jvm_pc->jumped = 1;
+
+    }
+}
+
+void if_acmpeq(){
+    any_type_t *value1, *value2;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value1 = (any_type_t*) malloc(sizeof(any_type_t));
+    value2 = (any_type_t*) malloc(sizeof(any_type_t));
+    value1 = pop_operand_stack(&(frame->operand_stack));
+    value2 = pop_operand_stack(&(frame->operand_stack));
+
+    switch(value1.val.reference_val.tag)
+        case OBJECT:
+            if(value1->val.reference_val.val.object == value2->val.reference_val.val.object){
+                code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+                indexh = code_attribute->code[jvm_pc.code_pc+1];
+                indexl = code_attribute->code[jvm_pc.code_pc+2];
+                index = (indexh<<8)|indexl;
+
+                jvm_pc->code_pc = index;
+                jvm_pc->jumped = 1;
+            }
+            break;
+        case ARRAY:
+            if(value1->val.reference_val.val.array == value2->val.reference_val.val.array){
+                code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+                indexh = code_attribute->code[jvm_pc.code_pc+1];
+                indexl = code_attribute->code[jvm_pc.code_pc+2];
+                index = (indexh<<8)|indexl;
+
+                jvm_pc->code_pc = index;
+                jvm_pc->jumped = 1;
+            }
+            break;
+
+}
+
+void if_acmpne(){
+    any_type_t *value1, *value2;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value1 = (any_type_t*) malloc(sizeof(any_type_t));
+    value2 = (any_type_t*) malloc(sizeof(any_type_t));
+    value1 = pop_operand_stack(&(frame->operand_stack));
+    value2 = pop_operand_stack(&(frame->operand_stack));
+
+    switch(value1.val.reference_val.tag)
+        case OBJECT:
+            if(value1->val.reference_val.val.object != value2->val.reference_val.val.object){
+                code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+                indexh = code_attribute->code[jvm_pc.code_pc+1];
+                indexl = code_attribute->code[jvm_pc.code_pc+2];
+                index = (indexh<<8)|indexl;
+
+                jvm_pc->code_pc = index;
+                jvm_pc->jumped = 1;
+            }
+            break;
+        case ARRAY:
+            if(value1->val.reference_val.val.array != value2->val.reference_val.val.array){
+                code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+                indexh = code_attribute->code[jvm_pc.code_pc+1];
+                indexl = code_attribute->code[jvm_pc.code_pc+2];
+                index = (indexh<<8)|indexl;
+
+                jvm_pc->code_pc = index;
+                jvm_pc->jumped = 1;
+            }
+            break;
+
+}
+
+void goto_op(){
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    indexh = code_attribute->code[jvm_pc.code_pc+1];
+    indexl = code_attribute->code[jvm_pc.code_pc+2];
+    index = (indexh<<8)|indexl;
+
+    jvm_pc->code_pc = index;
+    jvm_pc->jumped = 1;
+
+}
+
+void jsr(){
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = RETURN_ADDRESS;
+    operand->val.primitive_val.val.val_return_addr = jvm_pc->code_pc;
+    push_operand_stack(&(frame->operand_stack), operand);
+
+    code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    indexh = code_attribute->code[jvm_pc.code_pc+1];
+    indexl = code_attribute->code[jvm_pc.code_pc+2];
+    index = (indexh<<8)|indexl;
+
+    jvm_pc->code_pc = index;
+    jvm_pc->jumped = 1;
 }
 
 void tableswitch() {
