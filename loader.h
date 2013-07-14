@@ -57,6 +57,18 @@ Retorno: não retorna nada
 void ImprimeAtributos(class_file_t* classe, attribute_info_t* atributos, u2 qtd);
 
 /*
+Lê a tabela de constantes e mostra de acordo com a especificacão e baseado no
+programa jclasslib
+
+Parâmetros:
+        constantes - Um ponteiro para a tabela de constantes
+        qtd - Quantidade de elementos desta tabela
+
+Retorno: não retorna nada
+*/
+void ImprimeConstantes(cp_info_t *constantes, u2 qtd);
+
+/*
 A partir do nome no argumento a função lê um arquivo e monta a classe a partir
 dele.
  

@@ -67,9 +67,37 @@ void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd
         printf("Attribute length: %i\n", atributos[i].attribute_length);
         nome = &(classe->constant_pool[atributos[i].attribute_name_index].info.Utf8);
         if(compare_utf8(nome, string_to_utf8("ConstantValue")) == 0) {
+			 printf("Constant Value Index: cp_info #%hi\n", atributos[i].info.constant_value.constantvalue_index);
+             printf("\n");
+		}else if(compare_utf8(nome, string_to_utf8("Code")) == 0) {
+			 printf("Maximum stack depth: %hi\n",atributos[i].info.code.max_stack);
+             printf("Maximum local variables: %hi\n",atributos[i].info.code.max_locals);
+             printf("Code length: %i\n",atributos[i].info.code.code_length);
+             for(j=0; j < atributos[i].info.code.code_length; j++ ){
+                                //printf("%c",atributos[i].info.code[j]);  
+                        }
+             printf("Excepion table length: %hi\n",atributos[i].info.code.exception_table_length);
+             for(j=0; j < atributos[i].info.code.exception_table_length; j++) {
+                                printf("start_pc: %hi\n", atributos[i].info.code.exception_table->start_pc);
+                                printf("end_pc: %hi\n", atributos[i].info.code.exception_table->end_pc);
+                                printf("handler_pc: %hi\n",atributos[i].info.code.exception_table->handler_pc);
+                                printf("catch_pc: %hi\n",atributos[i].info.code.exception_table->catch_type);
+                        }
+              printf("Nr attributes: %hi\n",atributos[i].info.code.attributes_count);
+              ImprimeAtributos(classe,atributos[i].info.code.attributes, atributos[i].info.code.attributes_count);
+			  printf("\n");
+			  } else if(compare_utf8(nome, string_to_utf8("Exceptions")) == 0) {
+				   printf("catch_pc: %hi\n",atributos[i].info.exception.number_of_exceptions);
+				   for(j=0; j<atributos[i].info.exception.number_of_exceptions; j++){
+                                printf("Exception index table %d: %hi\n",atributos[i].info.exception.exception_index_table[j],j);
+                        }
+            printf("\n");
+              } else {
+            printf("Attribute length: %i\n",atributos[i].attribute_length);
+                        for(j = 0; j < atributos[i].attribute_length; j++){
+                                //printf("%c",((u1*)(atributos[i].info))[j]);                  
+            }
 
-
-        }
     }
 }
 
@@ -103,7 +131,7 @@ void ImprimeMetodos(class_file_t* classe){
     qtd = classe->methods_count;
         for(i=0 ; i<qtd ; i++ ){
         printf("\nMethod %d\n", i);
-                printf("    Acess flags: %hi\n",metodos[i].acess_flags);
+                printf("    Acess flags: %hi\n",metodos[i].access_flags);
                 printf("    Name index:  %hi <%s>\n",metodos[i].name_index, (char*)(&(classe->constant_pool[metodos[i].name_index].info.Utf8)));
                 printf("    Descriptor: %hi\n",metodos[i].descriptor_index);
                 printf("    Attributes count: %hi\n",metodos[i].attributes_count);
@@ -210,6 +238,86 @@ cp_info_t* GetConstantes(FILE *fp, u2 constantCount){
     }
     return constantes;
 }
+/*-----------------------------------------------------------------------------------------------------------------*/
+void ImprimeConstantes(cp_info_t *constantes, u2 qtd){
+	Fieldref fieldrefAux;
+	Class classAux;
+	Nameandtype nameAndTypeAux;
+	Methodref methodrefAux;
+	String stringAux;
+	Interfacemethod interfaceMethodrefAux;
+    u2 i, j;  
+    
+     for(i=1;i<qtd;i++){
+                switch(constantes[i].tag){
+					 case 7:
+                                printf("tag: %u (CONSTANT_Class)\n", constantes[i].tag);
+                                printf("name_index: %u <%s>\n", constantes[i].info.Class.name_index, &(constantes[classAux.name_index].info.Utf8));
+                                printf("\n");
+                                break;
+                     case 9:
+                                printf("tag: %u (CONSTANT_Fieldref)\n", constantes[i].tag);                    
+                                printf("class_index: %u <%s>\n", constantes[i].info.Fieldref.class_index, &(constantes[(constantes[fieldrefAux.class_index].info.Class.name_index].info.Utf8));
+                                printf("name_and_type_index: %u <%s%s>\n", constantes[i].info.Fieldref.name_and_type_index, &(constantes[constantes[fieldrefAux.name_and_type_index].info.Nameandtype.name_index].info.Utf8), &(constantes[constantes[fieldrefAux.name_and_type_index].info.Nameandtype.descriptor_index].info.Utf8);
+                                printf("\n");
+                                break;
+                    case 12:
+                                printf("tag: %u (CONSTANT_NameAndType)\n", constantes[i].tag);
+                                printf("nameIndex: %u <%s>\n", constantes[i].info.Nameandtype.name_index, &(constantes[nameAndTypeAux.name_index].info.Utf8));
+                                printf("descriptorIndex: %u <%s>\n", constantes[i].info.Nameandtype.descriptor_index, &(constantes[nameAndTypeAux.descriptor_index].info.Utf8));
+                                printf("\n");
+                                break;
+                     case 1:
+                                printf("tag: %u (CONSTANT_Utf8)\n", constantes[i].tag);
+                                printf("length: %u\n", constantes[i].info.Utf8.length);
+                                printf("string: %s\n", constantes[i].info.Utf8.bytes);
+                                printf("\n");
+                                break;
+                    case 10:
+                                printf("tag: %u (CONSTANT_Methodref)\n", constantes[i].tag);
+                                printf("class_index: %u <%s>\n", constantes[i].info.Methodref.class_index,&(constantes[constantes[methodrefAux.class_index].info.Class.name_index].info.Utf8));
+                                printf("name_and_type_index: %u <%s%s>\n", constantes[i].info.Methodref.name_and_type_index ,&(constantes[constantes[methodrefAux.name_and_type_index].info.Nameandtype.name_index].info.Utf8) , &(constantes[constantes[methodrefAux.name_and_type_index].info.Nameandtype.descriptor_index].info.Utf8));
+                                printf("\n");
+                                break;
+                    case 6:
+                                printf("tag: %u (CONSTANT_Double)\n", constantes[i].tag);
+                                printf("high_bytes : %x\n", constantes[i].info.Double.high_bytes);
+                                printf("low_bytes : %x\n", constantes[i].info.Double.low_bytes);
+                                getchar();
+                                printf("\n");
+                                ++i;
+                                break;
+                    case 5:
+                                printf("tag: %u (CONSTANT_Long)\n", constantes[i].tag);
+                                printf("high_bytes : %u\n", constantes[i].info.Long.high_bytes);
+                                printf("low_bytes : %u\n", constantes[i].info.Long.low_bytes );
+                                printf("\n");
+                                ++i;
+                                break;
+                    case 4:
+                                printf("tag: %u (CONSTANT_Float)\n", constantes[i].tag);
+                                printf("bytes : %u \n", constantes[i].info.Float.bytes 	);
+                                printf("\n");
+                                break;
+                    case 3:
+                                printf("tag: %u (CONSTANT_Integer)\n", constantes[i].tag);
+                                printf("bytes : %u\n", constantes[i].info.Integer.bytes);
+                                printf("\n");
+                                break;
+                    case 8:
+                                printf("tag: %u (CONSTANT_String)\n", constantes[i].tag);
+                                printf("string_index: %u <%s>\n", constantes[i].info.String.string_index, &(constantes[stringAux.string_index].info.Utf8));
+                                printf("\n");
+                                break;
+                    case 11:
+                                printf("tag: %u (CONSTANT_InterfaceMethodref)\n", constantes[i].tag);
+                                printf("class_index: %u <%s>\n", constantes[i].info.Interfacemethod.class_index, &(constantes[constantes[methodrefAux.class_index].info.Class.name_index].info.Utf8));
+                                printf("name_and_type_index: %u <%s%s>\n", constantes[i].info.Interfacemethod.name_and_type_index,&(constantes[constantes[interfaceMethodrefAux.name_and_type_index].info.Nameandtype.name_index].info.Utf8) , &(constantes[constantes[interfaceMethodrefAux.name_and_type_index].info.Nameandtype.descriptor_index].info.Utf8));
+                                printf("\n");
+                                break;
+							}
+				}
+	} 
 
 /*-----------------------------------------------------------------------------------------------------------------*/
 
@@ -276,7 +384,7 @@ void MostraClasse(class_file_t* classe){
 
 
     printf("constant_pool_count: %hi\n", classe->constant_pool_count);
-    printf("acess_flags: %hi\n", classe->acess_flags);
+    printf("acess_flags: %hi\n", classe->access_flags);
     printf("this_class: %hi\n", classe->this_class);
     printf("super_class: %hi\n", classe->super_class);
     printf("interfaces_count: %hi\n", classe->interfaces_count);
@@ -289,7 +397,7 @@ void MostraClasse(class_file_t* classe){
     }
 
     printf("\n----Constant Pool----\n");
-    ImprimeConstantes(classe);
+    ImprimeConstantes(classe->constant_pool, classe->constant_pool_count);
     printf("\n----Fields----\n");
     ImprimeFields(classe);
     printf("\n----Methods----\n");
@@ -304,5 +412,3 @@ void loadClass(class_t* class){
     class->status = CLASSE_NAO_LINKADA;
     printf("Done loadClass\n");
 }
-
-
