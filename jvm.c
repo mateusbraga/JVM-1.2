@@ -746,7 +746,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (strncmp(argv[1], "-p", 2) == 0) {
-        class_t *class = createClass(string_to_utf8(argv[1]));
+        class_t *class = createClass(string_to_utf8(argv[2]));
         loadClass(class);
         MostraClasse(&(class->class_file));
         return 0;
