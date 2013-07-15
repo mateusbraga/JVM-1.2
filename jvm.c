@@ -314,6 +314,9 @@ int hasReturnValue(class_t* class, method_info_t* method) {
  * @see compare_utf8
  */
 method_info_t* getMethodOnThisClass(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
+
+    printf("Got in getMethodOnThisClass with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
+
     int i = 0;
     for (i = 0; class->class_file.methods_count; i++) {
         method_info_t* method = &(class->class_file.methods[i]);
@@ -322,10 +325,12 @@ method_info_t* getMethodOnThisClass(class_t* class, Utf8_info_t* method_name, Ut
         if (compare_utf8(method_name, method_name_aux) == 0) {
             Utf8_info_t* descriptor_aux = &(class->class_file.constant_pool[method->descriptor_index].info.Utf8);
             if (compare_utf8(descriptor, descriptor_aux) == 0) {
+                printf("Done with getMethodOnThisClass with arguments: %s, %s, %s. Found method.\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
                 return method;
             }
         }
     }
+    printf("Done with getMethodOnThisClass with arguments: %s, %s, %s. DID NOT Found method.\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
     return NULL;
 }
 
@@ -340,6 +345,9 @@ method_info_t* getMethodOnThisClass(class_t* class, Utf8_info_t* method_name, Ut
  * @see getSuperClass, getMethodOnThisClass
  */
 method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
+
+    printf("Got in getMethod with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
+
     if (class->status == CLASSE_NAO_CARREGADA) {
         loadClass(class);
     }
@@ -361,6 +369,32 @@ method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* 
             exit(1);
         }
     }
+
+    /*int arg = 1;*/
+    /*if (compare_utf8(class->class_name, string_to_utf8("java/io/PrintStream")) == 0) {*/
+        /*if(compare_utf8(method_name, string_to_utf8("println")) == 0) {*/
+            /*if (compare_utf8(descriptor, string_to_utf8("(I)V")) == 0) {*/
+                /*printf("%d\n", arg);*/
+            /*} else if (compare_utf8(descriptor, string_to_utf8("(J)V")) == 0) {*/
+                /*printf("%d\n", arg);*/
+            /*} else if (compare_utf8(descriptor, string_to_utf8("(S)V")) == 0) {*/
+                /*printf("%d\n", arg);*/
+            /*} else if (compare_utf8(descriptor, string_to_utf8("(D)V")) == 0) {*/
+                /*printf("%f\n", arg);*/
+            /*} else if (compare_utf8(descriptor, string_to_utf8("(F)V")) == 0) {*/
+                /*printf("%f\n", arg);*/
+            /*} else if (compare_utf8(descriptor, string_to_utf8("(Ljava/lang/String;)V")) == 0) {*/
+                /*printf("%s\n", arg);*/
+            /*}*/
+        /*}*/
+    /*}*/
+
+
+
+
+
+    printf("Done with getMethod with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
+
     return method;
 }
 
@@ -707,7 +741,15 @@ void callMethod(class_t* class, method_info_t* method) {
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         printf("Instrução: Rode com 'jvm class_identifier [args]'\n");
+        printf("                ou: 'jvm -p class_identifier'\n");
         return 1;
+    }
+
+    if (strncmp(argv[1], "-p", 2) == 0) {
+        class_t *class = createClass(string_to_utf8(argv[1]));
+        loadClass(class);
+        MostraClasse(&(class->class_file));
+        return 0;
     }
 
     // passar argv[2:] como argumento (array de strings)
