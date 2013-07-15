@@ -3,8 +3,19 @@
 
 #include "initializer.h"
 
+/**
+ * @brief Funcao que inincializa o metodo clinit.
+ *
+ * @param Classe que sera inicializada.
+ *
+ */
 void initializeClass(class_t* class) {
-
+	if (class->status == CLASSE_NAO_CARREGADA) {
+        loadClass(class);
+    }
+    if (class->status == CLASSE_NAO_INICIALIZADA) {
+        linkClass(class);
+    }
 	u2 i;
 	Utf8_info_t* name_clinit_utf8;
 	Utf8_info_t* name_method_utf8;
@@ -15,4 +26,5 @@ void initializeClass(class_t* class) {
 			callMethod(class, &(class->class_file.methods[i]));
 		}
 	}
+	class->status = CLASSE_PRONTA;
 }

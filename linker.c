@@ -6,6 +6,14 @@
 #include "structs.h"
 #include "jvm.h"
 
+// PREPARATION STUFF - BEGIN
+/**
+ * @brief Preparacao. Inicializa todos os campos estaticos com seus valores defaults.
+ *
+ * @param classe que sera preparada.
+ * 
+ */
+
 void preparar (class_t* class) {
 
 	class->static_fields = (any_type_t**) malloc(sizeof(any_type_t*) * class->class_file.fields_count);
@@ -75,6 +83,14 @@ void preparar (class_t* class) {
 		}
 	}
 }
+// PREPARATION STUFF - END
+// VERIFICATION STUFF - BEGIN
+/**
+ * @brief Verificacao. Analisa se a classe final nao eh extendida. Se toda classe tem superclasse. Se tudo que aponta para a constant pool aponta para o local correto.
+ *
+ * @param classe que sera verificada
+ * 
+ */
 
 void verificar (class_t* class) {
 	if (class->status == CLASSE_NAO_CARREGADA) {
@@ -112,7 +128,7 @@ void verificar (class_t* class) {
 			}
 		}
 		if (tag == CONSTANT_Methodref) {
-			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Methodref.class_index].tag != CONSTANT_Utf8) {
+			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Methodref.class_index].tag != CONSTANT_Class) {
 				printf("Erro: Indice do class_index apontado pela methodref invalido.\n");
 				exit(1);
 			}
@@ -122,7 +138,7 @@ void verificar (class_t* class) {
 			}
 		}
 		if (tag == CONSTANT_InterfaceMethodref) {
-			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Interfacemethod.class_index].tag != CONSTANT_Utf8) {
+			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Interfacemethod.class_index].tag != CONSTANT_Class) {
 				printf("Erro: Indice do class_index apontado pela interfacemethodref invalido.\n");
 				exit(1);
 			}
@@ -164,12 +180,15 @@ void verificar (class_t* class) {
 	    }
 	}
 
-	//Checkar se os fieldsref e methodsref da Constant Pool possuem nomes, classes e tipos validos. Como????
-	//Analisar apenas se esses itens sao bem formados.
-	//Poderia fazer junto com a checagem se o indice aponta para o lugar certo.
-
-
 }
+// PREPARATION STUFF - END
+
+/**
+ * @brief Funcao que inincia o linker.
+ *
+ * @param Classe que sera linkada
+ *
+ */
 
 void linkClass (class_t* class) {
 	verificar(class);
@@ -177,26 +196,6 @@ void linkClass (class_t* class) {
 	//resolver(class);
 	class->status = CLASSE_NAO_INICIALIZADA; // Se nenhum erro ocorrer muda o estado da classe e retorna para a função.
 }
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	// 	//Verificar se o code_length eh maior do que 0 e menor do que 65536.
