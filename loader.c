@@ -50,7 +50,55 @@ attribute_info_t* GetAtributos(class_file_t* classe, FILE *fp, u2 attributesCoun
             for(j=0;j<atributos[i].info.exception.number_of_exceptions; j++){
                 atributos[i].info.exception.exception_index_table[j] = readu2(fp);
             }
-        } else {
+        } else if(compare_utf8(nome, string_to_utf8("InnerClasses")) == 0) {
+			atributos[i].info. innerclasses.attribute_name_index = atributos[i].attribute_name_index;
+            atributos[i].info.innerclasses.attribute_length = atributos[i].attribute_length;
+            atributos[i].info. innerclasses.number_of_classes = readu2(fp);
+            atributos[i].info. innerclasses.classes = (u2*)calloc(sizeof(u2*),atributos[i].info.innerclasses.number_of_classes);
+            for(j=0; j< atributos[i].info. innerclasses.number_of_classes; j++) {
+                 atributos[i].info.innerclasses.classes[j].inner_class_info_index = readu2(fp);
+                 atributos[i].info.innerclasses.classes[j].outer_class_info_index = readu2(fp);
+                 atributos[i].info.innerclasses.classes[j].inner_name_index = readu2(fp);
+                 atributos[i].info.innerclasses.classes[j].inner_class_access_flags = readu2(fp);
+
+				}
+		}else if(compare_utf8(nome, string_to_utf8("Synthetic")) == 0) {
+            atributos[i].info.synthetic.attribute_name_index = atributos[i].attribute_name_index;
+            atributos[i].info.synthetic.attribute_length = atributos[i].attribute_length;						
+		}else if(compare_utf8(nome, string_to_utf8("SourceFile")) == 0) {
+			atributos[i].info.sourcefile.attribute_name_index = atributos[i].attribute_name_index;
+            atributos[i].info.sourcefile.attribute_length = atributos[i].attribute_length;
+            atributos[i].info.sourcefile.sourcefile_index = readu2(fp);			
+		}else if(compare_utf8(nome, string_to_utf8("LineNumberTable")) == 0) {
+			atributos[i].info.line_number_table.attribute_name_index = atributos[i].attribute_name_index;
+            atributos[i].info.line_number_table.attribute_length = atributos[i].attribute_length;
+            atributos[i].info.line_number_table.line_number_table_length = readu2(fp);
+            atributos[i].info.line_number_table.line_number_table = (u2*)calloc(sizeof(u2*),atributos[i].info.line_number_table.line_number_table_length);
+            for(j=0; j < atributos[i].info.line_number_table.line_number_table_length; j++) {
+                  atributos[i].info.line_number_table.line_number_table[j].start_pc = readu2(fp);
+                  atributos[i].info.line_number_table.line_number_table[j].line_number = readu2(fp);
+                   }		
+		}else if(compare_utf8(nome, string_to_utf8("LocalVariableTable")) == 0) {
+			atributos[i].info.local_variable_table.attribute_name_index = atributos[i].attribute_name_index;
+            atributos[i].info.local_variable_table.attribute_length = atributos[i].attribute_length;
+            atributos[i].info.local_variable_table.local_variable_table_length = readu2(fp);
+            atributos[i].info.local_variable_table.local_variable_table = (u2*)calloc(sizeof(u2*),atributos[i].info.local_variable_table.local_variable_table_length);
+            for(j=0; j < atributos[i].info.local_variable_table.local_variable_table_length; j++) {
+                   atributos[i].info.local_variable_table.local_variable_table[j].start_pc = readu2(fp);
+                   atributos[i].info.local_variable_table.local_variable_table[j].length = readu2(fp);
+                   atributos[i].info.local_variable_table.local_variable_table[j].name_index = readu2(fp);
+                   atributos[i].info.local_variable_table.local_variable_table[j].descriptor_index = readu2(fp);
+                   atributos[i].info.local_variable_table.local_Variable_table[j].index = readu2(fp);
+                        }
+
+		}else if(compare_utf8(nome, string_to_utf8("Deprecated")) == 0) {
+		   atributos[i].info.deprecated.attribute_name_index = atributos[i].attribute_name_index;
+           atributos[i].info.deprecated.attribute_length = atributos[i].attribute_length;		   
+	    }else if(compare_utf8(nome, string_to_utf8("Signature")) == 0) {
+		   atributos[i].info.signature.attribute_name_index = atributos[i].attribute_name_index;
+           atributos[i].info.signature.attribute_length = atributos[i].attribute_length;
+           atributos[i].info.signature.signature_index = readu2(fp);
+        }else {
            printf("GetAttributos ignorou attributo: %s\n", utf8_to_string(nome));
         }
 

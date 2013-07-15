@@ -105,25 +105,25 @@ typedef struct exception_table_struct {
     u2 catch_type;
 } exception_table_t;
 
-//typedef struct inner_class_struct {
-    //u2 inner_class_info_index;
-    //u2 outer_class_info_index;
-    //u2 inner_name_index;
-    //u2 inner_class_access_flags;
-//} inner_class_t;
+typedef struct inner_class_struct {
+   u2 inner_class_info_index;
+   u2 outer_class_info_index;
+   u2 inner_name_index;
+   u2 inner_class_access_flags;
+} inner_class_t;
 
-//typedef struct line_number_table_struct {
-    //u2 start_pc;
-    //u2 line_number;
-//} line_number_table_t;
+typedef struct line_number_table_struct {
+   u2 start_pc;
+   u2 line_number;
+} line_number_table_t;
 
-//typedef struct local_variable_table_struct {
-    //u2 start_pc;
-    //u2 length;
-    //u2 name_index;
-    //u2 descriptor_index;
-    //u2 index;
-//} local_variable_table_t;
+typedef struct local_variable_table_struct {
+    u2 start_pc;
+    u2 length;
+    u2 name_index;
+    u2 descriptor_index;
+    u2 index;
+} local_variable_table_t;
 
 typedef struct constantvalue_attribute_struct {
     u2 attribute_name_index;
@@ -152,27 +152,27 @@ typedef struct exceptions_attribute_struct {
 } exceptions_attribute_t;
 
 // TODO talvez nao precisa implementar
-//typedef struct InnerClasses_attribute_struct {
-    //u2 attribute_name_index;
-    //u4 attribute_length;
-    //u2 number_of_classes;
-    //inner_class_t *classes;
-//} info_innerclasses_t;
+typedef struct InnerClasses_attribute_struct {
+    u2 attribute_name_index;
+    u4 attribute_length;
+    u2 number_of_classes;
+    inner_class_t *classes;
+} info_innerclasses_t;
 
 // TODO talvez nao precisa implementar
-//typedef struct Synthetic_attribute_struct {
-    //u2 attribute_name_index;
-    //u4 attribute_length;
-//} info_synthetic_t;
+typedef struct Synthetic_attribute_struct {
+    u2 attribute_name_index;
+    u4 attribute_length;
+} info_synthetic_t;
 
 // TODO talvez nao precisa implementar
-//typedef struct Sourcefile_attribute_struct {
-    //u2 attribute_name_index;
-    //u4 attribute_length;
-    //u2 sourcefile_index;
-//} info_sourcefile_t;
+typedef struct Sourcefile_attribute_struct {
+    u2 attribute_name_index;
+    u4 attribute_length;
+    u2 sourcefile_index;
+} info_sourcefile_t;
 
-/*typedef struct Signature_attribute_struct
+typedef struct Signature_attribute_struct
 {
     u2 attribute_name_index;
     u4 attribute_length;
@@ -180,26 +180,26 @@ typedef struct exceptions_attribute_struct {
 } info_signature_t;*/
 
 // TODO talvez nao precisa implementar
-//typedef struct LineNumberTable_attribute_struct {
-    //u2 attribute_name_index;
-    //u4 attribute_length;
-    //u2 line_number_table_length;
-    //line_number_table_t *line_number_table;
-//} info_line_number_table_t;
+typedef struct LineNumberTable_attribute_struct {
+    u2 attribute_name_index;
+    u4 attribute_length;
+    u2 line_number_table_length;
+    line_number_table_t *line_number_table;
+} info_line_number_table_t;
 
 // TODO talvez nao precisa implementar
-//typedef struct LocalVariableTable_attribute_struct {
-    //u2 attribute_name_index;
-    //u4 attribute_length;
-    //u2 local_variable_table_length;
-    //local_variable_table_t *local_variable_table;
-//} info_local_variable_table_t;
+typedef struct LocalVariableTable_attribute_struct {
+    u2 attribute_name_index;
+    u4 attribute_length;
+    u2 local_variable_table_length;
+    local_variable_table_t *local_variable_table;
+} info_local_variable_table_t;
 
 // TODO talvez nao precisa implementar
-//typedef struct Deprecated_attribute_struct {
-    //u2 attribute_name_index;
-    //u4 attribute_length;
-//} info_deprecated_t;
+typedef struct Deprecated_attribute_struct {
+    u2 attribute_name_index;
+    u4 attribute_length;
+} info_deprecated_t;
 
 typedef struct attribute_info_struct {
     u2 attribute_name_index;
@@ -209,29 +209,29 @@ typedef struct attribute_info_struct {
         constantvalue_attribute_t constant_value;
         code_attribute_t code;
         exceptions_attribute_t exception;
-        //info_innerclasses_t innerclasses;
-        //info_synthetic_t synthetic;
-        //info_sourcefile_t sourcefile;
-        //info_line_number_table_t line_number_table;
-        //info_local_variable_table_t local_variable_table;
-        //info_deprecated_t deprecated;
-        //info_signature_t signature;
+        info_innerclasses_t innerclasses;
+        info_synthetic_t synthetic;
+        info_sourcefile_t sourcefile;
+        info_line_number_table_t line_number_table;
+        info_local_variable_table_t local_variable_table;
+        info_deprecated_t deprecated;
+        info_signature_t signature;
     } info;
 } attribute_info_t;
 
-//typedef struct constantvalue_attribute_real_struct { TODO
-    //u2 access_flags;
-    //u2 name_index;
-    //u2 descriptor_index;
-    //u2 attributes_count;
-    //attribute_info_t *attributes;
-//} constantvalue_attribute_t;
+typedef struct constantvalue_attribute_real_struct { TODO
+   u2 access_flags;
+   /u2 name_index;
+   u2 descriptor_index;
+   u2 attributes_count;
+   attribute_info_t *attributes;
+} constantvalue_attribute_t;
 
-//typedef struct sourcefile_attribute_struct {
-    //u2 attribute_name_index;
-    //u4 attribute_length;
-    //u2 sourcefile_index;
-//} sourcefile_attribute_t;
+typedef struct sourcefile_attribute_struct {
+    u2 attribute_name_index;
+    u4 attribute_length;
+    u2 sourcefile_index;
+} sourcefile_attribute_t;
 
 
 typedef struct field_info_struct {
