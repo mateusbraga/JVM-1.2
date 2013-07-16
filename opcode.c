@@ -2586,20 +2586,16 @@ void impdep2() {
 }
 
 void (*jvm_opcode[])(void) = {
-    NULL, aconst_null, iconst_m1, iconst_0, iconst_1, iconst_2, iconst_3, iconst_4, iconst_5, lconst_0, lconst_1,
-    fconst_0, fconst_1, dconst_0, dconst_1, bipush, sipush, ldc, ldc_w, ldc2_w, tload, tload, tload, tload, tload,
-    tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3,
-    tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3, taload, taload, taload, taload, taload,
-    taload, taload, taload, tstore, tstore, tstore, tstore, tstore, tstore_0, tstore_2, tstore_1, tstore_3, tstore_0, 
-    tstore_1, tstore_2, tstore_3, tstore_0, tstore_1, tstore_2, tstore_3, tstore_0, tstore_1, tstore_2, tstore_3, tstore_0, 
-    tstore_1, tstore_2, tstore_3, tstore_0,tstore_1, tstore_3, tastore, tastore, tastore, tastore, tastore, tastore, 
-    tastore, tastore, pop, pop2, dup,dup_x1, dup_x2, dup2, dup2_x1, dup2_x2, swap, iadd, ladd, fadd, dadd, isub, fsub, dsub, 
-    imul, lmul, fmul, dmul, idiv, ldiv_op, fdiv, ddiv, irem, lrem, frem, drem, ineg, lneg, fneg, dneg, ishl, lshl, ishr, 
-    lshr, iushr, lushr, iand, land, ior, lor, ixor, lxor, iinc, i2l, i2f, i2d, l2i, l2f, l2d, f2i, f2l, f2d, d2i, d2l, d2f, i2b, i2c, 
-    i2s, lcmp, fcmpl, fcmpg, dcmpl, dcmpg, ifeq, ifne, iflt, ifge, ifgt, ifle, if_icmpeq, if_icmpne, if_icmplt, if_icmpge, if_icmpgt, 
-    if_icmple, if_acmpeq, if_acmpne, goto_op, jsr, ret, tableswitch, lookupswitch, treturn, treturn, treturn, treturn, treturn, 
-    treturn, getstatic, putstatic, getfield, putfield, invokevirtual, invokespecial, invokestatic, invokeinterface, invokedynamic,
-    new_op, newarray, anewarray, arraylength, athrow, checkcast, instanceof, monitorenter, monitorexit, wide, multianewarray,
-    ifnull, ifnonnull, goto_w, jsr_w, breakpoint, impdep1, impdep2
+ NULL,aconst_null,iconst_m1,iconst_0,iconst_1,iconst_2,iconst_3,iconst_4,iconst_5,lconst_0,lconst_1,fconst_0,fconst_1,fconst_2,dconst_0,
+dconst_1,bipush,sipush,ldc,ldc_w,ldc2_w,tload,tload,tload,tload,tload,tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,
+tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,iaload,taload,taload,taload,taload,taload,
+taload,taload,tstore,tstore,tstore,tstore,tstore,tstore_0,tstore_1,tstore_2tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tstore_0,tstore_1,	
+tstore_2,tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tastore,tastore,tastore,tastore,tastore,tastore,
+tastore,tastore,pop,pop2,dup,dup_x1,dup_x2,dup2,dup2_x1,dup2_x2,swap,iadd,ladd,fadd,dadd,isub,lsub,fsub,dsub,imul,lmul,fmul,dmul,idiv,ldiv_op,
+fdiv,ddiv,irem,lrem,frem,drem,ineg,lneg,fneg,dneg,ishl,lshl,ishr,lshr,iushr,lushr,iand,land,ior,lor,ixor,lxor,iinc,i2l,i2f,i2d,l2i,l2f,l2d,
+f2i,f2l,f2d,d2i,d2l,d2f,i2b,i2c,i2s,lcmp,fcmpl,fcmpg,dcmpl,dcmpg,ifeq,ifne,iflt,ifge,ifgt,ifle,if_icmpeq,if_icmpne,if_icmplt,if_icmpge,if_icmpgt,
+if_icmple,if_acmpeq,if_acmpne,goto_op,jsr,ret,tableswitch,lookupswitch,treturn,treturn,treturn,treturn,treturn,treturn,getstatic,putstatic,
+getfield,putfield,invokevirtual,invokespecial,invokestatic,invokeinterface,invokedynamic,new_op,newarray,anewarray,arraylength,athrow,checkcast,
+instanceof,monitorenter,monitorexit,wide,multianewarray,ifnull,ifnonnull,goto_w	,jsr_w,breakpoint
 };
 
