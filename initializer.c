@@ -2,6 +2,8 @@
 #include <stdlib.h>
 
 #include "initializer.h"
+#include "loader.h"
+#include "linker.h"
 
 /**
  * @brief Funcao que inincializa o metodo clinit.
