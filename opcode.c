@@ -756,8 +756,8 @@ void iadd(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -772,8 +772,8 @@ void ladd(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -788,8 +788,8 @@ void fadd(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -804,8 +804,8 @@ void dadd(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -820,8 +820,8 @@ void isub(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -836,8 +836,8 @@ void lsub(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -852,8 +852,8 @@ void fsub(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -868,8 +868,8 @@ void dsub(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -884,8 +884,8 @@ void imul(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -900,8 +900,8 @@ void lmul(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -916,8 +916,8 @@ void fmul(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -932,8 +932,8 @@ void dmul(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -948,8 +948,8 @@ void idiv(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -964,8 +964,8 @@ void ldiv_op(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -980,8 +980,8 @@ void fdiv(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -996,8 +996,8 @@ void ddiv(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -1012,8 +1012,8 @@ void irem(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -1028,8 +1028,8 @@ void lrem(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -1044,8 +1044,8 @@ void frem(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -1060,8 +1060,8 @@ void drem_op(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -1349,7 +1349,7 @@ void ixor(){
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = (value_op1 ^ value_op2);
-    
+
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
@@ -1548,7 +1548,7 @@ void d2f(){
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
-    operand->val.primitive_val.val.val64 = (float) op1->val.primitive_val.val.val_double;
+    operand->val.primitive_val.val.val_float = (float) op1->val.primitive_val.val.val_double;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -1604,8 +1604,8 @@ void lcmp(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint8_t value;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     if(op1->val.primitive_val.val.val64 > op2->val.primitive_val.val.val64)
         value = 1;
@@ -1626,8 +1626,8 @@ void fcmpl(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint8_t value;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     if(op1->val.primitive_val.val.val_float == sqrt(-1) || op2->val.primitive_val.val.val_float == sqrt(-1))
         value = 0;
@@ -1650,8 +1650,8 @@ void fcmpg(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint8_t value;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     if(op1->val.primitive_val.val.val_float == sqrt(-1) || op2->val.primitive_val.val.val_float == sqrt(-1))
         value = 1;
@@ -1674,8 +1674,8 @@ void dcmpl(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint8_t value;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     if(op1->val.primitive_val.val.val_double == (double) sqrt(-1) || op2->val.primitive_val.val.val_double == (double) sqrt(-1))
         value = 0;
@@ -1698,8 +1698,8 @@ void dcmpg(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint8_t value;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     if(op1->val.primitive_val.val.val_double == (double) sqrt(-1) || op2->val.primitive_val.val.val_double == (double) sqrt(-1))
         value = 1;
@@ -3032,7 +3032,7 @@ void (*jvm_opcode[])(void) = {
     NULL,aconst_null,iconst_m1,iconst_0,iconst_1,iconst_2,iconst_3,iconst_4,iconst_5,lconst_0,lconst_1,fconst_0,fconst_1,fconst_2,dconst_0,
     dconst_1,bipush,sipush,ldc,ldc_w,ldc2_w,tload,tload,tload,tload,tload,tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,
     tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,taload,taload,taload,taload,taload,taload,
-    taload,taload,tstore,tstore,tstore,tstore,tstore,tstore_0,tstore_1,tstore_2, tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tstore_0,tstore_1,	
+    taload,taload,tstore,tstore,tstore,tstore,tstore,tstore_0,tstore_1,tstore_2, tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tstore_0,tstore_1,
     tstore_2,tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tastore,tastore,tastore,tastore,tastore,tastore,
     tastore,tastore,pop,pop2,dup,dup_x1,dup_x2,dup2,dup2_x1,dup2_x2,swap,iadd,ladd,fadd,dadd,isub,lsub,fsub,dsub,imul,lmul,fmul,dmul,idiv,ldiv_op,
     fdiv,ddiv,irem,lrem,frem,drem_op,ineg,lneg,fneg,dneg,ishl,lshl,ishr,lshr,iushr,lushr,iand,land,ior,lor,ixor,lxor,iinc,i2l,i2f,i2d,l2i,l2f,l2d,
