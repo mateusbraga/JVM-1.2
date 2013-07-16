@@ -418,7 +418,7 @@ void set_class_file(class_t* class){
     }
     else {
         if((classe->major_version == 45) || (classe->major_version == 46)){
-            if(class->minor_version != 0) {
+            if(classe->minor_version != 0) {
                 printf("Erro! Problema na versao da classe\n %x.%x\n", classe->major_version, classe->minor_version);
                 exit(1);
             }
