@@ -12,7 +12,7 @@
  *
  */
 void initializeClass(class_t* class) {
-    printf("Got in initializeClass with arguments: %s\n", utf8_to_string(class->class_name));
+    DEBUG_PRINT("Got in initializeClass with arguments: %s\n", utf8_to_string(class->class_name));
 	if (class->status == CLASSE_NAO_CARREGADA) {
         loadClass(class);
     }
@@ -31,5 +31,5 @@ void initializeClass(class_t* class) {
 		}
 	}
 	class->status = CLASSE_PRONTA;
-	printf("Done initializeClass\n");
+	DEBUG_PRINT("Done initializeClass\n");
 }
