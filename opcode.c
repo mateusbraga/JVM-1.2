@@ -1134,7 +1134,45 @@ void lshr(){
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
-// faltam iushr e lushr
+void iuhsr(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    uint32_t value_op2;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    value_op2 = (uint32_t) op2->val.primitive_val.val.val32;
+    value_op2 = (value_op2 & 0x00FF) & 0x001F;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (op1->val.primitive_val.val.val32 >> value_op2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+
+}
+
+void lushr(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    uint64_t value_op2;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    value_op2 = (uint64_t) op2->val.primitive_val.val.val64;
+    value_op2 = (value_op2 & 0x00FF) & 0x003F;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = LONG;
+    operand->val.primitive_val.val.val64 = (op1->val.primitive_val.val.val64 >> value_op2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
 
 void iand(){
     any_type_t *op1, *op2, *operand;
