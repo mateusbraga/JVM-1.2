@@ -1609,6 +1609,8 @@ void lcmp(){
 
     if(op1->val.primitive_val.val.val64 > op2->val.primitive_val.val.val64)
         value = 1;
+    else if(op1->val.primitive_val.val.val64 < op2->val.primitive_val.val.val64)
+        value = -1;
     else
         value = 0;
 
@@ -1633,6 +1635,8 @@ void fcmpl(){
         value = -1;
     else if(op1->val.primitive_val.val.val_float > op2->val.primitive_val.val.val_float)
         value = 1;
+    else if(op1->val.primitive_val.val.val_float < op2->val.primitive_val.val.val_float)
+        value = -1;
     else
         value = 0;
 
@@ -1657,6 +1661,8 @@ void fcmpg(){
         value = 1;
     else if(op1->val.primitive_val.val.val_float > op2->val.primitive_val.val.val_float)
         value = 1;
+    else if(op1->val.primitive_val.val.val_float < op2->val.primitive_val.val.val_float)
+        value = -1;
     else
         value = 0;
 
@@ -1677,13 +1683,16 @@ void dcmpl(){
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
 
-    if(op1->val.primitive_val.val.val_double == (double) sqrt(-1) || op2->val.primitive_val.val.val_double == (double) sqrt(-1)){
+    if(op1->val.primitive_val.val.val_double == (double) sqrt(-1) || op2->val.primitive_val.val.val_double == (double) sqrt(-1))
         value = -1;
-    }else if(op1->val.primitive_val.val.val_double > op2->val.primitive_val.val.val_double)
+    else if(op1->val.primitive_val.val.val_double > op2->val.primitive_val.val.val_double)
         value = 1;
+    else if(op1->val.primitive_val.val.val_double < op2->val.primitive_val.val.val_double)
+        value = -1;
     else
         value = 0;
 
+    printf("\nop1: %f op2: %f value: %d\n", op1->val.primitive_val.val.val_double, op2->val.primitive_val.val.val_double, value);
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
@@ -1705,9 +1714,12 @@ void dcmpg(){
         value = 1;
     else if(op1->val.primitive_val.val.val_double > op2->val.primitive_val.val.val_double)
         value = 1;
+    else if(op1->val.primitive_val.val.val_double < op2->val.primitive_val.val.val_double)
+        value = -1;
     else
         value = 0;
 
+    printf("\nop1: %f op2: %f value: %d\n", op1->val.primitive_val.val.val_double, op2->val.primitive_val.val.val_double, value);
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
