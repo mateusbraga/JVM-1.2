@@ -264,13 +264,14 @@ void bipush(){
     DEBUG_PRINT("got into bipush\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b = code_attribute->code[jvm_pc.code_pc+1];
-    int32_t value = (int32_t) b;
+    int8_t value = b;
+    int32_t value2 = value;
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
-    operand->val.primitive_val.val.val32 = value;
+    operand->val.primitive_val.val.val32 = value2;
 
     frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
@@ -1576,11 +1577,12 @@ void i2c(){
     frame_t *frame = peek_frame_stack(jvm_stack);
 
     op1 = pop_operand_stack(&(frame->operand_stack));
+    int16_t value = op1->val.primitive_val.val.val32;
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = CHAR;
-    operand->val.primitive_val.val.val_char = (int8_t) op1->val.primitive_val.val.val32;
+    operand->val.primitive_val.val.val_char = (uint16_t) value;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -1591,11 +1593,12 @@ void i2s(){
     frame_t *frame = peek_frame_stack(jvm_stack);
 
     op1 = pop_operand_stack(&(frame->operand_stack));
+    int16_t value = op1->val.primitive_val.val.val32;
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = SHORT;
-    operand->val.primitive_val.val.val16 = (uint16_t) op1->val.primitive_val.val.val32;
+    operand->val.primitive_val.val.val16 = value;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -2760,11 +2763,22 @@ void invokevirtual() {
         any_type_t *arg = pop_operand_stack(&(frame->operand_stack));
 
         if (compare_utf8(descriptor, string_to_utf8("(I)V")) == 0) {
-            printf("%d\n", arg->val.primitive_val.val.val32);
+            switch(arg->val.primitive_val.tag){
+            case INT:
+                printf("%d\n", arg->val.primitive_val.val.val32);
+                break;
+            case SHORT:
+                printf("%d\n", arg->val.primitive_val.val.val16);
+                break;
+            case BYTE:
+                printf("%d\n", arg->val.primitive_val.val.val8);
+                break;
+
+            }
         } else if (compare_utf8(descriptor, string_to_utf8("(J)V")) == 0) {
             printf("%ld\n", arg->val.primitive_val.val.val64);
-        } else if (compare_utf8(descriptor, string_to_utf8("(S)V")) == 0) {
-            printf("%d\n", arg->val.primitive_val.val.val16);
+        }else if (compare_utf8(descriptor, string_to_utf8("(C)V")) == 0) {
+            printf("%c\n", arg->val.primitive_val.val.val_char);
         } else if (compare_utf8(descriptor, string_to_utf8("(D)V")) == 0) {
             printf("%f\n", arg->val.primitive_val.val.val_double);
         } else if (compare_utf8(descriptor, string_to_utf8("(F)V")) == 0) {
