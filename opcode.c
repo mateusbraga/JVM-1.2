@@ -1802,7 +1802,6 @@ void ifge(){
     u2 index;
 
     value = pop_operand_stack(&(frame->operand_stack));
-    printf("value is %d\n", value->val.primitive_val.val.val32);
     if(value->val.primitive_val.val.val32 >= 0){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
