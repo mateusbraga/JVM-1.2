@@ -1677,6 +1677,31 @@ void dcmpl(){
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
 
+    if(op1->val.primitive_val.val.val_double == (double) sqrt(-1) || op2->val.primitive_val.val.val_double == (double) sqrt(-1)){
+        value = 0;
+        printf("entrei");
+    }else if(op1->val.primitive_val.val.val_double > op2->val.primitive_val.val.val_double)
+        value = 1;
+    else
+        value = 0;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = value;
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
+void dcmpl(){
+    printf("got into dcmpl\n");
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    uint8_t value;
+
+    op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
+
     if(op1->val.primitive_val.val.val_double == (double) sqrt(-1) || op2->val.primitive_val.val.val_double == (double) sqrt(-1))
         value = 0;
     else if(op1->val.primitive_val.val.val_double > op2->val.primitive_val.val.val_double)
@@ -1692,31 +1717,6 @@ void dcmpl(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
-void dcmpg(){
-    printf("got into dcmpg\n");
-    any_type_t *op1, *op2, *operand;
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    uint8_t value;
-
-    op2 = pop_operand_stack(&(frame->operand_stack));
-    op1 = pop_operand_stack(&(frame->operand_stack));
-
-    printf("op1: %f, op2: %f \n", op1->val.primitive_val.val.val_double, op2->val.primitive_val.val.val_double);
-    if(op1->val.primitive_val.val.val_double == ((double) sqrt(-1)) || op2->val.primitive_val.val.val_double == ((double) sqrt(-1)))
-        value = 1;
-    else if(op1->val.primitive_val.val.val_double > op2->val.primitive_val.val.val_double)
-        value = 1;
-    else
-        value = 0;
-
-
-    operand = (any_type_t*) malloc(sizeof(any_type_t));
-    operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = INT;
-    operand->val.primitive_val.val.val32 = value;
-
-    push_operand_stack(&(frame->operand_stack), operand);
-}
 
 void ifeq(){
     printf("got into ifeq\n");
@@ -3099,7 +3099,7 @@ void jsr_w() {
     push_operand_stack(&(frame->operand_stack), operand);
 
     code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
-    
+
     offset += 4 - (jvm_pc.code_pc % 4); //allignment bytes
 
     byte1 = code_attribute->code[jvm_pc.code_pc + offset];
