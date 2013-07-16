@@ -27,6 +27,7 @@ void initializeClass(class_t* class) {
 		name_method_utf8 = &(class->class_file.constant_pool[class->class_file.methods[i].name_index].info.Utf8); // Verifica se o metodo eh o <clinit>, se for executa ele.
 		if (compare_utf8(name_clinit_utf8, name_method_utf8) == 0) {
 			callMethod(class, &(class->class_file.methods[i]));
+			break;
 		}
 	}
 	class->status = CLASSE_PRONTA;

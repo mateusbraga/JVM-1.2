@@ -2046,6 +2046,102 @@ void putstatic(){
 
 }
 
+/*
+void new_op() {
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+    class_t *object_class = getClass(class_name);
+
+    any_type_t* object_ref = (any_type_t*) malloc(sizeof(any_type_t));
+    object_ref->tag = REFERENCE;
+    object_ref->val.reference_val.tag = OBJECT;
+    object_ref->val.reference_val.val.object.length = object_class->class_file.fields_count;
+    object_ref->val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * object_ref->val.reference_val.val.object.length);
+
+    u2 i;
+    for (i = 0; i < object_ref->val.reference_val.val.object.length; ++i) {
+        any_type_t *operand = &(object_ref->val.reference_val.val.object.attributes[i]);
+        u1* b = object_class->class_file.constant_pool[class->class_file.fields[i].descriptor_index].info.Utf8.bytes;
+        switch(b[0]) {
+            case 'B': //byte
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = BYTE;
+                operand->val.primitive_val.val.val8 = 0;
+                break;
+            case 'C': //char
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = CHAR;
+                operand->val.primitive_val.val.val_char = 0;
+                break;
+            case 'D': //double
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = DOUBLE;
+                operand->val.primitive_val.val.val_double = 0;
+                break;
+            case 'F': //float
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = FLOAT;
+                operand->val.primitive_val.val.val_float = 0;
+                break;
+            case 'I': //integer
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = INT;
+                operand->val.primitive_val.val.val32 = 0;
+                break;
+            case 'J': //long
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = LONG;
+                operand->val.primitive_val.val.val64 = 0;
+                break;
+            case 'S': //short
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = SHORT;
+                operand->val.primitive_val.val.val16 = 0;
+                break;
+            case 'Z': //boolean
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = BOOLEAN;
+                operand->val.primitive_val.val.val_boolean = 0;
+                break;
+            case 'L': //reference
+                operand->tag = REFERENCE;
+                operand->val.reference_val.tag = OBJECT;
+                operand->val.reference_val.val.object.length = 0;
+                operand->val.reference_val.val.object.attributes = NULL;
+                break;
+            case '[': //reference - array
+                operand->tag = REFERENCE;
+                operand->val.reference_val.tag = ARRAY;
+                operand->val.reference_val.val.array.length = 0;
+                operand->val.reference_val.val.array.components = NULL;
+                break;
+            default:
+                printf("Unexpected char on method descriptor: %c\n", b[0]);
+                exit(1);
+        }
+        class->static_fields[i] = operand;
+    }
+}
+*/
+
+/*Utf8_info_t* name_init_utf8;*/
+/*Utf8_info_t* name_method_utf8;*/
+/*name_init_utf8 = string_to_utf8("<init>");*/
+/*u2 i;*/
+/*for (i = 1; i < object_class->class_file.methods_count; i++) {*/
+/*name_method_utf8 = &(object_class->class_file.constant_pool[object_class->class_file.methods[i].name_index].info.Utf8); // Verifica se o metodo eh o <clinit>, se for executa ele.*/
+/*if (compare_utf8(name_init_utf8, name_method_utf8) == 0) {*/
+/*callMethod(object_class, &(object_class->class_file.methods[i]));*/
+/*break;*/
+/*}*/
+/*}*/
+
 void newarray(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -2056,30 +2152,30 @@ void newarray(){
 
 
     switch(atype){
-    case 4:
-        arrayref->val.primitive_val.tag = BOOLEAN;
-        break;
-    case 5:
-        arrayref->val.primitive_val.tag = CHAR;
-        brea;
-    case 6:
-        arrayref->val.primitive_val.tag = FLOAT;
-        break;
-    case 7:
-        arrayref->val.primitive_val.tag = DOUBLE;
-        break;
-    case 8:
-        arrayref->val.primitive_val.tag = BYTE;
-        break;
-    case 9:
-        arrayref->val.primitive_val.tag = SHORT;
-        break;
-    case 10:
-        arrayref->val.primitive_val.tag = INT;
-        break;
-    case 11:
-        arrayref->val.primitive_val.tag = LONG;
-        break;
+        case 4:
+            arrayref->val.primitive_val.tag = BOOLEAN;
+            break;
+        case 5:
+            arrayref->val.primitive_val.tag = CHAR;
+            brea;
+        case 6:
+            arrayref->val.primitive_val.tag = FLOAT;
+            break;
+        case 7:
+            arrayref->val.primitive_val.tag = DOUBLE;
+            break;
+        case 8:
+            arrayref->val.primitive_val.tag = BYTE;
+            break;
+        case 9:
+            arrayref->val.primitive_val.tag = SHORT;
+            break;
+        case 10:
+            arrayref->val.primitive_val.tag = INT;
+            break;
+        case 11:
+            arrayref->val.primitive_val.tag = LONG;
+            break;
     }
 
     push_operand_stack(&(frame->operand_stack));
@@ -2394,5 +2490,5 @@ void (*jvm_opcode[])(void) = {
     newarray,
     //anewarray, arraylength, athrow, checkcast, instanceof, monitorenter, monitorexit, wide, multianewarray,
     //ifnull, ifnonnull, goto_w, jsr_w, breakpoint, impdep1, impdep2
-    };
+};
 
