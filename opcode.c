@@ -241,7 +241,7 @@ void dconst_1(){
  *
  */
 void bipush(){
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b = code_attribute->code[jvm_pc.code_pc+1];
     int32_t value = (int32_t) b;
 
@@ -261,7 +261,7 @@ void bipush(){
  *
  */
 void sipush(){
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     int16_t aux = (b1 << 8) | b2;
@@ -283,28 +283,28 @@ void sipush(){
  *
  */
 void ldc(){
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b = code_attribute->code[jvm_pc.code_pc+1];
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     u4 bytes;
     u2 bytes1;
 
-    switch(jvm_pc.class->class_file.constant_pool[b].tag){
+    switch(jvm_pc.currentClass->class_file.constant_pool[b].tag){
         case CONSTANT_Integer:
-            bytes = jvm_pc.class->class_file.constant_pool[b].info.Integer.bytes;
+            bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Integer.bytes;
             operand->tag = PRIMITIVE;
             operand->val.primitive_val.tag = INT;
             operand->val.primitive_val.val.val32 = bytes;
             break;
         case CONSTANT_Float:
-            bytes = jvm_pc.class->class_file.constant_pool[b].info.Float.bytes;
+            bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Float.bytes;
             operand->tag = PRIMITIVE;
             operand->val.primitive_val.tag = FLOAT;
             operand->val.primitive_val.val.val_float = bytes;
             break;
         case CONSTANT_String:
-            bytes1 = jvm_pc.class->class_file.constant_pool[b].info.String.string_index;
-            Utf8_info_t *Utf8_cod = &(jvm_pc.class->class_file.constant_pool[bytes1].info.Utf8);
+            bytes1 = jvm_pc.currentClass->class_file.constant_pool[b].info.String.string_index;
+            Utf8_info_t *Utf8_cod = &(jvm_pc.currentClass->class_file.constant_pool[bytes1].info.Utf8);
             operand = utf8_to_array_reference(Utf8_cod);
             break;
         default:
@@ -321,7 +321,7 @@ void ldc(){
  *
  */
 void ldc_w(){
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 b = (b1<<8)|b2;
@@ -329,22 +329,22 @@ void ldc_w(){
 
     u4 bytes;
     u2 bytes1;
-    switch(jvm_pc.class->class_file.constant_pool[b].tag){
+    switch(jvm_pc.currentClass->class_file.constant_pool[b].tag){
         case CONSTANT_Integer:
-            bytes = jvm_pc.class->class_file.constant_pool[b].info.Integer.bytes;
+            bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Integer.bytes;
             operand->tag = PRIMITIVE;
             operand->val.primitive_val.tag = INT;
             operand->val.primitive_val.val.val32 = bytes;
             break;
         case CONSTANT_Float:
-            bytes = jvm_pc.class->class_file.constant_pool[b].info.Float.bytes;
+            bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Float.bytes;
             operand->tag = PRIMITIVE;
             operand->val.primitive_val.tag = FLOAT;
             operand->val.primitive_val.val.val_float = bytes;
             break;
         case CONSTANT_String:
-            bytes1 = jvm_pc.class->class_file.constant_pool[b].info.String.string_index;
-            Utf8_info_t *Utf8_cod = &(jvm_pc.class->class_file.constant_pool[bytes1].info.Utf8);
+            bytes1 = jvm_pc.currentClass->class_file.constant_pool[b].info.String.string_index;
+            Utf8_info_t *Utf8_cod = &(jvm_pc.currentClass->class_file.constant_pool[bytes1].info.Utf8);
             operand = utf8_to_array_reference(Utf8_cod);
             break;
         default:
@@ -361,7 +361,7 @@ void ldc_w(){
  *
  */
 void ldc2_w(){
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 b = (b1<<8)|b2;
@@ -369,17 +369,17 @@ void ldc2_w(){
     u4 high_bytes;
     u4 low_bytes;
 
-    switch(jvm_pc.class->class_file.constant_pool[b].tag){
+    switch(jvm_pc.currentClass->class_file.constant_pool[b].tag){
         case CONSTANT_Long:
-            high_bytes = jvm_pc.class->class_file.constant_pool[b].info.Long.high_bytes;
-            low_bytes = jvm_pc.class->class_file.constant_pool[b].info.Long.low_bytes;
+            high_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.high_bytes;
+            low_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.low_bytes;
             operand->tag = PRIMITIVE;
             operand->val.primitive_val.tag = LONG;
             operand->val.primitive_val.val.val32 = (high_bytes<<8)|low_bytes;
             break;
         case CONSTANT_Double:
-            high_bytes = jvm_pc.class->class_file.constant_pool[b].info.Long.high_bytes;
-            low_bytes = jvm_pc.class->class_file.constant_pool[b].info.Long.low_bytes;
+            high_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.high_bytes;
+            low_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.low_bytes;
             operand->tag = PRIMITIVE;
             operand->val.primitive_val.tag = DOUBLE;
             operand->val.primitive_val.val.val32 = (high_bytes<<8)|low_bytes;
@@ -400,7 +400,7 @@ void ldc2_w(){
 void tload(){
     any_type_t* operand;
 
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
     operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -489,7 +489,7 @@ void taload(){
 void tstore(){
     any_type_t *value;
 
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -1580,7 +1580,7 @@ void ifeq(){
 
     value = pop_operand_stack(&(frame->operand_stack));
     if(value->val.primitive_val.val.val32 == 0){
-        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
 
@@ -1601,7 +1601,7 @@ void ifne(){
 
     value = pop_operand_stack(&(frame->operand_stack));
     if(value->val.primitive_val.val.val32 != 0){
-        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
 
@@ -1622,7 +1622,7 @@ void iflt(){
 
     value = pop_operand_stack(&(frame->operand_stack));
     if(value->val.primitive_val.val.val32 < 0){
-        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
 
@@ -1643,7 +1643,7 @@ void ifge(){
 
     value = pop_operand_stack(&(frame->operand_stack));
     if(value->val.primitive_val.val.val32 >= 0){
-        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
 
@@ -1665,7 +1665,7 @@ void ifgt(){
 
     value = pop_operand_stack(&(frame->operand_stack));
     if(value->val.primitive_val.val.val32 > 0){
-        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
 
@@ -1686,7 +1686,7 @@ void ifle(){
 
     value = pop_operand_stack(&(frame->operand_stack));
     if(value->val.primitive_val.val.val32 <= 0){
-        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
 
@@ -1711,7 +1711,7 @@ void if_icmpeq(){
     value2 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 == value2->val.primitive_val.val.val32){
-        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
 
@@ -1736,7 +1736,7 @@ void if_icmpne(){
     value2 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 != value2->val.primitive_val.val.val32){
-        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
 
@@ -1761,7 +1761,7 @@ void if_icmplt(){
     value2 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 < value2->val.primitive_val.val.val32){
-        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
 
@@ -1786,7 +1786,7 @@ void if_icmpge(){
     value2 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 >= value2->val.primitive_val.val.val32){
-        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
 
@@ -1811,7 +1811,7 @@ void if_icmpgt(){
     value2 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 > value2->val.primitive_val.val.val32){
-        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
 
@@ -1836,7 +1836,7 @@ void if_icmple(){
     value2 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 <= value2->val.primitive_val.val.val32){
-        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
         index = (indexh<<8)|indexl;
@@ -1860,7 +1860,7 @@ void if_acmpeq(){
     switch(value1->val.reference_val.tag){
         case OBJECT:
             if(&(value1->val.reference_val.val.object) == &(value2->val.reference_val.val.object)){
-                code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+                code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
                 indexh = code_attribute->code[jvm_pc.code_pc+1];
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
@@ -1871,7 +1871,7 @@ void if_acmpeq(){
             break;
         case ARRAY:
             if(&(value1->val.reference_val.val.array) == &(value2->val.reference_val.val.array)){
-                code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+                code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
                 indexh = code_attribute->code[jvm_pc.code_pc+1];
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
@@ -1899,7 +1899,7 @@ void if_acmpne(){
     switch(value1->val.reference_val.tag){
         case OBJECT:
             if(&(value1->val.reference_val.val.object) != &(value2->val.reference_val.val.object)){
-                code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+                code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
                 indexh = code_attribute->code[jvm_pc.code_pc+1];
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
@@ -1910,7 +1910,7 @@ void if_acmpne(){
             break;
         case ARRAY:
             if(&(value1->val.reference_val.val.array) != &(value2->val.reference_val.val.array)){
-                code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+                code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
                 indexh = code_attribute->code[jvm_pc.code_pc+1];
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
@@ -1927,7 +1927,7 @@ void goto_op(){
     u1 indexh, indexl;
     u2 index;
 
-    code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     indexh = code_attribute->code[jvm_pc.code_pc+1];
     indexl = code_attribute->code[jvm_pc.code_pc+2];
     index = (indexh<<8)|indexl;
@@ -1949,7 +1949,7 @@ void jsr(){
     operand->val.primitive_val.val.val_return_addr = jvm_pc.code_pc;
     push_operand_stack(&(frame->operand_stack), operand);
 
-    code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     indexh = code_attribute->code[jvm_pc.code_pc+1];
     indexl = code_attribute->code[jvm_pc.code_pc+2];
     index = (indexh<<8)|indexl;
@@ -1963,10 +1963,17 @@ void treturn(){
 }
 
 void getstatic(){
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 index = (b1<<8)|b2;
+
+    u2 class_index = jvm_pc.currentClass.class_file.constant_pool[index].info.Fieldref.class_index;
+    u2 name_index = jvm_pc.currentClass.class_file.constant_pool[class_index].info.Class.name_index;
+    Utf8_info_t *utf8_name = jvm_pc.currentClass.class_file.constant_pool[name_index].info.Utf8;
+
+    class_t *class_field = getClass(utf8_name);
+
 
 }
 
@@ -1978,7 +1985,7 @@ void tableswitch() {
     u1 byte3 = 0;
     u1 byte4 = 0;
 
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
 
     offset += 4 - (jvm_pc.code_pc % 4); //allignment bytes
 
@@ -2035,7 +2042,7 @@ void lookupswitch() {
     u1 byte3 = 0;
     u1 byte4 = 0;
 
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
 
     offset += 4 - (jvm_pc.code_pc % 4); //allignment bytes
 
@@ -2097,7 +2104,7 @@ void wide() {
     u1 byte2 = 0;
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
 
     offset += 1; //count wide opcode
 
@@ -2203,7 +2210,7 @@ void wide() {
 }
 
 void ret() {
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     frame_t* frame = peek_frame_stack(jvm_stack);
 
     u1 index = code_attribute->code[jvm_pc.code_pc + 1];
@@ -2231,7 +2238,7 @@ void ret() {
 }
 
 void iinc() {
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     frame_t* frame = peek_frame_stack(jvm_stack);
 
     u1 index = code_attribute->code[jvm_pc.code_pc + 1];
