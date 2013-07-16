@@ -1614,8 +1614,8 @@ void lcmp(){
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = BOOLEAN;
-    operand->val.primitive_val.val.val_boolean = value;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = value;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -1638,8 +1638,8 @@ void fcmpl(){
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = BOOLEAN;
-    operand->val.primitive_val.val.val_boolean = value;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = value;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -1662,8 +1662,8 @@ void fcmpg(){
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = BOOLEAN;
-    operand->val.primitive_val.val.val_boolean = value;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = value;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -1686,8 +1686,8 @@ void dcmpl(){
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = BOOLEAN;
-    operand->val.primitive_val.val.val_boolean = value;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = value;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -1701,17 +1701,19 @@ void dcmpg(){
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
 
-    if(op1->val.primitive_val.val.val_double == (double) sqrt(-1) || op2->val.primitive_val.val.val_double == (double) sqrt(-1))
+    printf("op1: %f, op2: %f \n", op1->val.primitive_val.val.val_double, op2->val.primitive_val.val.val_double);
+    if(op1->val.primitive_val.val.val_double == ((double) sqrt(-1)) || op2->val.primitive_val.val.val_double == ((double) sqrt(-1)))
         value = 1;
     else if(op1->val.primitive_val.val.val_double > op2->val.primitive_val.val.val_double)
         value = 1;
     else
         value = 0;
 
+
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = BOOLEAN;
-    operand->val.primitive_val.val.val_boolean = value;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = value;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
