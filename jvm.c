@@ -380,24 +380,6 @@ method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* 
         }
     }
 
-    /*int arg = 1;*/
-    /*if (compare_utf8(class->class_name, string_to_utf8("java/io/PrintStream")) == 0) {*/
-        /*if(compare_utf8(method_name, string_to_utf8("println")) == 0) {*/
-            /*if (compare_utf8(descriptor, string_to_utf8("(I)V")) == 0) {*/
-                /*printf("%d\n", arg);*/
-            /*} else if (compare_utf8(descriptor, string_to_utf8("(J)V")) == 0) {*/
-                /*printf("%d\n", arg);*/
-            /*} else if (compare_utf8(descriptor, string_to_utf8("(S)V")) == 0) {*/
-                /*printf("%d\n", arg);*/
-            /*} else if (compare_utf8(descriptor, string_to_utf8("(D)V")) == 0) {*/
-                /*printf("%f\n", arg);*/
-            /*} else if (compare_utf8(descriptor, string_to_utf8("(F)V")) == 0) {*/
-                /*printf("%f\n", arg);*/
-            /*} else if (compare_utf8(descriptor, string_to_utf8("(Ljava/lang/String;)V")) == 0) {*/
-                /*printf("%s\n", arg);*/
-            /*}*/
-        /*}*/
-    /*}*/
 
 
 
