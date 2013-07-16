@@ -203,7 +203,7 @@ class_t *createClass(Utf8_info_t* class_name) {
  * @see compare_utf8, createClass
  */
 class_t *getClass(Utf8_info_t* class_name) {
-    printf("Got in getClass with arguments: %s\n", utf8_to_string(class_name));
+    printf("got into getClass with arguments: %s\n", utf8_to_string(class_name));
     if(compare_utf8(class_name, string_to_utf8("java/lang/Object")) == 0) {
         return NULL;
     }
@@ -226,7 +226,7 @@ class_t *getClass(Utf8_info_t* class_name) {
  * @see getClass
  */
 class_t* getSuperClass(class_t* sub_class) {
-    printf("Got in getSuperClass with arguments: %s\n", utf8_to_string(sub_class->class_name));
+    printf("got into getSuperClass with arguments: %s\n", utf8_to_string(sub_class->class_name));
     u2 class_name_index = sub_class->class_file.constant_pool[sub_class->class_file.super_class].info.Class.name_index;
     return getClass(&(sub_class->class_file.constant_pool[class_name_index].info.Utf8));
 }
@@ -322,7 +322,7 @@ int hasReturnValue(class_t* class, method_info_t* method) {
  */
 method_info_t* getMethodOnThisClass(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
 
-    printf("Got in getMethodOnThisClass with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
+    printf("got into getMethodOnThisClass with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
 
     int i = 0;
     for (i = 0; class->class_file.methods_count; i++) {
@@ -352,7 +352,7 @@ method_info_t* getMethodOnThisClass(class_t* class, Utf8_info_t* method_name, Ut
  * @see getSuperClass, getMethodOnThisClass
  */
 method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
-    printf("Got in getMethod with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
+    printf("got into getMethod with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
 
     if (class->status == CLASSE_NAO_CARREGADA) {
         loadClass(class);
@@ -440,7 +440,7 @@ int getNumberOfArguments(class_t* class, method_info_t* method) {
  * @param Index do opcode
  * @return Número de bytes com operandos
  */
-int getNumberOfOpcodeOperandsInBytes(u1* code, u1 index) {
+int getNumberOfOpcodeOperandsInBytes(u1* code, u2 index) {
     int counter = 0;
     int padding = 0;
     u4 low = 0;
@@ -664,7 +664,7 @@ void returnFromFunction() {
  */
 void callMethod(class_t* class, method_info_t* method) {
     Utf8_info_t* method_name = &(class->class_file.constant_pool[method->name_index].info.Utf8);
-    printf("Got in callMethod with arguments: %s , %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name));
+    printf("got into callMethod with arguments: %s , %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name));
     if (class->status == CLASSE_NAO_CARREGADA) {
         loadClass(class);
     }

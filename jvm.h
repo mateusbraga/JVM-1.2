@@ -30,7 +30,7 @@ int getNumberOfArguments(class_t* class, method_info_t* method);
 // METHOD STUFF - END
 
 // OPCODE STUFF - BEGIN
-int getNumberOfOpcodeOperandsInBytes(u1* code, u1 index);
+int getNumberOfOpcodeOperandsInBytes(u1* code, u2 index);
 void goToNextOpcode();
 // OPCODE STUFF - END
 

@@ -1800,7 +1800,6 @@ void ifge(){
 
         jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
-
     }
 }
 
