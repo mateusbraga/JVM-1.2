@@ -3,6 +3,7 @@
 #include "frame_stack.h"
 #include "structs.h"
 #include "jvm.h"
+#include "math.h"
 
 extern frame_stack_t *jvm_stack;
 
@@ -1486,7 +1487,7 @@ void fcmpl(){
     op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
 
-    if(op1.val.primitive_val->val.val_float == sqrt(-1) || op2->val.primitive_val.val.val_float == sqrt(-1))
+    if(op1->val.primitive_val->val.val_float == sqrt(-1) || op2->val.primitive_val.val.val_float == sqrt(-1))
         value = 0;
     else if(op1->val.primitive_val.val.val_float > op2->val.primitive_val.val.val_float)
         value = 1;
@@ -1509,9 +1510,9 @@ void fcmpg(){
     op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
 
-    if(op1.val.primitive_val.val.val_float == sqrt(-1) || op2.val.primitive_val.val.val_float == sqrt(-1))
+    if(op1->val.primitive_val.val.val_float == sqrt(-1) || op2->val.primitive_val.val.val_float == sqrt(-1))
         value = 1;
-    else if(op1.val.primitive_val.val.val_float > op2.val.primitive_val.val.val_float)
+    else if(op1->val.primitive_val.val.val_float > op2->val.primitive_val.val.val_float)
         value = 1;
     else
         value = 0;
@@ -1532,9 +1533,9 @@ void dcmpl(){
     op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
 
-    if(op1.val.primitive_val.val.val_double == (double) sqrt(-1) || op2.val.primitive_val.val.val_double == (double) sqrt(-1))
+    if(op1->val.primitive_val.val.val_double == (double) sqrt(-1) || op2->val.primitive_val.val.val_double == (double) sqrt(-1))
         value = 0;
-    else if(op1.val.primitive_val.val.val_double > op2.val.primitive_val.val.val_double)
+    else if(op1->val.primitive_val.val.val_double > op2->val.primitive_val.val.val_double)
         value = 1;
     else
         value = 0;
@@ -1555,9 +1556,9 @@ void dcmpg(){
     op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
 
-    if(op1.val.primitive_val.val.val_double == (double) sqrt(-1) || op2.val.primitive_val.val.val_double == (double) sqrt(-1))
+    if(op1->val.primitive_val.val.val_double == (double) sqrt(-1) || op2->val.primitive_val.val.val_double == (double) sqrt(-1))
         value = 1;
-    else if(op1.val.primitive_val.val.val_double > op2.val.primitive_val.val.val_double)
+    else if(op1->val.primitive_val.val.val_double > op2->val.primitive_val.val.val_double)
         value = 1;
     else
         value = 0;
@@ -1585,8 +1586,8 @@ void ifeq(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc->code_pc = index;
-        jvm_pc->jumped = 1;
+        jvm_pc.code_pc = index;
+        jvm_pc.jumped = 1;
 
     }
 }
@@ -1606,8 +1607,8 @@ void ifne(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc->code_pc = index;
-        jvm_pc->jumped = 1;
+        jvm_pc.code_pc = index;
+        jvm_pc.jumped = 1;
 
     }
 }
@@ -1627,8 +1628,8 @@ void iflt(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc->code_pc = index;
-        jvm_pc->jumped = 1;
+        jvm_pc.code_pc = index;
+        jvm_pc.jumped = 1;
 
     }
 }
@@ -1648,8 +1649,8 @@ void ifge(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc->code_pc = index;
-        jvm_pc->jumped = 1;
+        jvm_pc.code_pc = index;
+        jvm_pc.jumped = 1;
 
     }
 }
@@ -1670,8 +1671,8 @@ void ifgt(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc->code_pc = index;
-        jvm_pc->jumped = 1;
+        jvm_pc.code_pc = index;
+        jvm_pc.jumped = 1;
 
     }
 }
@@ -1691,8 +1692,8 @@ void ifle(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc->code_pc = index;
-        jvm_pc->jumped = 1;
+        jvm_pc.code_pc = index;
+        jvm_pc.jumped = 1;
 
     }
 }
@@ -1716,8 +1717,8 @@ void if_icmpeq(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc->code_pc = index;
-        jvm_pc->jumped = 1;
+        jvm_pc.code_pc = index;
+        jvm_pc.jumped = 1;
 
     }
 }
@@ -1741,8 +1742,8 @@ void if_icmpne(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc->code_pc = index;
-        jvm_pc->jumped = 1;
+        jvm_pc.code_pc = index;
+        jvm_pc.jumped = 1;
 
     }
 }
@@ -1766,8 +1767,8 @@ void if_icmplt(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc->code_pc = index;
-        jvm_pc->jumped = 1;
+        jvm_pc.code_pc = index;
+        jvm_pc.jumped = 1;
 
     }
 }
@@ -1791,8 +1792,8 @@ void if_icmpge(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc->code_pc = index;
-        jvm_pc->jumped = 1;
+        jvm_pc.code_pc = index;
+        jvm_pc.jumped = 1;
 
     }
 }
@@ -1816,8 +1817,8 @@ void if_icmpgt(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc->code_pc = index;
-        jvm_pc->jumped = 1;
+        jvm_pc.code_pc = index;
+        jvm_pc.jumped = 1;
 
     }
 }
@@ -1840,8 +1841,8 @@ void if_icmple(){
         indexl = code_attribute->code[jvm_pc.code_pc+2];
         index = (indexh<<8)|indexl;
 
-        jvm_pc->code_pc = index;
-        jvm_pc->jumped = 1;
+        jvm_pc.code_pc = index;
+        jvm_pc.jumped = 1;
 
     }
 }
@@ -1866,8 +1867,8 @@ void if_acmpeq(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc->code_pc = index;
-                jvm_pc->jumped = 1;
+                jvm_pc.code_pc = index;
+                jvm_pc.jumped = 1;
             }
             break;
         case ARRAY:
@@ -1877,8 +1878,8 @@ void if_acmpeq(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc->code_pc = index;
-                jvm_pc->jumped = 1;
+                jvm_pc.code_pc = index;
+                jvm_pc.jumped = 1;
             }
             break;
 
@@ -1904,8 +1905,8 @@ void if_acmpne(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc->code_pc = index;
-                jvm_pc->jumped = 1;
+                jvm_pc.code_pc = index;
+                jvm_pc.jumped = 1;
             }
             break;
         case ARRAY:
@@ -1915,8 +1916,8 @@ void if_acmpne(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc->code_pc = index;
-                jvm_pc->jumped = 1;
+                jvm_pc.code_pc = index;
+                jvm_pc.jumped = 1;
             }
             break;
 
@@ -1933,8 +1934,8 @@ void goto_op(){
     indexl = code_attribute->code[jvm_pc.code_pc+2];
     index = (indexh<<8)|indexl;
 
-    jvm_pc->code_pc = index;
-    jvm_pc->jumped = 1;
+    jvm_pc.code_pc = index;
+    jvm_pc.jumped = 1;
 
 }
 
@@ -1947,7 +1948,7 @@ void jsr(){
 
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = RETURN_ADDRESS;
-    operand->val.primitive_val.val.val_return_addr = jvm_pc->code_pc;
+    operand->val.primitive_val.val.val_return_addr = jvm_pc.code_pc;
     push_operand_stack(&(frame->operand_stack), operand);
 
     code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
@@ -1955,8 +1956,22 @@ void jsr(){
     indexl = code_attribute->code[jvm_pc.code_pc+2];
     index = (indexh<<8)|indexl;
 
-    jvm_pc->code_pc = index;
-    jvm_pc->jumped = 1;
+    jvm_pc.code_pc = index;
+    jvm_pc.jumped = 1;
+}
+
+void treturn(){
+    returnFromFunction();
+}
+
+void getstatic(){
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    jvm_pc.class
+
 }
 
 void tableswitch() {
@@ -2247,11 +2262,19 @@ void iinc() {
 }
 
 void (*jvm_opcode[])(void) = {
-    NULL ,aconst_null, iconst_m1, iconst_0, iconst_1, iconst_2, iconst_3, iconst_4, iconst_5, lconst_0, lconst_1,
+    NULL, aconst_null, iconst_m1, iconst_0, iconst_1, iconst_2, iconst_3, iconst_4, iconst_5, lconst_0, lconst_1,
     fconst_0, fconst_1, dconst_0, dconst_1, bipush, sipush, ldc, ldc_w, ldc2_w, tload, tload, tload, tload, tload,
     tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3,
     tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3, taload, taload, taload, taload, taload,
     taload, taload, taload, tstore, tstore, tstore, tstore, tstore, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1,
     tstore_3, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1, tstore_3, tstore_0, tstore_1, tstore_3, tstore_0,
-    tstore_1, tstore_3, tastore, tastore, tastore, tastore, tastore, tastore, tastore, tastore, pop, pop2, dup
+    tstore_1, tstore_3, tastore, tastore, tastore, tastore, tastore, tastore, tastore, tastore, pop, pop2, dup,
+    dup_x1, dup_x2, dup2, dup2_x1, dup2_x2, swap, iadd, ladd, fadd, dadd, isub, fsub, dsub, imul, lmul, fmul, dmul, idiv,
+    ldiv_op, fdiv, ddiv, irem, lrem, frem, drem, ineg, lneg, fneg, dneg, ishl, lshl, ishr, lshr, iushr, lushr, iand, land,
+    ior, lor, ixor, lxor, iinc, i2l, i2f, i2d, l2i, l2f, l2d, f2i, f2l, f2d, d2i, d2l, d2f, i2b, i2c, i2s, lcmp, fcmpl, fcmpg,
+    dcmpl, dcmpg, ifeq, ifne, iflt, ifge, ifgt, ifle, if_icmpeq, if_icmpne, if_icmplt, if_icmpge, if_icmpgt, if_icmple,
+    if_acmpeq, if_acmpne, goto_op, jsr, ret, tableswitch, lookupswitch, treturn, treturn, treturn, treturn, treturn, treturn,
+    getstatic, putstatic, getfield, putfield, invokevirtual, invokespecial, invokestatic, invokeinterface, invokedynamic,
+    new_op, newarray, anewarray, arraylength, athrow, checkcast, instanceof, monitorenter, monitorexit, wide, multianewarray,
+    ifnull, ifnonnull, goto_w, jsr_w, breakpoint, impdep1, impdep2
     };
