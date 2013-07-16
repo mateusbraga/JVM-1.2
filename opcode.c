@@ -1487,7 +1487,7 @@ void fcmpl(){
     op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
 
-    if(op1->val.primitive_val->val.val_float == sqrt(-1) || op2->val.primitive_val.val.val_float == sqrt(-1))
+    if(op1->val.primitive_val.val.val_float == sqrt(-1) || op2->val.primitive_val.val.val_float == sqrt(-1))
         value = 0;
     else if(op1->val.primitive_val.val.val_float > op2->val.primitive_val.val.val_float)
         value = 1;
@@ -1854,14 +1854,12 @@ void if_acmpeq(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
     value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
 
-    switch(value1.val.reference_val.tag)
+    switch(value1->val.reference_val.tag){
         case OBJECT:
-            if(value1->val.reference_val.val.object == value2->val.reference_val.val.object){
+            if(&(value1->val.reference_val.val.object) == &(value2->val.reference_val.val.object)){
                 code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
                 indexh = code_attribute->code[jvm_pc.code_pc+1];
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
@@ -1872,7 +1870,7 @@ void if_acmpeq(){
             }
             break;
         case ARRAY:
-            if(value1->val.reference_val.val.array == value2->val.reference_val.val.array){
+            if(&(value1->val.reference_val.val.array) == &(value2->val.reference_val.val.array)){
                 code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
                 indexh = code_attribute->code[jvm_pc.code_pc+1];
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
@@ -1882,6 +1880,7 @@ void if_acmpeq(){
                 jvm_pc.jumped = 1;
             }
             break;
+    }
 
 }
 
@@ -1897,9 +1896,9 @@ void if_acmpne(){
     value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
 
-    switch(value1.val.reference_val.tag)
+    switch(value1->val.reference_val.tag){
         case OBJECT:
-            if(value1->val.reference_val.val.object != value2->val.reference_val.val.object){
+            if(&(value1->val.reference_val.val.object) != &(value2->val.reference_val.val.object)){
                 code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
                 indexh = code_attribute->code[jvm_pc.code_pc+1];
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
@@ -1910,7 +1909,7 @@ void if_acmpne(){
             }
             break;
         case ARRAY:
-            if(value1->val.reference_val.val.array != value2->val.reference_val.val.array){
+            if(&(value1->val.reference_val.val.array) != &(value2->val.reference_val.val.array)){
                 code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
                 indexh = code_attribute->code[jvm_pc.code_pc+1];
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
@@ -1920,7 +1919,7 @@ void if_acmpne(){
                 jvm_pc.jumped = 1;
             }
             break;
-
+    }
 }
 
 void goto_op(){
@@ -1970,7 +1969,7 @@ void getstatic(){
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 index = (b1<<8)|b2;
 
-    jvm_pc.class
+    u2 index2 = jvm_pc.class.class_info.constant_pool[index].info.Fieldref.class_index;
 
 }
 
@@ -2261,7 +2260,7 @@ void iinc() {
     }
 }
 
-void (*jvm_opcode[])(void) = {
+/*void (*jvm_opcode[])(void) = {
     NULL, aconst_null, iconst_m1, iconst_0, iconst_1, iconst_2, iconst_3, iconst_4, iconst_5, lconst_0, lconst_1,
     fconst_0, fconst_1, dconst_0, dconst_1, bipush, sipush, ldc, ldc_w, ldc2_w, tload, tload, tload, tload, tload,
     tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3,
@@ -2278,3 +2277,4 @@ void (*jvm_opcode[])(void) = {
     new_op, newarray, anewarray, arraylength, athrow, checkcast, instanceof, monitorenter, monitorexit, wide, multianewarray,
     ifnull, ifnonnull, goto_w, jsr_w, breakpoint, impdep1, impdep2
     };
+*/
