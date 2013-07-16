@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "frame_stack.h"
 #include "structs.h"
 #include "jvm.h"
@@ -1880,6 +1881,17 @@ void if_acmpeq(){
                 jvm_pc.jumped = 1;
             }
             break;
+        case NULL_REFERENCE:
+            if(value2->val.reference_val.tag == NULL_REFERENCE) {
+                code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+                indexh = code_attribute->code[jvm_pc.code_pc+1];
+                indexl = code_attribute->code[jvm_pc.code_pc+2];
+                index = (indexh<<8)|indexl;
+
+                jvm_pc.code_pc = index;
+                jvm_pc.jumped = 1;
+            }
+        break;
     }
 
 }
@@ -1919,6 +1931,17 @@ void if_acmpne(){
                 jvm_pc.jumped = 1;
             }
             break;
+        case NULL_REFERENCE:
+            if(value2->val.reference_val.tag != NULL_REFERENCE) {
+                code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+                indexh = code_attribute->code[jvm_pc.code_pc+1];
+                indexl = code_attribute->code[jvm_pc.code_pc+2];
+                index = (indexh<<8)|indexl;
+
+                jvm_pc.code_pc = index;
+                jvm_pc.jumped = 1;
+            }
+        break;
     }
 }
 
@@ -1968,13 +1991,62 @@ void getstatic(){
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 index = (b1<<8)|b2;
 
-    u2 class_index = jvm_pc.currentClass.class_file.constant_pool[index].info.Fieldref.class_index;
-    u2 name_index = jvm_pc.currentClass.class_file.constant_pool[class_index].info.Class.name_index;
-    Utf8_info_t *utf8_name = jvm_pc.currentClass.class_file.constant_pool[name_index].info.Utf8;
+    u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.class_index;
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
 
-    class_t *class_field = getClass(utf8_name);
+    class_t *class_field = getClass(class_name);
+
+    u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.name_and_type_index;
+    u2 field_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
+    Utf8_info_t *field_name = &(jvm_pc.currentClass->class_file.constant_pool[field_name_index].info.Utf8);
+
+    u2 i = 0;
+    for (i = 0; i < class_field->class_file.fields_count; i++) {
+        u2 name_index = class_field->class_file.fields[i].name_index;
+        if (compare_utf8(&(class_field->class_file.constant_pool[name_index].info.Utf8), field_name) == 0) {
+            frame_t *frame = peek_frame_stack(jvm_stack);
+            push_operand_stack(&(frame->operand_stack), class_field->static_fields[i]);
+            return;
+        }
+
+    }
 
 
+    assert(0);
+    return;
+}
+
+void putstatic(){
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.class_index;
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+    class_t *class_field = getClass(class_name);
+
+    u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.name_and_type_index;
+    u2 field_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
+    Utf8_info_t *field_name = &(jvm_pc.currentClass->class_file.constant_pool[field_name_index].info.Utf8);
+
+    u2 i = 0;
+    for (i = 0; i < class_field->class_file.fields_count; i++) {
+        u2 name_index = class_field->class_file.fields[i].name_index;
+        if (compare_utf8(&(class_field->class_file.constant_pool[name_index].info.Utf8), field_name) == 0) {
+            frame_t *frame = peek_frame_stack(jvm_stack);
+            class_field->static_fields[i] = pop_operand_stack(&(frame->operand_stack));
+            return;
+        }
+
+    }
+
+
+    assert(0);
+    return;
 }
 
 void tableswitch() {
