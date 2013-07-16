@@ -1602,7 +1602,7 @@ void lcmp(){
     printf("got into lcmp\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
-    uint8_t value;
+    int8_t value;
 
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
@@ -1626,7 +1626,7 @@ void fcmpl(){
     printf("got into fcmpl\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
-    uint8_t value;
+    int8_t value;
 
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
@@ -1678,7 +1678,7 @@ void dcmpl(){
     printf("got into dcmpl\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
-    uint8_t value;
+    int8_t value;
 
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
@@ -1692,7 +1692,6 @@ void dcmpl(){
     else
         value = 0;
 
-    printf("\nop1: %f op2: %f value: %d\n", op1->val.primitive_val.val.val_double, op2->val.primitive_val.val.val_double, value);
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
@@ -1705,7 +1704,7 @@ void dcmpg(){
     printf("got into dcmpl\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
-    uint8_t value;
+    int8_t value;
 
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
@@ -1719,7 +1718,6 @@ void dcmpg(){
     else
         value = 0;
 
-    printf("\nop1: %f op2: %f value: %d\n", op1->val.primitive_val.val.val_double, op2->val.primitive_val.val.val_double, value);
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
