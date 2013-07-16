@@ -3015,7 +3015,7 @@ void multianewarray() {
     any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
     contador = cont->val.primitive_val.val.val32;
 
-    createMultiArray(arrayref, contador, dimension, object_class);
+    createMultiArray(&arrayref, contador, dimension, object_class);
 
     push_operand_stack(&(frame->operand_stack), arrayref);
 }
@@ -3028,7 +3028,7 @@ void ifnull() {
     u2 index;
 
     value = pop_operand_stack(&(frame->operand_stack));
-    if(value->val.primitive_val.val.val32 == NULL){
+    if(value->val.reference_val.tag == NULL_REFERENCE){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
@@ -3049,7 +3049,7 @@ void ifnonnull() {
     u2 index;
 
     value = pop_operand_stack(&(frame->operand_stack));
-    if(value->val.primitive_val.val.val32 != NULL){
+    if(value->val.reference_val.tag != NULL_REFERENCE){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
@@ -3071,14 +3071,12 @@ void goto_w() {
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
 
-    offset += 4 - (jvm_pc.code_pc % 4); //allignment bytes
+    byte1 = code_attribute->code[jvm_pc.code_pc + 1];
+    byte2 = code_attribute->code[jvm_pc.code_pc + 2];
+    byte3 = code_attribute->code[jvm_pc.code_pc + 3];
+    byte4 = code_attribute->code[jvm_pc.code_pc + 4];
 
-    byte1 = code_attribute->code[jvm_pc.code_pc + offset];
-    byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
-    byte3 = code_attribute->code[jvm_pc.code_pc + offset + 2];
-    byte4 = code_attribute->code[jvm_pc.code_pc + offset + 3];
-
-    index = ((branchbyte1 << 24)|(branchbyte2 << 16)|(branchbyte3 << 8)|(branchbyte4));
+    index = ((byte1 << 24)|(byte2 << 16)|(byte3 << 8)|(byte4));
 
     jvm_pc.code_pc = index;
     jvm_pc.jumped = 1;
@@ -3098,16 +3096,14 @@ void jsr_w() {
     operand->val.primitive_val.val.val_return_addr = jvm_pc.code_pc;
     push_operand_stack(&(frame->operand_stack), operand);
 
-    code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
 
-    offset += 4 - (jvm_pc.code_pc % 4); //allignment bytes
+    byte1 = code_attribute->code[jvm_pc.code_pc + 1];
+    byte2 = code_attribute->code[jvm_pc.code_pc + 2];
+    byte3 = code_attribute->code[jvm_pc.code_pc + 3];
+    byte4 = code_attribute->code[jvm_pc.code_pc + 4];
 
-    byte1 = code_attribute->code[jvm_pc.code_pc + offset];
-    byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
-    byte3 = code_attribute->code[jvm_pc.code_pc + offset + 2];
-    byte4 = code_attribute->code[jvm_pc.code_pc + offset + 3];
-
-    index = ((branchbyte1 << 24)|(branchbyte2 << 16)|(branchbyte3 << 8)|(branchbyte4));
+    index = ((byte1 << 24)|(byte2 << 16)|(byte3 << 8)|(byte4));
 
     jvm_pc.code_pc = index;
     jvm_pc.jumped = 1;

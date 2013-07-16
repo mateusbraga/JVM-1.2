@@ -143,13 +143,14 @@ void createMultiArray(any_type_t *arrayref, u1 tamanho, u1 dimensao, class_t *ti
     }
     else {
         for(i=0; i<=tamanho; i++){
+            frame_t *frame = peek_frame_stack(jvm_stack);
             any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
             contador = cont->val.primitive_val.val.val32;
             arrayref->val.reference_val.val.array.components[i].tag = REFERENCE;
             arrayref->val.reference_val.val.array.components[i].val.reference_val.tag = ARRAY;
             arrayref->val.reference_val.val.array.components[i].val.reference_val.val.array.length = contador;
             arrayref->val.reference_val.val.array.components[i].val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
-            createMultiArray(arrayref->val.reference_val.val.array.components[i], contador, dimensao-1, tipo);
+            createMultiArray(&arrayref->val.reference_val.val.array.components[i], contador, dimensao-1, tipo);
         }
     }
 }
