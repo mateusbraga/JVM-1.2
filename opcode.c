@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
+#include <string.h>
 #include "frame_stack.h"
 #include "structs.h"
 #include "jvm.h"
@@ -2688,6 +2689,7 @@ void putfield() {
     u2 field_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
     Utf8_info_t *field_name = &(jvm_pc.currentClass->class_file.constant_pool[field_name_index].info.Utf8);
 
+
     u2 i = 0;
     for (i = 0; i < class_field->class_file.fields_count; i++) {
         u2 name_index = class_field->class_file.fields[i].name_index;
@@ -2695,7 +2697,7 @@ void putfield() {
             frame_t *frame = peek_frame_stack(jvm_stack);
             any_type_t* objref = pop_operand_stack(&(frame->operand_stack));
             any_type_t* value = pop_operand_stack(&(frame->operand_stack));
-            objref->val.reference_val.val.object.attributes[i] = *value;
+            memmove(&(objref->val.reference_val.val.object.attributes[i]), value, sizeof(any_type_t));
             return;
         }
 
@@ -2746,6 +2748,9 @@ void invokespecial() {
     Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
 
     class_t *class_method = getClass(class_name);
+    if (class_method == NULL) {
+        return;
+    }
 
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
     u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;

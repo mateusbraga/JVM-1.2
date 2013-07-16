@@ -185,12 +185,13 @@ any_type_t* utf8_to_array_reference(Utf8_info_t* utf8) {
  * @return Estrutura da classe criada
  */
 class_t *createClass(Utf8_info_t* class_name) {
+    int index = jvm_number_of_classes;
     jvm_number_of_classes++;
-    jvm_classes[jvm_number_of_classes] = (class_t*) malloc(sizeof(class_t));
-    jvm_classes[jvm_number_of_classes]->class_name = class_name;
-    jvm_classes[jvm_number_of_classes]->status = CLASSE_NAO_CARREGADA;
+    jvm_classes[index] = (class_t*) malloc(sizeof(class_t));
+    jvm_classes[index]->class_name = class_name;
+    jvm_classes[index]->status = CLASSE_NAO_CARREGADA;
 
-    return jvm_classes[jvm_number_of_classes];
+    return jvm_classes[index];
 }
 
 /**

@@ -311,12 +311,12 @@ struct any_type_struct {
 
 typedef enum {CLASSE_NAO_CARREGADA, CLASSE_NAO_LINKADA, CLASSE_NAO_INICIALIZADA, CLASSE_PRONTA } class_status_t;
 
-typedef struct class_struct {
+struct class_struct {
     Utf8_info_t *class_name;
     class_status_t status;
     class_file_t class_file;
     any_type_t** static_fields; // Array de ponteiros para campos estaticos
-} class_t;
+};
 
 typedef struct pc_struct {
     class_t* currentClass;
