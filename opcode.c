@@ -2999,8 +2999,6 @@ void multianewarray() {
     frame_t *frame = peek_frame_stack(jvm_stack);
     any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
     int32_t contador;
-    u1 i;
-
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
@@ -3014,7 +3012,7 @@ void multianewarray() {
     any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
     contador = cont->val.primitive_val.val.val32;
 
-    createMultiArray(&arrayref, contador, dimension, object_class);
+    createMultiArray(arrayref, contador, dimension, object_class);
 
     push_operand_stack(&(frame->operand_stack), arrayref);
 }
@@ -3061,7 +3059,6 @@ void ifnonnull() {
 }
 void goto_w() {
     printf("got into goto_w\n");
-    frame_t *frame = peek_frame_stack(jvm_stack);
     u1 byte1 = 0;
     u1 byte2 = 0;
     u1 byte3 = 0;
