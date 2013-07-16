@@ -9,8 +9,8 @@
 
 typedef struct operand_stack_struct {
     any_type_t **operand;
-    unsigned int head;
-    unsigned int size;
+    int head;
+    int size;
     uint32_t depth;
 } operand_stack_t;
 

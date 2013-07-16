@@ -40,13 +40,17 @@ void push_frame_stack(frame_stack_t **stack, frame_t *frame) {
 }
 
 frame_t* peek_frame_stack(frame_stack_t *stack) {
-    return stack->frame;
+    if (stack != NULL) {
+        return stack->frame;
+    } else {
+        return NULL;
+    }
 }
 
 // --------------- Operand stack Stuff -----------------
 
 any_type_t *pop_operand_stack(operand_stack_t *stack) {
-    if (stack->head == 0) {
+    if (stack->head == -1) {
         printf("ERRO: Pop operand stack sem elementos\n");
         exit(1);
     }

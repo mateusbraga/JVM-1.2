@@ -12,10 +12,11 @@
  *
  */
 void initializeClass(class_t* class) {
+    printf("Got in initializeClass with arguments: %s\n", utf8_to_string(class->class_name));
 	if (class->status == CLASSE_NAO_CARREGADA) {
         loadClass(class);
     }
-    if (class->status == CLASSE_NAO_INICIALIZADA) {
+    if (class->status == CLASSE_NAO_LINKADA) {
         linkClass(class);
     }
 	u2 i;
@@ -29,4 +30,5 @@ void initializeClass(class_t* class) {
 		}
 	}
 	class->status = CLASSE_PRONTA;
+	printf("Done initializeClass\n");
 }

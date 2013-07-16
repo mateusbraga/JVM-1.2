@@ -15,7 +15,7 @@ attribute_info_t* GetAtributos(class_file_t* classe, FILE *fp, u2 attributesCoun
         atributos[i].attribute_name_index = readu2(fp);
         atributos[i].attribute_length = readu4(fp);
         nome = &(classe->constant_pool[atributos[i].attribute_name_index].info.Utf8);
-        printf("Nome do atributo: %s\n", utf8_to_string(nome));
+        /*printf("Nome do atributo: %s\n", utf8_to_string(nome));*/
         if(compare_utf8(nome, string_to_utf8("ConstantValue")) == 0) {
             atributos[i].info.constant_value.attribute_name_index = atributos[i].attribute_name_index;
             atributos[i].info.constant_value.attribute_length = atributos[i].attribute_length;
@@ -119,6 +119,7 @@ void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd
             printf("Maximum stack depth: %hi\n",atributos[i].info.code.max_stack);
             printf("Maximum local variables: %hi\n",atributos[i].info.code.max_locals);
             printf("Code length: %i\n",atributos[i].info.code.code_length);
+            printf("...\n");
             for(j=0; j < atributos[i].info.code.code_length; j++ ){
                 //printf("%c",atributos[i].info.code[j]);  
             }
@@ -156,10 +157,7 @@ method_info_t* GetMetodo(class_file_t* classe,  FILE *fp, u2 methodsCount){
         metodos[i].name_index = readu2(fp);
         metodos[i].descriptor_index = readu2(fp);
         metodos[i].attributes_count = readu2(fp);
-        Utf8_info_t* method_name = &(classe->constant_pool[metodos[i].name_index].info.Utf8);
-        printf("Method %s - %d atributos\n", utf8_to_string(method_name), metodos[i].attributes_count);
         metodos[i].attributes = GetAtributos(classe, fp, metodos[i].attributes_count);
-        printf("Done2\n");
     }
 
     return metodos;
@@ -430,7 +428,6 @@ void set_class_file(class_t* class){
     classe->fields = GetFields(classe, fp, classe->fields_count);
     classe->methods_count = readu2(fp);
     classe->methods = GetMetodo(classe, fp, classe->methods_count);
-    printf("Done\n");
     classe->attributes_count = readu2(fp);
     classe->attributes = GetAtributos(classe, fp , classe->attributes_count);
 }
@@ -476,6 +473,7 @@ void MostraClasse(class_file_t* classe){
 
 /*-----------------------------------------------------------------------------------------------------------------*/
 void loadClass(class_t* class){
+    printf("Got in loadClass with arguments: %s\n", utf8_to_string(class->class_name));
     set_class_file(class);
     class->status = CLASSE_NAO_LINKADA;
     printf("Done loadClass\n");

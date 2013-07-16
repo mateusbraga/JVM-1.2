@@ -317,7 +317,7 @@ typedef struct class_struct {
 } class_t;
 
 typedef struct pc_struct {
-    class_t* class;
+    class_t* currentClass;
     method_info_t* method;
     u2 code_pc;
     u1 jumped; //boolean set when we jump

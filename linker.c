@@ -108,7 +108,7 @@ void verificar (class_t* class) {
 			}
 		}
 		if (tag == CONSTANT_Fieldref) {
-			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Fieldref.class_index].tag != CONSTANT_Utf8) {
+			if (class->class_file.constant_pool[class->class_file.constant_pool[i].info.Fieldref.class_index].tag != CONSTANT_Class) {
 				printf("Erro: Indice do class_index apontado pela fieldref invalido.\n");
 				exit(1);
 			}
@@ -160,7 +160,7 @@ void verificar (class_t* class) {
 		exit(1);
 	}
     class_t *super_class = getSuperClass(class);
-    if (super_class->class_file.access_flags == ACC_FINAL) {
+    if (super_class != NULL && super_class->class_file.access_flags == ACC_FINAL) {
 		printf("Erro: Class Final possui uma subclasse.\n");
 		exit(1);
     }
@@ -191,10 +191,12 @@ void verificar (class_t* class) {
  */
 
 void linkClass (class_t* class) {
+    printf("Got in linkClass with arguments: %s\n", utf8_to_string(class->class_name));
 	verificar(class);
 	preparar(class); //Estrutura montada para busca de metodos
 	//resolver(class);
 	class->status = CLASSE_NAO_INICIALIZADA; // Se nenhum erro ocorrer muda o estado da classe e retorna para a função.
+	printf("Done linkClass\n");
 }
 
 

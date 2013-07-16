@@ -14,7 +14,7 @@
 #define MAX_NUM_OF_CLASSES 65535
 
 pc_t jvm_pc = {0, 0, 0, 0};
-frame_stack_t *jvm_stack;
+frame_stack_t *jvm_stack = NULL; 
 extern void (*jvm_opcode[])(void);
 
 // Array com as classes na memória
@@ -202,6 +202,11 @@ class_t *createClass(Utf8_info_t* class_name) {
  * @see compare_utf8, createClass
  */
 class_t *getClass(Utf8_info_t* class_name) {
+    printf("Got in getClass with arguments: %s\n", utf8_to_string(class_name));
+    if(compare_utf8(class_name, string_to_utf8("java/lang/Object")) == 0) {
+        return NULL;
+    }
+
     int i = 0;
     for (i = 0; i < jvm_number_of_classes; ++i) {
         if(compare_utf8(jvm_classes[i]->class_name, class_name) == 0) {
@@ -220,6 +225,7 @@ class_t *getClass(Utf8_info_t* class_name) {
  * @see getClass
  */
 class_t* getSuperClass(class_t* sub_class) {
+    printf("Got in getSuperClass with arguments: %s\n", utf8_to_string(sub_class->class_name));
     u2 class_name_index = sub_class->class_file.constant_pool[sub_class->class_file.super_class].info.Class.name_index;
     return getClass(&(sub_class->class_file.constant_pool[class_name_index].info.Utf8));
 }
@@ -345,7 +351,6 @@ method_info_t* getMethodOnThisClass(class_t* class, Utf8_info_t* method_name, Ut
  * @see getSuperClass, getMethodOnThisClass
  */
 method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
-
     printf("Got in getMethod with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
 
     if (class->status == CLASSE_NAO_CARREGADA) {
@@ -362,6 +367,10 @@ method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* 
     while (method == NULL) {
         //TODO see if it is an Object method
         class = getSuperClass(class);
+        if (class == NULL) {
+            printf("ERROR: Object class not implemented\n");
+            exit(1);
+        }
 
         method = getMethodOnThisClass(class, method_name, descriptor);
         if ((method->access_flags & ACC_PRIVATE) == ACC_PRIVATE) {
@@ -425,7 +434,6 @@ int getNumberOfArguments(class_t* class, method_info_t* method) {
                 break;
             case 'L': //reference
                 for(;i < length && b[i] != ';'; i++); //go until ';'
-                i++; // jump ';'
 
                 counter++;
 
@@ -592,7 +600,7 @@ void goToNextOpcode() {
 
     jvm_pc.jumped = 0;
 
-    code_attribute_t* code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t* code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
 
     jvm_pc.code_pc += getNumberOfOpcodeOperandsInBytes(code_attribute->code, jvm_pc.code_pc) + 1;
 }
@@ -609,12 +617,12 @@ void goToNextOpcode() {
  */
 void throwException(class_t* exception_class) {
     // check for handlers 
-    code_attribute_t* code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+    code_attribute_t* code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u2 exception_table_length = code_attribute->exception_table_length;
     u2 i = 0;
     for (i = 0; i< exception_table_length; i++) {
-        u2 catch_exception_class_index = jvm_pc.class->class_file.constant_pool[code_attribute->exception_table[i].catch_type].info.Class.name_index;
-        class_t* catch_exception_class = getClass(&(jvm_pc.class->class_file.constant_pool[catch_exception_class_index].info.Utf8));
+        u2 catch_exception_class_index = jvm_pc.currentClass->class_file.constant_pool[code_attribute->exception_table[i].catch_type].info.Class.name_index;
+        class_t* catch_exception_class = getClass(&(jvm_pc.currentClass->class_file.constant_pool[catch_exception_class_index].info.Utf8));
         if (code_attribute->exception_table[i].catch_type == 0 || (isSameClass(exception_class, catch_exception_class) || isSuperClassOf(catch_exception_class, exception_class))) {
             if (code_attribute->exception_table[i].start_pc >= jvm_pc.code_pc && code_attribute->exception_table[i].end_pc < jvm_pc.code_pc) {
                 // Executar catch code
@@ -677,13 +685,15 @@ void returnFromFunction() {
  * @see getCodeAttribute, getNumberOfArguments
  */
 void callMethod(class_t* class, method_info_t* method) {
+    Utf8_info_t* method_name = &(class->class_file.constant_pool[method->name_index].info.Utf8);
+    printf("Got in callMethod with arguments: %s , %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name));
     if (class->status == CLASSE_NAO_CARREGADA) {
         loadClass(class);
     }
     if (class->status == CLASSE_NAO_LINKADA) {
         linkClass(class);
     }
-    if (class->status == CLASSE_NAO_INICIALIZADA) {
+    if (class->status == CLASSE_NAO_INICIALIZADA && compare_utf8(method_name, string_to_utf8("<clinit>")) != 0) {
         initializeClass(class);
     }
 
@@ -697,13 +707,14 @@ void callMethod(class_t* class, method_info_t* method) {
     frame->local_var.size = code_attribute->max_locals; 
     frame->local_var.var = (any_type_t**) malloc(frame->local_var.size * sizeof(any_type_t*));
     frame->operand_stack.depth = 0;
-    frame->operand_stack.head = 0;
+    frame->operand_stack.head = -1;
     frame->operand_stack.size = code_attribute->max_stack;
     frame->operand_stack.operand = (any_type_t**) malloc(frame->operand_stack.size * sizeof(any_type_t**));
 
 
     //get number of arguments from classfile
     int number_of_arguments = getNumberOfArguments(class, method);
+    printf("hi %d\n", number_of_arguments);
 
     // pop arguments from operand stack and
     // insert them on local_var
@@ -714,13 +725,15 @@ void callMethod(class_t* class, method_info_t* method) {
         frame->local_var.var[local_var_index] = operand;
         local_var_index++;
     }
+    printf("hi\n");
     assert(local_var_index == frame->local_var.size);
+    printf("hi\n");
 
 
     push_frame_stack(&jvm_stack, frame);
 
     //set pc
-    jvm_pc.class = class;
+    jvm_pc.currentClass = class;
     jvm_pc.method = method;
     jvm_pc.code_pc = 0;
     jvm_pc.jumped = 0;
@@ -777,7 +790,7 @@ int main(int argc, char* argv[]) {
     frame->local_var.size = 0;
     frame->local_var.var = NULL;
     frame->operand_stack.depth = 0;
-    frame->operand_stack.head = 0;
+    frame->operand_stack.head = -1;
     frame->operand_stack.size = 1;
     frame->operand_stack.operand = (any_type_t**) malloc(frame->operand_stack.size * sizeof(any_type_t**));
 
@@ -789,7 +802,7 @@ int main(int argc, char* argv[]) {
     code_attribute_t* code_attribute = NULL;
     do {
         //fetch opcode
-        code_attribute = getCodeAttribute(jvm_pc.class, jvm_pc.method);
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         u1 opcode = code_attribute->code[jvm_pc.code_pc];
 
         //execute the action for the opcode;
