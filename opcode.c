@@ -323,7 +323,7 @@ void ldc(){
             bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Float.bytes;
             operand->tag = PRIMITIVE;
             operand->val.primitive_val.tag = FLOAT;
-            operand->val.primitive_val.val.val_float = bytes;
+            operand->val.primitive_val.val.val_float = (float) bytes;
             break;
         case CONSTANT_String:
             bytes1 = jvm_pc.currentClass->class_file.constant_pool[b].info.String.string_index;
@@ -791,6 +791,7 @@ void fadd(){
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
 
+    printf("%f/n", (op1->val.primitive_val.val.val_float));
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
