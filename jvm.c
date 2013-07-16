@@ -659,6 +659,7 @@ void throwException(class_t* exception_class) {
  * @see hasReturnValue
  */
 void returnFromFunction() {
+    DEBUG_PRINT("got into returnFromFunction\n");
     // pop stack
     frame_t *frame = pop_frame_stack(&jvm_stack);
     if (frame->return_address.method == NULL) {
@@ -668,6 +669,7 @@ void returnFromFunction() {
 
     // change PC
     jvm_pc = frame->return_address;
+    printf("new jvm_pc code_pc %d\n", jvm_pc.code_pc);
 
     // put return value on the new frame's operand stack if any
     if(hasReturnValue(frame->current_class, frame->current_method)) {
@@ -677,6 +679,7 @@ void returnFromFunction() {
     }
 
     free(frame);
+    DEBUG_PRINT("done with returnFromFunction\n");
 }
 
 
@@ -736,7 +739,7 @@ void callMethod(class_t* class, method_info_t* method) {
     jvm_pc.currentClass = class;
     jvm_pc.method = method;
     jvm_pc.code_pc = 0;
-    jvm_pc.jumped = 0;
+    jvm_pc.jumped = 1;
 
     DEBUG_PRINT("Done with callMethod with arguments: %s , %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name));
     return;
@@ -809,7 +812,9 @@ int main(int argc, char* argv[]) {
         //execute the action for the opcode;
         DEBUG_PRINT("Going to execute %#x at %d\n", opcode, jvm_pc.code_pc);
         jvm_opcode[opcode]();
+        printf("code_pc %d\n", jvm_pc.code_pc);
         
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         goToNextOpcode();
     } while(jvm_pc.code_pc < code_attribute->code_length);
 
