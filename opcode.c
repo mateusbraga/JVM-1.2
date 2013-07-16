@@ -1614,8 +1614,8 @@ void lcmp(){
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = BOOLEAN;
-    operand->val.primitive_val.val.val_boolean = value;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = value;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -1638,8 +1638,8 @@ void fcmpl(){
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = BOOLEAN;
-    operand->val.primitive_val.val.val_boolean = value;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = value;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -1662,8 +1662,8 @@ void fcmpg(){
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = BOOLEAN;
-    operand->val.primitive_val.val.val_boolean = value;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = value;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -1686,8 +1686,8 @@ void dcmpl(){
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = BOOLEAN;
-    operand->val.primitive_val.val.val_boolean = value;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = value;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -1701,17 +1701,19 @@ void dcmpg(){
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
 
-    if(op1->val.primitive_val.val.val_double == (double) sqrt(-1) || op2->val.primitive_val.val.val_double == (double) sqrt(-1))
+    printf("op1: %f, op2: %f \n", op1->val.primitive_val.val.val_double, op2->val.primitive_val.val.val_double);
+    if(op1->val.primitive_val.val.val_double == ((double) sqrt(-1)) || op2->val.primitive_val.val.val_double == ((double) sqrt(-1)))
         value = 1;
     else if(op1->val.primitive_val.val.val_double > op2->val.primitive_val.val.val_double)
         value = 1;
     else
         value = 0;
 
+
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
-    operand->val.primitive_val.tag = BOOLEAN;
-    operand->val.primitive_val.val.val_boolean = value;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = value;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -3012,7 +3014,7 @@ void multianewarray() {
     any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
     contador = cont->val.primitive_val.val.val32;
 
-    createMultiArray(arrayref, contador, dimension, object_class);
+    createMultiArray(&arrayref, contador, dimension, object_class);
 
     push_operand_stack(&(frame->operand_stack), arrayref);
 }
@@ -3025,7 +3027,7 @@ void ifnull() {
     u2 index;
 
     value = pop_operand_stack(&(frame->operand_stack));
-    if(value->val.primitive_val.val.val32 == NULL){
+    if(value->val.reference_val.tag == NULL_REFERENCE){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
@@ -3046,7 +3048,7 @@ void ifnonnull() {
     u2 index;
 
     value = pop_operand_stack(&(frame->operand_stack));
-    if(value->val.primitive_val.val.val32 != NULL){
+    if(value->val.reference_val.tag != NULL_REFERENCE){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         indexh = code_attribute->code[jvm_pc.code_pc+1];
         indexl = code_attribute->code[jvm_pc.code_pc+2];
@@ -3068,14 +3070,12 @@ void goto_w() {
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
 
-    offset += 4 - (jvm_pc.code_pc % 4); //allignment bytes
+    byte1 = code_attribute->code[jvm_pc.code_pc + 1];
+    byte2 = code_attribute->code[jvm_pc.code_pc + 2];
+    byte3 = code_attribute->code[jvm_pc.code_pc + 3];
+    byte4 = code_attribute->code[jvm_pc.code_pc + 4];
 
-    byte1 = code_attribute->code[jvm_pc.code_pc + offset];
-    byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
-    byte3 = code_attribute->code[jvm_pc.code_pc + offset + 2];
-    byte4 = code_attribute->code[jvm_pc.code_pc + offset + 3];
-
-    index = ((branchbyte1 << 24)|(branchbyte2 << 16)|(branchbyte3 << 8)|(branchbyte4));
+    index = ((byte1 << 24)|(byte2 << 16)|(byte3 << 8)|(byte4));
 
     jvm_pc.code_pc = index;
     jvm_pc.jumped = 1;
@@ -3095,16 +3095,14 @@ void jsr_w() {
     operand->val.primitive_val.val.val_return_addr = jvm_pc.code_pc;
     push_operand_stack(&(frame->operand_stack), operand);
 
-    code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     
-    offset += 4 - (jvm_pc.code_pc % 4); //allignment bytes
+    byte1 = code_attribute->code[jvm_pc.code_pc + 1];
+    byte2 = code_attribute->code[jvm_pc.code_pc + 2];
+    byte3 = code_attribute->code[jvm_pc.code_pc + 3];
+    byte4 = code_attribute->code[jvm_pc.code_pc + 4];
 
-    byte1 = code_attribute->code[jvm_pc.code_pc + offset];
-    byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
-    byte3 = code_attribute->code[jvm_pc.code_pc + offset + 2];
-    byte4 = code_attribute->code[jvm_pc.code_pc + offset + 3];
-
-    index = ((branchbyte1 << 24)|(branchbyte2 << 16)|(branchbyte3 << 8)|(branchbyte4));
+    index = ((byte1 << 24)|(byte2 << 16)|(byte3 << 8)|(byte4));
 
     jvm_pc.code_pc = index;
     jvm_pc.jumped = 1;
