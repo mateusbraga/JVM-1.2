@@ -2084,7 +2084,6 @@ void putstatic(){
 
 }
 
-/*
 void new_op() {
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
@@ -2105,7 +2104,7 @@ void new_op() {
     u2 i;
     for (i = 0; i < object_ref->val.reference_val.val.object.length; ++i) {
         any_type_t *operand = &(object_ref->val.reference_val.val.object.attributes[i]);
-        u1* b = object_class->class_file.constant_pool[class->class_file.fields[i].descriptor_index].info.Utf8.bytes;
+        u1* b = object_class->class_file.constant_pool[object_class->class_file.fields[i].descriptor_index].info.Utf8.bytes;
         switch(b[0]) {
             case 'B': //byte
                 operand->tag = PRIMITIVE;
@@ -2163,10 +2162,10 @@ void new_op() {
                 printf("Unexpected char on method descriptor: %c\n", b[0]);
                 exit(1);
         }
-        class->static_fields[i] = operand;
     }
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    push_operand_stack(&(frame->operand_stack), object_ref);
 }
-*/
 
 /*Utf8_info_t* name_init_utf8;*/
 /*Utf8_info_t* name_method_utf8;*/
@@ -2533,9 +2532,6 @@ void invokeinterface() {
     //TODO
 }
 void invokedynamic() {
-    //TODO
-}
-void new_op() {
     //TODO
 }
 void anewarray() {
