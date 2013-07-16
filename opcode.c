@@ -1981,39 +1981,92 @@ void newarray(){
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 atype = code_attribute->code[jvm_pc.code_pc+1];
     any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
+    int32_t contador, i = 0;
 
-    arrayref->tag = PRIMITIVE;
+    contador = cont->val.primitive_val.val.val32;
+    arrayref->tag = REFERENCE;
+    arrayref->val.reference_val.tag = ARRAY;
+    arrayref->val.reference_val.val.array.length = contador;
 
-
-    switch(atype){
-    case 4:
-        arrayref->val.primitive_val.tag = BOOLEAN;
-        break;
-    case 5:
-        arrayref->val.primitive_val.tag = CHAR;
-        brea;
-    case 6:
-        arrayref->val.primitive_val.tag = FLOAT;
-        break;
-    case 7:
-        arrayref->val.primitive_val.tag = DOUBLE;
-        break;
-    case 8:
-        arrayref->val.primitive_val.tag = BYTE;
-        break;
-    case 9:
-        arrayref->val.primitive_val.tag = SHORT;
-        break;
-    case 10:
-        arrayref->val.primitive_val.tag = INT;
-        break;
-    case 11:
-        arrayref->val.primitive_val.tag = LONG;
-        break;
+    for(i=0; i<=contador; i++){
+        arrayref->val.reference_val.val.array.components[i] = (any_type_t*) malloc(sizeof(any_type_t));
+        arrayref->val.reference_val.val.array.components[i]->tag = PRIMITIVE;
+        switch(atype){
+        case 4:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = BOOLEAN;
+            break;
+        case 5:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = CHAR;
+            brea;
+        case 6:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = FLOAT;
+            break;
+        case 7:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = DOUBLE;
+            break;
+        case 8:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = BYTE;
+            break;
+        case 9:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = SHORT;
+            break;
+        case 10:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = INT;
+            break;
+        case 11:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = LONG;
+            break;
+        }
     }
+    push_operand_stack(&(frame->operand_stack), arrayref);
 
-    push_operand_stack(&(frame->operand_stack));
+}
 
+void newarray(){
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 atype = code_attribute->code[jvm_pc.code_pc+1];
+    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
+    int32_t contador, i = 0;
+
+    contador = cont->val.primitive_val.val.val32;
+    arrayref->tag = REFERENCE;
+    arrayref->val.reference_val.tag = ARRAY;
+    arrayref->val.reference_val.val.array.length = contador;
+
+    for(i=0; i<=contador; i++){
+        arrayref->val.reference_val.val.array.components[i] = (any_type_t*) malloc(sizeof(any_type_t));
+        arrayref->val.reference_val.val.array.components[i]->tag = PRIMITIVE;
+        switch(atype){
+        case 4:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = BOOLEAN;
+            break;
+        case 5:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = CHAR;
+            brea;
+        case 6:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = FLOAT;
+            break;
+        case 7:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = DOUBLE;
+            break;
+        case 8:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = BYTE;
+            break;
+        case 9:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = SHORT;
+            break;
+        case 10:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = INT;
+            break;
+        case 11:
+            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = LONG;
+            break;
+        }
+    }
+    push_operand_stack(&(frame->operand_stack), arrayref);
 
 }
 
