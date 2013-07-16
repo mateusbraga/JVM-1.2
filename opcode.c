@@ -1630,7 +1630,7 @@ void fcmpl(){
     op1 = pop_operand_stack(&(frame->operand_stack));
 
     if(op1->val.primitive_val.val.val_float == sqrt(-1) || op2->val.primitive_val.val.val_float == sqrt(-1))
-        value = 0;
+        value = -1;
     else if(op1->val.primitive_val.val.val_float > op2->val.primitive_val.val.val_float)
         value = 1;
     else
@@ -1678,8 +1678,7 @@ void dcmpl(){
     op1 = pop_operand_stack(&(frame->operand_stack));
 
     if(op1->val.primitive_val.val.val_double == (double) sqrt(-1) || op2->val.primitive_val.val.val_double == (double) sqrt(-1)){
-        value = 0;
-        printf("entrei");
+        value = -1;
     }else if(op1->val.primitive_val.val.val_double > op2->val.primitive_val.val.val_double)
         value = 1;
     else
@@ -1693,7 +1692,7 @@ void dcmpl(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
-void dcmpl(){
+void dcmpg(){
     printf("got into dcmpl\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -1703,7 +1702,7 @@ void dcmpl(){
     op1 = pop_operand_stack(&(frame->operand_stack));
 
     if(op1->val.primitive_val.val.val_double == (double) sqrt(-1) || op2->val.primitive_val.val.val_double == (double) sqrt(-1))
-        value = 0;
+        value = 1;
     else if(op1->val.primitive_val.val.val_double > op2->val.primitive_val.val.val_double)
         value = 1;
     else
