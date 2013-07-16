@@ -1653,7 +1653,7 @@ void fcmpg(){
     printf("got into fcmpg\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
-    uint8_t value;
+    int8_t value;
 
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
