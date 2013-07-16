@@ -509,8 +509,8 @@ void taload(){
     frame_t *frame = peek_frame_stack(jvm_stack);
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
-    arrayref = pop_operand_stack(&(frame->operand_stack));
     index = pop_operand_stack(&(frame->operand_stack));
+    arrayref = pop_operand_stack(&(frame->operand_stack));
 
     int_index = index->val.primitive_val.val.val32;
 
@@ -607,13 +607,13 @@ void tastore(){
     uint32_t int_index;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    arrayref = pop_operand_stack(&(frame->operand_stack));
-    index = pop_operand_stack(&(frame->operand_stack));
     value = pop_operand_stack(&(frame->operand_stack));
+    index = pop_operand_stack(&(frame->operand_stack));
+    arrayref = pop_operand_stack(&(frame->operand_stack));
 
     int_index = index->val.primitive_val.val.val32;
 
-    arrayref->val.reference_val.val.array.components[int_index] = *value;
+    memmove(&(arrayref->val.reference_val.val.array.components[int_index]), value, sizeof(any_type_t));
 }
 
 void pop(){
@@ -1461,7 +1461,7 @@ void l2d(){
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = DOUBLE;
-    operand->val.primitive_val.val.val_float = (double) op1->val.primitive_val.val.val64;
+    operand->val.primitive_val.val.val_double = (double) op1->val.primitive_val.val.val64;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
