@@ -806,14 +806,18 @@ void dadd(){
     DEBUG_PRINT("got into dadd\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
+    DEBUG_PRINT("hi hi\n");
 
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
 
+    DEBUG_PRINT("hi hi %f\n", (op1->val.primitive_val.val.val_double));
+    DEBUG_PRINT("hi hi %f\n", (op2->val.primitive_val.val.val_double));
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = DOUBLE;
     operand->val.primitive_val.val.val_double = (op1->val.primitive_val.val.val_double)+(op2->val.primitive_val.val.val_double);
+    DEBUG_PRINT("hi hi\n");
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
