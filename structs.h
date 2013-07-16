@@ -261,6 +261,7 @@ typedef enum reference_type_tag_enum {ARRAY, OBJECT, NULL_REFERENCE} reference_t
 typedef enum primitive_type_tag_enum {BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE, RETURN_ADDRESS} primitive_type_tag_t;
 
 typedef struct any_type_struct any_type_t;
+typedef struct class_struct class_t;
 
 typedef struct array_struct {
     uint32_t length;
@@ -268,6 +269,7 @@ typedef struct array_struct {
 } array_t;
 
 typedef struct object_struct {
+    class_t* objClass;
     uint32_t length;
     any_type_t *attributes;
 } object_t;

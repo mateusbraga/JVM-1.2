@@ -2215,6 +2215,7 @@ void new_op() {
     any_type_t* object_ref = (any_type_t*) malloc(sizeof(any_type_t));
     object_ref->tag = REFERENCE;
     object_ref->val.reference_val.tag = OBJECT;
+    object_ref->val.reference_val.val.object.objClass = object_class;
     object_ref->val.reference_val.val.object.length = object_class->class_file.fields_count;
     object_ref->val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * object_ref->val.reference_val.val.object.length);
 
@@ -2268,6 +2269,7 @@ void new_op() {
                 operand->val.reference_val.tag = OBJECT;
                 operand->val.reference_val.val.object.length = 0;
                 operand->val.reference_val.val.object.attributes = NULL;
+                operand->val.reference_val.val.object.objClass = NULL;
                 break;
             case '[': //reference - array
                 operand->tag = REFERENCE;
@@ -2853,6 +2855,7 @@ void anewarray() {
     for(i=0; i<=contador; i++){
         arrayref->val.reference_val.val.array.components[i].tag = REFERENCE;
         arrayref->val.reference_val.val.array.components[i].val.reference_val.tag = OBJECT;
+        arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.objClass = object_class;
         arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.length = object_class->class_file.fields_count;
         arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * object_class->class_file.fields_count);
     }
@@ -2872,16 +2875,65 @@ void arraylength() {
 }
 void athrow() {
     printf("got into athrow\n");
-    //TODO
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    any_type_t *objref = pop_operand_stack(&(frame->operand_stack));
+    throwException(objref->val.reference_val.val.object.objClass);
 }
 void checkcast() {
     printf("got into checkcast\n");
-    //TODO
+    // TODO acho que esta errado, parece que tem que botar eh um objref de volta na pilha e nao um boolean
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.class_index;
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+    class_t *class_obj = getClass(class_name);
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    any_type_t *objref = pop_operand_stack(&(frame->operand_stack));
+
+    any_type_t *boolean = (any_type_t*) malloc(sizeof(any_type_t));
+    boolean->tag = PRIMITIVE;
+    boolean->val.primitive_val.tag = BOOLEAN;
+    
+    if ( class_obj == objref->val.reference_val.val.object.objClass) {
+        boolean->val.primitive_val.val.val_boolean = 1;
+    } else {
+        boolean->val.primitive_val.val.val_boolean = 0;
+    }
+    push_operand_stack(&(frame->operand_stack), boolean);
 }
+
 void instanceof() {
     printf("got into instanceof\n");
-    //TODO
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.class_index;
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+    class_t *class_obj = getClass(class_name);
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    any_type_t *objref = pop_operand_stack(&(frame->operand_stack));
+
+    any_type_t *boolean = (any_type_t*) malloc(sizeof(any_type_t));
+    boolean->tag = PRIMITIVE;
+    boolean->val.primitive_val.tag = BOOLEAN;
+    
+    if ( class_obj == objref->val.reference_val.val.object.objClass) {
+        boolean->val.primitive_val.val.val_boolean = 1;
+    } else {
+        boolean->val.primitive_val.val.val_boolean = 0;
+    }
+    push_operand_stack(&(frame->operand_stack), boolean);
 }
+
 void monitorenter() {
     printf("got into monitorenter\n");
     printf("ERROR: monitorenter is not implemented!\n");
@@ -2931,8 +2983,8 @@ void impdep2() {
 void (*jvm_opcode[])(void) = {
  NULL,aconst_null,iconst_m1,iconst_0,iconst_1,iconst_2,iconst_3,iconst_4,iconst_5,lconst_0,lconst_1,fconst_0,fconst_1,fconst_2,dconst_0,
 dconst_1,bipush,sipush,ldc,ldc_w,ldc2_w,tload,tload,tload,tload,tload,tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,
-tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,iaload,taload,taload,taload,taload,taload,
-taload,taload,tstore,tstore,tstore,tstore,tstore,tstore_0,tstore_1,tstore_2tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tstore_0,tstore_1,	
+tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,taload,taload,taload,taload,taload,taload,
+taload,taload,tstore,tstore,tstore,tstore,tstore,tstore_0,tstore_1,tstore_2, tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tstore_0,tstore_1,	
 tstore_2,tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tastore,tastore,tastore,tastore,tastore,tastore,
 tastore,tastore,pop,pop2,dup,dup_x1,dup_x2,dup2,dup2_x1,dup2_x2,swap,iadd,ladd,fadd,dadd,isub,lsub,fsub,dsub,imul,lmul,fmul,dmul,idiv,ldiv_op,
 fdiv,ddiv,irem,lrem,frem,drem,ineg,lneg,fneg,dneg,ishl,lshl,ishr,lshr,iushr,lushr,iand,land,ior,lor,ixor,lxor,iinc,i2l,i2f,i2d,l2i,l2f,l2d,
