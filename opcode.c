@@ -2946,23 +2946,120 @@ void monitorexit() {
 }
 void multianewarray() {
     printf("got into multianewarray\n");
-    //TODO
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
+    int32_t contador;
+    u1 i;
+
+
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u1 dimension = code_attribute->code[jvm_pc.code_pc+3];
+    u2 index = (b1<<8)|b2;
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+    class_t *object_class = getClass(class_name);
+
+    any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
+    contador = cont->val.primitive_val.val.val32;
+
+    createMultiArray(arrayref, contador, dimension, object_class);
+
+    push_operand_stack(&(frame->operand_stack), arrayref);
 }
 void ifnull() {
     printf("got into ifnull\n");
-    //TODO
+    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value = pop_operand_stack(&(frame->operand_stack));
+    if(value->val.primitive_val.val.val32 == NULL){
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+        indexh = code_attribute->code[jvm_pc.code_pc+1];
+        indexl = code_attribute->code[jvm_pc.code_pc+2];
+
+        index = (indexh<<8)|indexl;
+
+        jvm_pc.code_pc = index;
+        jvm_pc.jumped = 1;
+
+    }
 }
 void ifnonnull() {
     printf("got into ifnonnull\n");
-    //TODO
+    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute;
+    u1 indexh, indexl;
+    u2 index;
+
+    value = pop_operand_stack(&(frame->operand_stack));
+    if(value->val.primitive_val.val.val32 != NULL){
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+        indexh = code_attribute->code[jvm_pc.code_pc+1];
+        indexl = code_attribute->code[jvm_pc.code_pc+2];
+
+        index = (indexh<<8)|indexl;
+
+        jvm_pc.code_pc = index;
+        jvm_pc.jumped = 1;
+    }
 }
 void goto_w() {
     printf("got into goto_w\n");
-    //TODO
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    u1 byte1 = 0;
+    u1 byte2 = 0;
+    u1 byte3 = 0;
+    u1 byte4 = 0;
+    u2 index;
+
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+
+    offset += 4 - (jvm_pc.code_pc % 4); //allignment bytes
+
+    byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+    byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+    byte3 = code_attribute->code[jvm_pc.code_pc + offset + 2];
+    byte4 = code_attribute->code[jvm_pc.code_pc + offset + 3];
+
+    index = ((branchbyte1 << 24)|(branchbyte2 << 16)|(branchbyte3 << 8)|(branchbyte4));
+
+    jvm_pc.code_pc = index;
+    jvm_pc.jumped = 1;
 }
 void jsr_w() {
     printf("got into jsr_w\n");
-    //TODO
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    u1 byte1 = 0;
+    u1 byte2 = 0;
+    u1 byte3 = 0;
+    u1 byte4 = 0;
+    u2 index;
+
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = RETURN_ADDRESS;
+    operand->val.primitive_val.val.val_return_addr = jvm_pc.code_pc;
+    push_operand_stack(&(frame->operand_stack), operand);
+
+    code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    
+    offset += 4 - (jvm_pc.code_pc % 4); //allignment bytes
+
+    byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+    byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+    byte3 = code_attribute->code[jvm_pc.code_pc + offset + 2];
+    byte4 = code_attribute->code[jvm_pc.code_pc + offset + 3];
+
+    index = ((branchbyte1 << 24)|(branchbyte2 << 16)|(branchbyte3 << 8)|(branchbyte4));
+
+    jvm_pc.code_pc = index;
+    jvm_pc.jumped = 1;
 }
 void breakpoint() {
     printf("got into breakpoint\n");
