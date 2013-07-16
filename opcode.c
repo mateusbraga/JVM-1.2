@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "frame_stack.h"
 #include "structs.h"
 #include "jvm.h"
@@ -1134,7 +1135,7 @@ void lshr(){
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
-void iuhsr(){
+void iushr(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint32_t value_op2;
@@ -1918,6 +1919,17 @@ void if_acmpeq(){
                 jvm_pc.jumped = 1;
             }
             break;
+        case NULL_REFERENCE:
+            if(value2->val.reference_val.tag == NULL_REFERENCE) {
+                code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+                indexh = code_attribute->code[jvm_pc.code_pc+1];
+                indexl = code_attribute->code[jvm_pc.code_pc+2];
+                index = (indexh<<8)|indexl;
+
+                jvm_pc.code_pc = index;
+                jvm_pc.jumped = 1;
+            }
+        break;
     }
 
 }
@@ -1957,6 +1969,17 @@ void if_acmpne(){
                 jvm_pc.jumped = 1;
             }
             break;
+        case NULL_REFERENCE:
+            if(value2->val.reference_val.tag != NULL_REFERENCE) {
+                code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+                indexh = code_attribute->code[jvm_pc.code_pc+1];
+                indexl = code_attribute->code[jvm_pc.code_pc+2];
+                index = (indexh<<8)|indexl;
+
+                jvm_pc.code_pc = index;
+                jvm_pc.jumped = 1;
+            }
+        break;
     }
 }
 
@@ -2006,60 +2029,156 @@ void getstatic(){
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 index = (b1<<8)|b2;
 
-    u2 class_index = jvm_pc.currentClass.class_file.constant_pool[index].info.Fieldref.class_index;
-    u2 name_index = jvm_pc.currentClass.class_file.constant_pool[class_index].info.Class.name_index;
-    Utf8_info_t *utf8_name = jvm_pc.currentClass.class_file.constant_pool[name_index].info.Utf8;
+    u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.class_index;
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
 
-    class_t *class_field = getClass(utf8_name);
+    class_t *class_field = getClass(class_name);
 
-}
+    u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.name_and_type_index;
+    u2 field_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
+    Utf8_info_t *field_name = &(jvm_pc.currentClass->class_file.constant_pool[field_name_index].info.Utf8);
 
-void newarray(){
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
-    u1 atype = code_attribute->code[jvm_pc.code_pc+1];
-    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
-    any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
-    int32_t contador, i = 0;
-
-    contador = cont->val.primitive_val.val.val32;
-    arrayref->tag = REFERENCE;
-    arrayref->val.reference_val.tag = ARRAY;
-    arrayref->val.reference_val.val.array.length = contador;
-
-    for(i=0; i<=contador; i++){
-        arrayref->val.reference_val.val.array.components[i] = (any_type_t*) malloc(sizeof(any_type_t));
-        arrayref->val.reference_val.val.array.components[i]->tag = PRIMITIVE;
-        switch(atype){
-        case 4:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = BOOLEAN;
-            break;
-        case 5:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = CHAR;
-            brea;
-        case 6:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = FLOAT;
-            break;
-        case 7:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = DOUBLE;
-            break;
-        case 8:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = BYTE;
-            break;
-        case 9:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = SHORT;
-            break;
-        case 10:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = INT;
-            break;
-        case 11:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = LONG;
-            break;
+    u2 i = 0;
+    for (i = 0; i < class_field->class_file.fields_count; i++) {
+        u2 name_index = class_field->class_file.fields[i].name_index;
+        if (compare_utf8(&(class_field->class_file.constant_pool[name_index].info.Utf8), field_name) == 0) {
+            frame_t *frame = peek_frame_stack(jvm_stack);
+            push_operand_stack(&(frame->operand_stack), class_field->static_fields[i]);
+            return;
         }
+
     }
-    push_operand_stack(&(frame->operand_stack), arrayref);
+
+
+    assert(0);
+    return;
+}
+
+void putstatic(){
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.class_index;
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+    class_t *class_field = getClass(class_name);
+
+    u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.name_and_type_index;
+    u2 field_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
+    Utf8_info_t *field_name = &(jvm_pc.currentClass->class_file.constant_pool[field_name_index].info.Utf8);
+
+    u2 i = 0;
+    for (i = 0; i < class_field->class_file.fields_count; i++) {
+        u2 name_index = class_field->class_file.fields[i].name_index;
+        if (compare_utf8(&(class_field->class_file.constant_pool[name_index].info.Utf8), field_name) == 0) {
+            frame_t *frame = peek_frame_stack(jvm_stack);
+            class_field->static_fields[i] = pop_operand_stack(&(frame->operand_stack));
+            return;
+        }
+
+    }
 
 }
+
+/*
+void new_op() {
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+    class_t *object_class = getClass(class_name);
+
+    any_type_t* object_ref = (any_type_t*) malloc(sizeof(any_type_t));
+    object_ref->tag = REFERENCE;
+    object_ref->val.reference_val.tag = OBJECT;
+    object_ref->val.reference_val.val.object.length = object_class->class_file.fields_count;
+    object_ref->val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * object_ref->val.reference_val.val.object.length);
+
+    u2 i;
+    for (i = 0; i < object_ref->val.reference_val.val.object.length; ++i) {
+        any_type_t *operand = &(object_ref->val.reference_val.val.object.attributes[i]);
+        u1* b = object_class->class_file.constant_pool[class->class_file.fields[i].descriptor_index].info.Utf8.bytes;
+        switch(b[0]) {
+            case 'B': //byte
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = BYTE;
+                operand->val.primitive_val.val.val8 = 0;
+                break;
+            case 'C': //char
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = CHAR;
+                operand->val.primitive_val.val.val_char = 0;
+                break;
+            case 'D': //double
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = DOUBLE;
+                operand->val.primitive_val.val.val_double = 0;
+                break;
+            case 'F': //float
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = FLOAT;
+                operand->val.primitive_val.val.val_float = 0;
+                break;
+            case 'I': //integer
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = INT;
+                operand->val.primitive_val.val.val32 = 0;
+                break;
+            case 'J': //long
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = LONG;
+                operand->val.primitive_val.val.val64 = 0;
+                break;
+            case 'S': //short
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = SHORT;
+                operand->val.primitive_val.val.val16 = 0;
+                break;
+            case 'Z': //boolean
+                operand->tag = PRIMITIVE;
+                operand->val.primitive_val.tag = BOOLEAN;
+                operand->val.primitive_val.val.val_boolean = 0;
+                break;
+            case 'L': //reference
+                operand->tag = REFERENCE;
+                operand->val.reference_val.tag = OBJECT;
+                operand->val.reference_val.val.object.length = 0;
+                operand->val.reference_val.val.object.attributes = NULL;
+                break;
+            case '[': //reference - array
+                operand->tag = REFERENCE;
+                operand->val.reference_val.tag = ARRAY;
+                operand->val.reference_val.val.array.length = 0;
+                operand->val.reference_val.val.array.components = NULL;
+                break;
+            default:
+                printf("Unexpected char on method descriptor: %c\n", b[0]);
+                exit(1);
+        }
+        class->static_fields[i] = operand;
+    }
+}
+*/
+
+/*Utf8_info_t* name_init_utf8;*/
+/*Utf8_info_t* name_method_utf8;*/
+/*name_init_utf8 = string_to_utf8("<init>");*/
+/*u2 i;*/
+/*for (i = 1; i < object_class->class_file.methods_count; i++) {*/
+/*name_method_utf8 = &(object_class->class_file.constant_pool[object_class->class_file.methods[i].name_index].info.Utf8); // Verifica se o metodo eh o <clinit>, se for executa ele.*/
+/*if (compare_utf8(name_init_utf8, name_method_utf8) == 0) {*/
+/*callMethod(object_class, &(object_class->class_file.methods[i]));*/
+/*break;*/
+/*}*/
+/*}*/
 
 void newarray(){
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -2073,34 +2192,34 @@ void newarray(){
     arrayref->tag = REFERENCE;
     arrayref->val.reference_val.tag = ARRAY;
     arrayref->val.reference_val.val.array.length = contador;
+    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
 
     for(i=0; i<=contador; i++){
-        arrayref->val.reference_val.val.array.components[i] = (any_type_t*) malloc(sizeof(any_type_t));
-        arrayref->val.reference_val.val.array.components[i]->tag = PRIMITIVE;
+        arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
         switch(atype){
         case 4:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = BOOLEAN;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BOOLEAN;
             break;
         case 5:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = CHAR;
-            brea;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = CHAR;
+            break;
         case 6:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = FLOAT;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = FLOAT;
             break;
         case 7:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = DOUBLE;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = DOUBLE;
             break;
         case 8:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = BYTE;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BYTE;
             break;
         case 9:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = SHORT;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = SHORT;
             break;
         case 10:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = INT;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = INT;
             break;
         case 11:
-            arrayref->val.reference_val.val.array.components[i]->val.primitive_val.tag = LONG;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = LONG;
             break;
         }
     }
@@ -2395,6 +2514,76 @@ void iinc() {
     }
 }
 
+void getfield() {
+    //TODO
+}
+void putfield() {
+    //TODO
+}
+void invokevirtual() {
+    //TODO
+}
+void invokespecial() {
+    //TODO
+}
+void invokestatic() {
+    //TODO
+}
+void invokeinterface() {
+    //TODO
+}
+void invokedynamic() {
+    //TODO
+}
+void new_op() {
+    //TODO
+}
+void anewarray() {
+    //TODO
+}
+void arraylength() {
+    //TODO
+}
+void athrow() {
+    //TODO
+}
+void checkcast() {
+    //TODO
+}
+void instanceof() {
+    //TODO
+}
+void monitorenter() {
+    //TODO
+}
+void monitorexit() {
+    //TODO
+}
+void multianewarray() {
+    //TODO
+}
+void ifnull() {
+    //TODO
+}
+void ifnonnull() {
+    //TODO
+}
+void goto_w() {
+    //TODO
+}
+void jsr_w() {
+    //TODO
+}
+void breakpoint() {
+    //TODO
+}
+void impdep1() {
+    //TODO
+}
+void impdep2() {
+    //TODO
+}
+
 void (*jvm_opcode[])(void) = {
     NULL, aconst_null, iconst_m1, iconst_0, iconst_1, iconst_2, iconst_3, iconst_4, iconst_5, lconst_0, lconst_1,
     fconst_0, fconst_1, dconst_0, dconst_1, bipush, sipush, ldc, ldc_w, ldc2_w, tload, tload, tload, tload, tload,
@@ -2408,10 +2597,10 @@ void (*jvm_opcode[])(void) = {
     ior, lor, ixor, lxor, iinc, i2l, i2f, i2d, l2i, l2f, l2d, f2i, f2l, f2d, d2i, d2l, d2f, i2b, i2c, i2s, lcmp, fcmpl, fcmpg,
     dcmpl, dcmpg, ifeq, ifne, iflt, ifge, ifgt, ifle, if_icmpeq, if_icmpne, if_icmplt, if_icmpge, if_icmpgt, if_icmple,
     if_acmpeq, if_acmpne, goto_op, jsr, ret, tableswitch, lookupswitch, treturn, treturn, treturn, treturn, treturn, treturn,
-    getstatic, //putstatic, getfield, putfield, invokevirtual, invokespecial, invokestatic, invokeinterface, invokedynamic,
-    //new_op,
+    getstatic, putstatic, getfield, putfield, invokevirtual, invokespecial, invokestatic, invokeinterface, invokedynamic,
+    new_op,
     newarray,
-    //anewarray, arraylength, athrow, checkcast, instanceof, monitorenter, monitorexit, wide, multianewarray,
-    //ifnull, ifnonnull, goto_w, jsr_w, breakpoint, impdep1, impdep2
-    };
+    anewarray, arraylength, athrow, checkcast, instanceof, monitorenter, monitorexit, wide, multianewarray,
+    ifnull, ifnonnull, goto_w, jsr_w, breakpoint, impdep1, impdep2
+};
 
