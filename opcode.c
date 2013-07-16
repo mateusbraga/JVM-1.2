@@ -2773,6 +2773,9 @@ void invokevirtual() {
             case BYTE:
                 printf("%d\n", arg->val.primitive_val.val.val8);
                 break;
+            default:
+                printf(("ERRO: arg isn't int, byte or short)"));
+                exit(1);
 
             }
         } else if (compare_utf8(descriptor, string_to_utf8("(J)V")) == 0) {
