@@ -1,7 +1,7 @@
 EXE = jvm
 SOURCES = jvm.c frame_stack.c loader.c linker.c initializer.c opcode.c
 OBJECTS := $(SOURCES:%.c=%.o)
-CFLAGS = -Wall -std=c99 -pedantic -lm
+CFLAGS = -Wall -std=c99 -pedantic -lm -DDEBUG
 CC = gcc
 
 $(EXE): $(OBJECTS)

@@ -20,7 +20,7 @@ extern pc_t jvm_pc;
  *
  */
 void aconst_null(){
-    printf("got into aconst_null\n");
+    DEBUG_PRINT("got into aconst_null\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = REFERENCE;
@@ -36,7 +36,7 @@ void aconst_null(){
  *
  */
 void iconst_m1(){
-    printf("got into iconst_m1\n");
+    DEBUG_PRINT("got into iconst_m1\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
@@ -52,7 +52,7 @@ void iconst_m1(){
  *
  */
 void iconst_0(){
-    printf("got into iconst_0\n");
+    DEBUG_PRINT("got into iconst_0\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
@@ -68,7 +68,7 @@ void iconst_0(){
  *
  */
 void iconst_1(){
-    printf("got into iconst_1\n");
+    DEBUG_PRINT("got into iconst_1\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
@@ -84,7 +84,7 @@ void iconst_1(){
  *
  */
 void iconst_2(){
-    printf("got into iconst_2\n");
+    DEBUG_PRINT("got into iconst_2\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
@@ -100,7 +100,7 @@ void iconst_2(){
  *
  */
 void iconst_3(){
-    printf("got into iconst_3\n");
+    DEBUG_PRINT("got into iconst_3\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
@@ -116,7 +116,7 @@ void iconst_3(){
  *
  */
 void iconst_4(){
-    printf("got into iconst_4\n");
+    DEBUG_PRINT("got into iconst_4\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
@@ -132,7 +132,7 @@ void iconst_4(){
  *
  */
 void iconst_5(){
-    printf("got into iconst_5\n");
+    DEBUG_PRINT("got into iconst_5\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
@@ -148,7 +148,7 @@ void iconst_5(){
  *
  */
 void lconst_0(){
-    printf("got into lconst_0\n");
+    DEBUG_PRINT("got into lconst_0\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
@@ -164,7 +164,7 @@ void lconst_0(){
  *
  */
 void lconst_1(){
-    printf("got into lconst_1\n");
+    DEBUG_PRINT("got into lconst_1\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
@@ -181,7 +181,7 @@ void lconst_1(){
  *
  */
 void fconst_0(){
-    printf("got into fconst_0\n");
+    DEBUG_PRINT("got into fconst_0\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
@@ -197,7 +197,7 @@ void fconst_0(){
  *
  */
 void fconst_1(){
-    printf("got into fconst_1\n");
+    DEBUG_PRINT("got into fconst_1\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
@@ -213,7 +213,7 @@ void fconst_1(){
  *
  */
 void fconst_2(){
-    printf("got into fconst_2\n");
+    DEBUG_PRINT("got into fconst_2\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
@@ -229,7 +229,7 @@ void fconst_2(){
  *
  */
 void dconst_0(){
-    printf("got into dconst_0\n");
+    DEBUG_PRINT("got into dconst_0\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
@@ -245,7 +245,7 @@ void dconst_0(){
  *
  */
 void dconst_1(){
-    printf("got into dconst_1\n");
+    DEBUG_PRINT("got into dconst_1\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     operand->tag = PRIMITIVE;
@@ -261,7 +261,7 @@ void dconst_1(){
  *
  */
 void bipush(){
-    printf("got into bipush\n");
+    DEBUG_PRINT("got into bipush\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b = code_attribute->code[jvm_pc.code_pc+1];
     int32_t value = (int32_t) b;
@@ -282,7 +282,7 @@ void bipush(){
  *
  */
 void sipush(){
-    printf("got into sipush\n");
+    DEBUG_PRINT("got into sipush\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
@@ -305,7 +305,7 @@ void sipush(){
  *
  */
 void ldc(){
-    printf("got into ldc\n");
+    DEBUG_PRINT("got into ldc\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b = code_attribute->code[jvm_pc.code_pc+1];
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
@@ -344,7 +344,7 @@ void ldc(){
  *
  */
 void ldc_w(){
-    printf("got into ldc_w\n");
+    DEBUG_PRINT("got into ldc_w\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
@@ -385,7 +385,7 @@ void ldc_w(){
  *
  */
 void ldc2_w(){
-    printf("got into ldc2_w\n");
+    DEBUG_PRINT("got into ldc2_w\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
@@ -426,7 +426,7 @@ void ldc2_w(){
  *
  */
 void tload(){
-    printf("got into tload\n");
+    DEBUG_PRINT("got into tload\n");
     any_type_t* operand;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -445,7 +445,7 @@ void tload(){
  *
  */
 void tload_0(){
-    printf("got into tload_0\n");
+    DEBUG_PRINT("got into tload_0\n");
     any_type_t* operand;
 
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -459,7 +459,7 @@ void tload_0(){
  *
  */
 void tload_1(){
-    printf("got into tload_1\n");
+    DEBUG_PRINT("got into tload_1\n");
     any_type_t* operand;
 
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -473,7 +473,7 @@ void tload_1(){
  *
  */
 void tload_2(){
-    printf("got into tload_2\n");
+    DEBUG_PRINT("got into tload_2\n");
     any_type_t* operand;
 
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -487,7 +487,7 @@ void tload_2(){
  *
  */
 void tload_3(){
-    printf("got into tload_3\n");
+    DEBUG_PRINT("got into tload_3\n");
     any_type_t* operand;
 
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -501,7 +501,7 @@ void tload_3(){
  *
  */
 void taload(){
-    printf("got into taload\n");
+    DEBUG_PRINT("got into taload\n");
     any_type_t *index, *arrayref, *operand;
     uint32_t int_index;
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -521,7 +521,7 @@ void taload(){
  *
  */
 void tstore(){
-    printf("got into tstore\n");
+    DEBUG_PRINT("got into tstore\n");
     any_type_t *value;
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -540,7 +540,7 @@ void tstore(){
  *
  */
 void tstore_0(){
-    printf("got into tstore_0\n");
+    DEBUG_PRINT("got into tstore_0\n");
     any_type_t *value;
 
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -556,7 +556,7 @@ void tstore_0(){
  *
  */
 void tstore_1(){
-    printf("got into tstore_1\n");
+    DEBUG_PRINT("got into tstore_1\n");
     any_type_t *value;
 
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -572,7 +572,7 @@ void tstore_1(){
  *
  */
 void tstore_2(){
-    printf("got into tstore_2\n");
+    DEBUG_PRINT("got into tstore_2\n");
     any_type_t *value;
 
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -588,7 +588,7 @@ void tstore_2(){
  *
  */
 void tstore_3(){
-    printf("got into tstore_3\n");
+    DEBUG_PRINT("got into tstore_3\n");
     any_type_t *value;
 
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -600,7 +600,7 @@ void tstore_3(){
 }
 
 void tastore(){
-    printf("got into tastore\n");
+    DEBUG_PRINT("got into tastore\n");
     any_type_t *index, *arrayref, *value;
     uint32_t int_index;
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -615,13 +615,13 @@ void tastore(){
 }
 
 void pop(){
-    printf("got into pop\n");
+    DEBUG_PRINT("got into pop\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
     pop_operand_stack(&(frame->operand_stack));
 }
 
 void pop2(){
-    printf("got into pop2\n");
+    DEBUG_PRINT("got into pop2\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
 
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
@@ -631,7 +631,7 @@ void pop2(){
 }
 
 void dup(){
-    printf("got into dup\n");
+    DEBUG_PRINT("got into dup\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -643,7 +643,7 @@ void dup(){
 }
 
 void dup_x1(){
-    printf("got into dup_x1\n");
+    DEBUG_PRINT("got into dup_x1\n");
     any_type_t *operand1 = (any_type_t*) malloc(sizeof(any_type_t));
     any_type_t *operand2 = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -662,7 +662,7 @@ void dup_x1(){
 }
 
 void dup_x2(){
-    printf("got into dup_x2\n");
+    DEBUG_PRINT("got into dup_x2\n");
     any_type_t *operand1, *operand2, *operand3;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -679,7 +679,7 @@ void dup_x2(){
 }
 
 void dup2(){
-    printf("got into dup2\n");
+    DEBUG_PRINT("got into dup2\n");
     any_type_t *operand1, *operand2;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -696,7 +696,7 @@ void dup2(){
 }
 
 void dup2_x1(){
-    printf("got into dup2_x1\n");
+    DEBUG_PRINT("got into dup2_x1\n");
     any_type_t *operand1, *operand2, *operand3;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -715,7 +715,7 @@ void dup2_x1(){
 }
 
 void dup2_x2(){
-    printf("got into dup2_x2\n");
+    DEBUG_PRINT("got into dup2_x2\n");
     any_type_t *operand1, *operand2, *operand3, *operand4;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -736,7 +736,7 @@ void dup2_x2(){
 }
 
 void swap(){
-    printf("got into swap\n");
+    DEBUG_PRINT("got into swap\n");
     any_type_t *operand1 = (any_type_t*) malloc(sizeof(any_type_t));
     any_type_t *operand2 = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -752,7 +752,7 @@ void swap(){
 }
 
 void iadd(){
-    printf("got into iadd\n");
+    DEBUG_PRINT("got into iadd\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -768,7 +768,7 @@ void iadd(){
 }
 
 void ladd(){
-    printf("got into ladd\n");
+    DEBUG_PRINT("got into ladd\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -784,14 +784,14 @@ void ladd(){
 }
 
 void fadd(){
-    printf("got into fadd\n");
+    DEBUG_PRINT("got into fadd\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
 
-    printf("%f/n", (op1->val.primitive_val.val.val_float));
+    DEBUG_PRINT("%f/n", (op1->val.primitive_val.val.val_float));
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
@@ -801,7 +801,7 @@ void fadd(){
 }
 
 void dadd(){
-    printf("got into dadd\n");
+    DEBUG_PRINT("got into dadd\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -817,7 +817,7 @@ void dadd(){
 }
 
 void isub(){
-    printf("got into isub\n");
+    DEBUG_PRINT("got into isub\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -833,7 +833,7 @@ void isub(){
 }
 
 void lsub(){
-    printf("got into lsub\n");
+    DEBUG_PRINT("got into lsub\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -849,7 +849,7 @@ void lsub(){
 }
 
 void fsub(){
-    printf("got into fsub\n");
+    DEBUG_PRINT("got into fsub\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -865,7 +865,7 @@ void fsub(){
 }
 
 void dsub(){
-    printf("got into dsub\n");
+    DEBUG_PRINT("got into dsub\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -881,7 +881,7 @@ void dsub(){
 }
 
 void imul(){
-    printf("got into imul\n");
+    DEBUG_PRINT("got into imul\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -897,7 +897,7 @@ void imul(){
 }
 
 void lmul(){
-    printf("got into lmul\n");
+    DEBUG_PRINT("got into lmul\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -913,7 +913,7 @@ void lmul(){
 }
 
 void fmul(){
-    printf("got into fmul\n");
+    DEBUG_PRINT("got into fmul\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -929,7 +929,7 @@ void fmul(){
 }
 
 void dmul(){
-    printf("got into dmul\n");
+    DEBUG_PRINT("got into dmul\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -945,7 +945,7 @@ void dmul(){
 }
 
 void idiv(){
-    printf("got into idiv\n");
+    DEBUG_PRINT("got into idiv\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -961,7 +961,7 @@ void idiv(){
 }
 
 void ldiv_op(){
-    printf("got into ldiv_op\n");
+    DEBUG_PRINT("got into ldiv_op\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -977,7 +977,7 @@ void ldiv_op(){
 }
 
 void fdiv(){
-    printf("got into fdiv\n");
+    DEBUG_PRINT("got into fdiv\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -993,7 +993,7 @@ void fdiv(){
 }
 
 void ddiv(){
-    printf("got into ddiv\n");
+    DEBUG_PRINT("got into ddiv\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1009,7 +1009,7 @@ void ddiv(){
 }
 
 void irem(){
-    printf("got into irem\n");
+    DEBUG_PRINT("got into irem\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1025,7 +1025,7 @@ void irem(){
 }
 
 void lrem(){
-    printf("got into lrem\n");
+    DEBUG_PRINT("got into lrem\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1041,7 +1041,7 @@ void lrem(){
 }
 
 void frem(){
-    printf("got into frem\n");
+    DEBUG_PRINT("got into frem\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1057,7 +1057,7 @@ void frem(){
 }
 
 void drem_op(){
-    printf("got into drem_op\n");
+    DEBUG_PRINT("got into drem_op\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1074,7 +1074,7 @@ void drem_op(){
 
 
 void ineg(){
-    printf("got into ineg\n");
+    DEBUG_PRINT("got into ineg\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1089,7 +1089,7 @@ void ineg(){
 }
 
 void lneg(){
-    printf("got into lneg\n");
+    DEBUG_PRINT("got into lneg\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1104,7 +1104,7 @@ void lneg(){
 }
 
 void fneg(){
-    printf("got into fneg\n");
+    DEBUG_PRINT("got into fneg\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1119,7 +1119,7 @@ void fneg(){
 }
 
 void dneg(){
-    printf("got into dneg\n");
+    DEBUG_PRINT("got into dneg\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1134,7 +1134,7 @@ void dneg(){
 }
 
 void ishl(){
-    printf("got into ishl\n");
+    DEBUG_PRINT("got into ishl\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int32_t value_op2;
@@ -1154,7 +1154,7 @@ void ishl(){
 }
 
 void lshl(){
-    printf("got into lshl\n");
+    DEBUG_PRINT("got into lshl\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int64_t value_op2;
@@ -1174,7 +1174,7 @@ void lshl(){
 }
 
 void ishr(){
-    printf("got into ishr\n");
+    DEBUG_PRINT("got into ishr\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int32_t value_op2;
@@ -1194,7 +1194,7 @@ void ishr(){
 }
 
 void lshr(){
-    printf("got into lshr\n");
+    DEBUG_PRINT("got into lshr\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int64_t value_op2;
@@ -1213,7 +1213,7 @@ void lshr(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 void iushr(){
-    printf("got into iushr\n");
+    DEBUG_PRINT("got into iushr\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint32_t value_op2;
@@ -1234,7 +1234,7 @@ void iushr(){
 }
 
 void lushr(){
-    printf("got into lushr\n");
+    DEBUG_PRINT("got into lushr\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint64_t value_op2;
@@ -1255,7 +1255,7 @@ void lushr(){
 
 
 void iand(){
-    printf("got into iand\n");
+    DEBUG_PRINT("got into iand\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int32_t value_op2, value_op1;
@@ -1275,7 +1275,7 @@ void iand(){
 }
 
 void land(){
-    printf("got into land\n");
+    DEBUG_PRINT("got into land\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int64_t value_op2, value_op1;
@@ -1295,7 +1295,7 @@ void land(){
 }
 
 void ior(){
-    printf("got into ior\n");
+    DEBUG_PRINT("got into ior\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int32_t value_op2, value_op1;
@@ -1315,7 +1315,7 @@ void ior(){
 }
 
 void lor(){
-    printf("got into lor\n");
+    DEBUG_PRINT("got into lor\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int64_t value_op2, value_op1;
@@ -1335,7 +1335,7 @@ void lor(){
 }
 
 void ixor(){
-    printf("got into ixor\n");
+    DEBUG_PRINT("got into ixor\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int32_t value_op2, value_op1;
@@ -1355,7 +1355,7 @@ void ixor(){
 }
 
 void lxor(){
-    printf("got into lxor\n");
+    DEBUG_PRINT("got into lxor\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int64_t value_op2, value_op1;
@@ -1375,7 +1375,7 @@ void lxor(){
 }
 
 void i2l(){
-    printf("got into i2l\n");
+    DEBUG_PRINT("got into i2l\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1390,7 +1390,7 @@ void i2l(){
 }
 
 void i2f(){
-    printf("got into i2f\n");
+    DEBUG_PRINT("got into i2f\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1405,7 +1405,7 @@ void i2f(){
 }
 
 void i2d(){
-    printf("got into i2d\n");
+    DEBUG_PRINT("got into i2d\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1420,7 +1420,7 @@ void i2d(){
 }
 
 void l2i(){
-    printf("got into l2i\n");
+    DEBUG_PRINT("got into l2i\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1435,7 +1435,7 @@ void l2i(){
 }
 
 void l2f(){
-    printf("got into l2f\n");
+    DEBUG_PRINT("got into l2f\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1450,7 +1450,7 @@ void l2f(){
 }
 
 void l2d(){
-    printf("got into l2d\n");
+    DEBUG_PRINT("got into l2d\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1465,7 +1465,7 @@ void l2d(){
 }
 
 void f2i(){
-    printf("got into f2i\n");
+    DEBUG_PRINT("got into f2i\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1480,7 +1480,7 @@ void f2i(){
 }
 
 void f2l(){
-    printf("got into f2l\n");
+    DEBUG_PRINT("got into f2l\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1495,7 +1495,7 @@ void f2l(){
 }
 
 void f2d(){
-    printf("got into f2d\n");
+    DEBUG_PRINT("got into f2d\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1510,7 +1510,7 @@ void f2d(){
 }
 
 void d2i(){
-    printf("got into d2i\n");
+    DEBUG_PRINT("got into d2i\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1525,7 +1525,7 @@ void d2i(){
 }
 
 void d2l(){
-    printf("got into d2l\n");
+    DEBUG_PRINT("got into d2l\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1540,7 +1540,7 @@ void d2l(){
 }
 
 void d2f(){
-    printf("got into d2f\n");
+    DEBUG_PRINT("got into d2f\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1555,7 +1555,7 @@ void d2f(){
 }
 
 void i2b(){
-    printf("got into i2b\n");
+    DEBUG_PRINT("got into i2b\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1570,7 +1570,7 @@ void i2b(){
 }
 
 void i2c(){
-    printf("got into i2c\n");
+    DEBUG_PRINT("got into i2c\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1585,7 +1585,7 @@ void i2c(){
 }
 
 void i2s(){
-    printf("got into i2s\n");
+    DEBUG_PRINT("got into i2s\n");
     any_type_t *op1, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -1600,7 +1600,7 @@ void i2s(){
 }
 
 void lcmp(){
-    printf("got into lcmp\n");
+    DEBUG_PRINT("got into lcmp\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int8_t value;
@@ -1624,7 +1624,7 @@ void lcmp(){
 }
 
 void fcmpl(){
-    printf("got into fcmpl\n");
+    DEBUG_PRINT("got into fcmpl\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int8_t value;
@@ -1650,7 +1650,7 @@ void fcmpl(){
 }
 
 void fcmpg(){
-    printf("got into fcmpg\n");
+    DEBUG_PRINT("got into fcmpg\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int8_t value;
@@ -1676,7 +1676,7 @@ void fcmpg(){
 }
 
 void dcmpl(){
-    printf("got into dcmpl\n");
+    DEBUG_PRINT("got into dcmpl\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int8_t value;
@@ -1702,7 +1702,7 @@ void dcmpl(){
 }
 
 void dcmpg(){
-    printf("got into dcmpl\n");
+    DEBUG_PRINT("got into dcmpl\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
     int8_t value;
@@ -1729,7 +1729,7 @@ void dcmpg(){
 
 
 void ifeq(){
-    printf("got into ifeq\n");
+    DEBUG_PRINT("got into ifeq\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -1751,7 +1751,7 @@ void ifeq(){
 }
 
 void ifne(){
-    printf("got into ifne\n");
+    DEBUG_PRINT("got into ifne\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -1773,7 +1773,7 @@ void ifne(){
 }
 
 void iflt(){
-    printf("got into iflt\n");
+    DEBUG_PRINT("got into iflt\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -1795,7 +1795,7 @@ void iflt(){
 }
 
 void ifge(){
-    printf("got into ifge\n");
+    DEBUG_PRINT("got into ifge\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -1817,7 +1817,7 @@ void ifge(){
 
 
 void ifgt(){
-    printf("got into ifgt\n");
+    DEBUG_PRINT("got into ifgt\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -1839,7 +1839,7 @@ void ifgt(){
 }
 
 void ifle(){
-    printf("got into ifle\n");
+    DEBUG_PRINT("got into ifle\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -1861,7 +1861,7 @@ void ifle(){
 }
 
 void if_icmpeq(){
-    printf("got into if_icmpeq\n");
+    DEBUG_PRINT("got into if_icmpeq\n");
     any_type_t *value1, *value2;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -1885,7 +1885,7 @@ void if_icmpeq(){
 }
 
 void if_icmpne(){
-    printf("got into if_icmpne\n");
+    DEBUG_PRINT("got into if_icmpne\n");
     any_type_t *value1, *value2;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -1909,7 +1909,7 @@ void if_icmpne(){
 }
 
 void if_icmplt(){
-    printf("got into if_icmplt\n");
+    DEBUG_PRINT("got into if_icmplt\n");
     any_type_t *value1, *value2;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -1933,7 +1933,7 @@ void if_icmplt(){
 }
 
 void if_icmpge(){
-    printf("got into if_icmpge\n");
+    DEBUG_PRINT("got into if_icmpge\n");
     any_type_t *value1, *value2;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -1957,7 +1957,7 @@ void if_icmpge(){
 }
 
 void if_icmpgt(){
-    printf("got into if_icmpgt\n");
+    DEBUG_PRINT("got into if_icmpgt\n");
     any_type_t *value1, *value2;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -1981,7 +1981,7 @@ void if_icmpgt(){
 }
 
 void if_icmple(){
-    printf("got into if_icmple\n");
+    DEBUG_PRINT("got into if_icmple\n");
     any_type_t *value1, *value2;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -2004,7 +2004,7 @@ void if_icmple(){
 }
 
 void if_acmpeq(){
-    printf("got into if_acmpeq\n");
+    DEBUG_PRINT("got into if_acmpeq\n");
     any_type_t *value1, *value2;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -2053,7 +2053,7 @@ void if_acmpeq(){
 }
 
 void if_acmpne(){
-    printf("got into if_acmpne\n");
+    DEBUG_PRINT("got into if_acmpne\n");
     any_type_t *value1, *value2;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -2101,7 +2101,7 @@ void if_acmpne(){
 }
 
 void goto_op(){
-    printf("got into goto_op\n");
+    DEBUG_PRINT("got into goto_op\n");
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
     u2 index;
@@ -2117,7 +2117,7 @@ void goto_op(){
 }
 
 void jsr(){
-    printf("got into jsr\n");
+    DEBUG_PRINT("got into jsr\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -2139,12 +2139,12 @@ void jsr(){
 }
 
 void treturn(){
-    printf("got into treturn\n");
+    DEBUG_PRINT("got into treturn\n");
     returnFromFunction();
 }
 
 void getstatic(){
-    printf("got into getstatic\n");
+    DEBUG_PRINT("got into getstatic\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
@@ -2189,7 +2189,7 @@ void getstatic(){
 }
 
 void putstatic(){
-    printf("got into putstatic\n");
+    DEBUG_PRINT("got into putstatic\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
@@ -2228,7 +2228,7 @@ void putstatic(){
 }
 
 void new_op() {
-    printf("got into new_op\n");
+    DEBUG_PRINT("got into new_op\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
@@ -2326,7 +2326,7 @@ void new_op() {
 /*}*/
 
 void newarray(){
-    printf("got into newarray\n");
+    DEBUG_PRINT("got into newarray\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 atype = code_attribute->code[jvm_pc.code_pc+1];
@@ -2374,7 +2374,7 @@ void newarray(){
 }
 
 void tableswitch() {
-    printf("got into tableswitch\n");
+    DEBUG_PRINT("got into tableswitch\n");
     int offset = 0;
     u4 low, high, myDefault, targetOffset;
     u1 byte1 = 0;
@@ -2432,7 +2432,7 @@ void tableswitch() {
 }
 
 void lookupswitch() {
-    printf("got into lookupswitch\n");
+    DEBUG_PRINT("got into lookupswitch\n");
     int offset = 0;
     u4 npairs, myDefault, targetOffset, match;
     u1 byte1 = 0;
@@ -2493,7 +2493,7 @@ void lookupswitch() {
 }
 
 void wide() {
-    printf("got into wide\n");
+    DEBUG_PRINT("got into wide\n");
     any_type_t* operand;
     int offset = 0;
     u2 index;
@@ -2540,7 +2540,7 @@ void wide() {
                     operand->val.primitive_val.val.val64 += inc;
                     break;
                 default:
-                    printf("Unexpected primitive_val tag on iinc()\n");
+                    DEBUG_PRINT("Unexpected primitive_val tag on iinc()\n");
                     break;
             }
 
@@ -2609,7 +2609,7 @@ void wide() {
 }
 
 void ret() {
-    printf("got into ret\n");
+    DEBUG_PRINT("got into ret\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     frame_t* frame = peek_frame_stack(jvm_stack);
 
@@ -2638,7 +2638,7 @@ void ret() {
 }
 
 void iinc() {
-    printf("got into iinc\n");
+    DEBUG_PRINT("got into iinc\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     frame_t* frame = peek_frame_stack(jvm_stack);
 
@@ -2666,7 +2666,7 @@ void iinc() {
 }
 
 void getfield() {
-    printf("got into getfield\n");
+    DEBUG_PRINT("got into getfield\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
@@ -2699,7 +2699,7 @@ void getfield() {
     return;
 }
 void putfield() {
-    printf("got into putfield\n");
+    DEBUG_PRINT("got into putfield\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
@@ -2733,7 +2733,7 @@ void putfield() {
     return;
 }
 void invokevirtual() {
-    printf("got into invokevirtual\n");
+    DEBUG_PRINT("got into invokevirtual\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
@@ -2792,7 +2792,7 @@ void invokevirtual() {
     return;
 }
 void invokespecial() {
-    printf("got into invokespecial\n");
+    DEBUG_PRINT("got into invokespecial\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
@@ -2825,7 +2825,7 @@ void invokespecial() {
     return;
 }
 void invokestatic() {
-    printf("got into invokestatic\n");
+    DEBUG_PRINT("got into invokestatic\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
@@ -2855,7 +2855,7 @@ void invokestatic() {
     return;
 }
 void invokeinterface() {
-    printf("got into invokeinterface\n");
+    DEBUG_PRINT("got into invokeinterface\n");
     // TODO verificar se esta certa (esta igual as anteriores)
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
@@ -2886,11 +2886,11 @@ void invokeinterface() {
     return;
 }
 void invokedynamic() {
-    printf("got into invokedynamic\n");
+    DEBUG_PRINT("got into invokedynamic\n");
     //TODO
 }
 void anewarray() {
-    printf("got into anewarray\n");
+    DEBUG_PRINT("got into anewarray\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
     any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
     any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
@@ -2922,7 +2922,7 @@ void anewarray() {
     push_operand_stack(&(frame->operand_stack), arrayref);
 }
 void arraylength() {
-    printf("got into arraylength\n");
+    DEBUG_PRINT("got into arraylength\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
     any_type_t *arrayref = pop_operand_stack(&(frame->operand_stack));
 
@@ -2934,13 +2934,13 @@ void arraylength() {
     push_operand_stack(&(frame->operand_stack), length);
 }
 void athrow() {
-    printf("got into athrow\n");
+    DEBUG_PRINT("got into athrow\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
     any_type_t *objref = pop_operand_stack(&(frame->operand_stack));
     throwException(objref->val.reference_val.val.object.objClass);
 }
 void checkcast() {
-    printf("got into checkcast\n");
+    DEBUG_PRINT("got into checkcast\n");
     // TODO acho que esta errado, parece que tem que botar eh um objref de volta na pilha e nao um boolean
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
@@ -2968,7 +2968,7 @@ void checkcast() {
 }
 
 void instanceof() {
-    printf("got into instanceof\n");
+    DEBUG_PRINT("got into instanceof\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
@@ -2995,17 +2995,17 @@ void instanceof() {
 }
 
 void monitorenter() {
-    printf("got into monitorenter\n");
+    DEBUG_PRINT("got into monitorenter\n");
     printf("ERROR: monitorenter is not implemented!\n");
     exit(1);
 }
 void monitorexit() {
-    printf("got into monitorexit\n");
+    DEBUG_PRINT("got into monitorexit\n");
     printf("ERROR: monitorexit is not implemented!\n");
     exit(1);
 }
 void multianewarray() {
-    printf("got into multianewarray\n");
+    DEBUG_PRINT("got into multianewarray\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
     any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
     int32_t contador;
@@ -3027,7 +3027,7 @@ void multianewarray() {
     push_operand_stack(&(frame->operand_stack), arrayref);
 }
 void ifnull() {
-    printf("got into ifnull\n");
+    DEBUG_PRINT("got into ifnull\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -3048,7 +3048,7 @@ void ifnull() {
     }
 }
 void ifnonnull() {
-    printf("got into ifnonnull\n");
+    DEBUG_PRINT("got into ifnonnull\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
@@ -3068,7 +3068,7 @@ void ifnonnull() {
     }
 }
 void goto_w() {
-    printf("got into goto_w\n");
+    DEBUG_PRINT("got into goto_w\n");
     u1 byte1 = 0;
     u1 byte2 = 0;
     u1 byte3 = 0;
@@ -3088,7 +3088,7 @@ void goto_w() {
     jvm_pc.jumped = 1;
 }
 void jsr_w() {
-    printf("got into jsr_w\n");
+    DEBUG_PRINT("got into jsr_w\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
     u1 byte1 = 0;
@@ -3115,17 +3115,17 @@ void jsr_w() {
     jvm_pc.jumped = 1;
 }
 void breakpoint() {
-    printf("got into breakpoint\n");
+    DEBUG_PRINT("got into breakpoint\n");
     printf("ERROR: breakpoint is not implemented!\n");
     exit(1);
 }
 void impdep1() {
-    printf("got into impdep1\n");
+    DEBUG_PRINT("got into impdep1\n");
     printf("ERROR: impdep1 is not implemented!\n");
     exit(1);
 }
 void impdep2() {
-    printf("got into impdep2\n");
+    DEBUG_PRINT("got into impdep2\n");
     printf("ERROR: impdep2 is not implemented!\n");
     exit(1);
 }
