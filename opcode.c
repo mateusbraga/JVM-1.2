@@ -2044,6 +2044,46 @@ void putstatic(){
 
     }
 
+}
+
+void newarray(){
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 atype = code_attribute->code[jvm_pc.code_pc+1];
+    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
+
+    arrayref->tag = PRIMITIVE;
+
+
+    switch(atype){
+    case 4:
+        arrayref->val.primitive_val.tag = BOOLEAN;
+        break;
+    case 5:
+        arrayref->val.primitive_val.tag = CHAR;
+        brea;
+    case 6:
+        arrayref->val.primitive_val.tag = FLOAT;
+        break;
+    case 7:
+        arrayref->val.primitive_val.tag = DOUBLE;
+        break;
+    case 8:
+        arrayref->val.primitive_val.tag = BYTE;
+        break;
+    case 9:
+        arrayref->val.primitive_val.tag = SHORT;
+        break;
+    case 10:
+        arrayref->val.primitive_val.tag = INT;
+        break;
+    case 11:
+        arrayref->val.primitive_val.tag = LONG;
+        break;
+    }
+
+    push_operand_stack(&(frame->operand_stack));
+
 
     assert(0);
     return;
@@ -2336,7 +2376,7 @@ void iinc() {
     }
 }
 
-/*void (*jvm_opcode[])(void) = {
+void (*jvm_opcode[])(void) = {
     NULL, aconst_null, iconst_m1, iconst_0, iconst_1, iconst_2, iconst_3, iconst_4, iconst_5, lconst_0, lconst_1,
     fconst_0, fconst_1, dconst_0, dconst_1, bipush, sipush, ldc, ldc_w, ldc2_w, tload, tload, tload, tload, tload,
     tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3, tload_0, tload_1, tload_2, tload_3,
@@ -2349,8 +2389,10 @@ void iinc() {
     ior, lor, ixor, lxor, iinc, i2l, i2f, i2d, l2i, l2f, l2d, f2i, f2l, f2d, d2i, d2l, d2f, i2b, i2c, i2s, lcmp, fcmpl, fcmpg,
     dcmpl, dcmpg, ifeq, ifne, iflt, ifge, ifgt, ifle, if_icmpeq, if_icmpne, if_icmplt, if_icmpge, if_icmpgt, if_icmple,
     if_acmpeq, if_acmpne, goto_op, jsr, ret, tableswitch, lookupswitch, treturn, treturn, treturn, treturn, treturn, treturn,
-    getstatic, putstatic, getfield, putfield, invokevirtual, invokespecial, invokestatic, invokeinterface, invokedynamic,
-    new_op, newarray, anewarray, arraylength, athrow, checkcast, instanceof, monitorenter, monitorexit, wide, multianewarray,
-    ifnull, ifnonnull, goto_w, jsr_w, breakpoint, impdep1, impdep2
+    getstatic, //putstatic, getfield, putfield, invokevirtual, invokespecial, invokestatic, invokeinterface, invokedynamic,
+    //new_op,
+    newarray,
+    //anewarray, arraylength, athrow, checkcast, instanceof, monitorenter, monitorexit, wide, multianewarray,
+    //ifnull, ifnonnull, goto_w, jsr_w, breakpoint, impdep1, impdep2
     };
-*/
+
