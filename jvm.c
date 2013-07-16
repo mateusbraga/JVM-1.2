@@ -229,7 +229,7 @@ class_t *createClass(Utf8_info_t* class_name) {
  * @see compare_utf8, createClass
  */
 class_t *getClass(Utf8_info_t* class_name) {
-    printf("got into getClass with arguments: %s\n", utf8_to_string(class_name));
+    DEBUG_PRINT("got into getClass with arguments: %s\n", utf8_to_string(class_name));
     if(compare_utf8(class_name, string_to_utf8("java/lang/Object")) == 0) {
         return NULL;
     }
@@ -252,7 +252,7 @@ class_t *getClass(Utf8_info_t* class_name) {
  * @see getClass
  */
 class_t* getSuperClass(class_t* sub_class) {
-    printf("got into getSuperClass with arguments: %s\n", utf8_to_string(sub_class->class_name));
+    DEBUG_PRINT("got into getSuperClass with arguments: %s\n", utf8_to_string(sub_class->class_name));
     u2 class_name_index = sub_class->class_file.constant_pool[sub_class->class_file.super_class].info.Class.name_index;
     return getClass(&(sub_class->class_file.constant_pool[class_name_index].info.Utf8));
 }
@@ -348,7 +348,7 @@ int hasReturnValue(class_t* class, method_info_t* method) {
  */
 method_info_t* getMethodOnThisClass(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
 
-    printf("got into getMethodOnThisClass with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
+    DEBUG_PRINT("got into getMethodOnThisClass with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
 
     int i = 0;
     for (i = 0; class->class_file.methods_count; i++) {
@@ -358,12 +358,12 @@ method_info_t* getMethodOnThisClass(class_t* class, Utf8_info_t* method_name, Ut
         if (compare_utf8(method_name, method_name_aux) == 0) {
             Utf8_info_t* descriptor_aux = &(class->class_file.constant_pool[method->descriptor_index].info.Utf8);
             if (compare_utf8(descriptor, descriptor_aux) == 0) {
-                printf("Done with getMethodOnThisClass with arguments: %s, %s, %s. Found method.\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
+                DEBUG_PRINT("Done with getMethodOnThisClass with arguments: %s, %s, %s. Found method.\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
                 return method;
             }
         }
     }
-    printf("Done with getMethodOnThisClass with arguments: %s, %s, %s. DID NOT Found method.\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
+    DEBUG_PRINT("Done with getMethodOnThisClass with arguments: %s, %s, %s. DID NOT Found method.\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
     return NULL;
 }
 
@@ -378,7 +378,7 @@ method_info_t* getMethodOnThisClass(class_t* class, Utf8_info_t* method_name, Ut
  * @see getSuperClass, getMethodOnThisClass
  */
 method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
-    printf("got into getMethod with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
+    DEBUG_PRINT("got into getMethod with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
 
     if (class->status == CLASSE_NAO_CARREGADA) {
         loadClass(class);
@@ -406,7 +406,7 @@ method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* 
         }
     }
 
-    printf("Done with getMethod with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
+    DEBUG_PRINT("Done with getMethod with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
 
     return method;
 }
@@ -690,7 +690,7 @@ void returnFromFunction() {
  */
 void callMethod(class_t* class, method_info_t* method) {
     Utf8_info_t* method_name = &(class->class_file.constant_pool[method->name_index].info.Utf8);
-    printf("got into callMethod with arguments: %s , %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name));
+    DEBUG_PRINT("got into callMethod with arguments: %s , %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name));
     if (class->status == CLASSE_NAO_CARREGADA) {
         loadClass(class);
     }
@@ -738,7 +738,7 @@ void callMethod(class_t* class, method_info_t* method) {
     jvm_pc.code_pc = 0;
     jvm_pc.jumped = 0;
 
-    printf("Done with callMethod with arguments: %s , %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name));
+    DEBUG_PRINT("Done with callMethod with arguments: %s , %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name));
     return;
 }
 /** @} */
@@ -807,7 +807,7 @@ int main(int argc, char* argv[]) {
         u1 opcode = code_attribute->code[jvm_pc.code_pc];
 
         //execute the action for the opcode;
-        printf("Going to execute %#x at %d\n", opcode, jvm_pc.code_pc);
+        DEBUG_PRINT("Going to execute %#x at %d\n", opcode, jvm_pc.code_pc);
         jvm_opcode[opcode]();
         
         goToNextOpcode();
