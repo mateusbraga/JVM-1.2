@@ -129,6 +129,31 @@ u2 scan_utf8_char_from_char(char* string, u2 *pos) {
     }
 }
 
+void createMultiArray(any_type_t *arrayref, u1 tamanho, u1 dimensao, class_t *tipo) {
+    int32_t contador;
+    u1 i, j;
+    if (dimensao == 1) {
+        for(i=0; i<=tamanho; i++){
+            arrayref->val.reference_val.val.array.components[i].tag = REFERENCE;
+            arrayref->val.reference_val.val.array.components[i].val.reference_val.tag = OBJECT;
+            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.objClass = tipo;
+            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.length = tipo->class_file.fields_count;
+            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * tipo->class_file.fields_count);
+        }
+    }
+    else {
+        for(i=0; i<=tamanho; i++){
+            any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
+            contador = cont->val.primitive_val.val.val32;
+            arrayref->val.reference_val.val.array.components[i].tag = REFERENCE;
+            arrayref->val.reference_val.val.array.components[i].val.reference_val.tag = ARRAY;
+            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.array.length = contador;
+            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
+            createMultiArray(arrayref->val.reference_val.val.array.components[i], contador, dimensao-1, tipo);
+        }
+    }
+}
+
 /**
  * @brief Cria um any_type_t que é uma array de caracteres a partir da string.
  *
