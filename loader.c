@@ -409,9 +409,21 @@ void set_class_file(class_t* class){
         printf("Erro! Assinatura nao identificada ( CAFEBABE )\n %x\n", classe->magic);
         exit(1);
     }
-    /*Checar versão correta, se não for apresentar erro */
+    /*Checar versão correta, se não for apresentar erro. Versão correta: Entre 45.0 e 46.0 */
     classe->minor_version = readu2(fp);
     classe->major_version = readu2(fp);
+    if((classe->major_version < 45) || (classe->major_version > 46)){
+        printf("Erro! Problema na versao da classe\n %x.%x\n", classe->major_version, classe->minor_version);
+        exit(1);
+    }
+    else {
+        if((classe->major_version == 45) || (classe->major_version == 46)){
+            if(class->minor_version != 0) {
+                printf("Erro! Problema na versao da classe\n %x.%x\n", classe->major_version, classe->minor_version);
+                exit(1);
+            }
+        }   
+    }
     classe->constant_pool_count = readu2(fp);
     classe->constant_pool = GetConstantes(fp, classe->constant_pool_count);
     classe->access_flags = readu2(fp);
