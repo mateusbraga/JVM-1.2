@@ -803,6 +803,7 @@ int main(int argc, char* argv[]) {
         u1 opcode = code_attribute->code[jvm_pc.code_pc];
 
         //execute the action for the opcode;
+        printf("Going to execute %#x\n", opcode);
         jvm_opcode[opcode]();
         
         goToNextOpcode();
