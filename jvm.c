@@ -714,7 +714,6 @@ void callMethod(class_t* class, method_info_t* method) {
 
     //get number of arguments from classfile
     int number_of_arguments = getNumberOfArguments(class, method);
-    printf("hi %d\n", number_of_arguments);
 
     // pop arguments from operand stack and
     // insert them on local_var
@@ -725,9 +724,6 @@ void callMethod(class_t* class, method_info_t* method) {
         frame->local_var.var[local_var_index] = operand;
         local_var_index++;
     }
-    printf("hi\n");
-    assert(local_var_index == frame->local_var.size);
-    printf("hi\n");
 
 
     push_frame_stack(&jvm_stack, frame);
@@ -738,6 +734,7 @@ void callMethod(class_t* class, method_info_t* method) {
     jvm_pc.code_pc = 0;
     jvm_pc.jumped = 0;
 
+    printf("Done with callMethod with arguments: %s , %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name));
     return;
 }
 /** @} */
