@@ -2550,10 +2550,12 @@ void instanceof() {
     //TODO
 }
 void monitorenter() {
-    //TODO
+    printf("ERROR: monitorenter is not implemented!\n");
+    exit(1);
 }
 void monitorexit() {
-    //TODO
+    printf("ERROR: monitorexit is not implemented!\n");
+    exit(1);
 }
 void multianewarray() {
     //TODO
@@ -2571,13 +2573,16 @@ void jsr_w() {
     //TODO
 }
 void breakpoint() {
-    //TODO
+    printf("ERROR: breakpoint is not implemented!\n");
+    exit(1);
 }
 void impdep1() {
-    //TODO
+    printf("ERROR: impdep1 is not implemented!\n");
+    exit(1);
 }
 void impdep2() {
-    //TODO
+    printf("ERROR: impdep2 is not implemented!\n");
+    exit(1);
 }
 
 void (*jvm_opcode[])(void) = {
