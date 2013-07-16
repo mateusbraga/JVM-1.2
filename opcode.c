@@ -1140,8 +1140,8 @@ void ishl(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     int32_t value_op2;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     value_op2 = op2->val.primitive_val.val.val32;
     value_op2 = (value_op2 & 0x00FF) & 0x001F;
@@ -1160,8 +1160,8 @@ void lshl(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     int64_t value_op2;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     value_op2 = op2->val.primitive_val.val.val64;
     value_op2 = (value_op2 & 0x00FF) & 0x003F;
@@ -1180,8 +1180,8 @@ void ishr(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     int32_t value_op2;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     value_op2 = op2->val.primitive_val.val.val32;
     value_op2 = (value_op2 & 0x00FF) & 0x001F;
@@ -1200,8 +1200,8 @@ void lshr(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     int64_t value_op2;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     value_op2 = op2->val.primitive_val.val.val64;
     value_op2 = (value_op2 & 0x00FF) & 0x003F;
@@ -1219,8 +1219,8 @@ void iushr(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint32_t value_op2;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     value_op2 = (uint32_t) op2->val.primitive_val.val.val32;
     value_op2 = (value_op2 & 0x00FF) & 0x001F;
@@ -1240,8 +1240,8 @@ void lushr(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint64_t value_op2;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     value_op2 = (uint64_t) op2->val.primitive_val.val.val64;
     value_op2 = (value_op2 & 0x00FF) & 0x003F;
@@ -1261,8 +1261,8 @@ void iand(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     int32_t value_op2, value_op1;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     value_op1 = op1->val.primitive_val.val.val32;
     value_op2 = op2->val.primitive_val.val.val32;
@@ -1281,8 +1281,8 @@ void land(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     int64_t value_op2, value_op1;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     value_op1 = op1->val.primitive_val.val.val64;
     value_op2 = op2->val.primitive_val.val.val64;
@@ -1301,8 +1301,8 @@ void ior(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     int32_t value_op2, value_op1;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     value_op1 = op1->val.primitive_val.val.val32;
     value_op2 = op2->val.primitive_val.val.val32;
@@ -1321,8 +1321,8 @@ void lor(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     int64_t value_op2, value_op1;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     value_op1 = op1->val.primitive_val.val.val64;
     value_op2 = op2->val.primitive_val.val.val64;
@@ -1341,8 +1341,8 @@ void ixor(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     int32_t value_op2, value_op1;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     value_op1 = op1->val.primitive_val.val.val32;
     value_op2 = op2->val.primitive_val.val.val32;
@@ -1361,8 +1361,8 @@ void lxor(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     int64_t value_op2, value_op1;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     value_op1 = op1->val.primitive_val.val.val64;
     value_op2 = op2->val.primitive_val.val.val64;
