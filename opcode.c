@@ -6,6 +6,9 @@
 #include "frame_stack.h"
 #include "structs.h"
 #include "jvm.h"
+#include "loader.h"
+#include "linker.h"
+#include "initializer.h"
 
 extern frame_stack_t *jvm_stack;
 
@@ -401,13 +404,13 @@ void ldc2_w(){
             operand->val.primitive_val.val.val64 = (high_bytes<<32)|low_bytes;
             break;
         case CONSTANT_Double:
-            //TODO fix this - it's not converting to a correct double
+            // Testado
             high_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.high_bytes;
             low_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.low_bytes;
+            uint64_t double_bytes = (high_bytes<<32) | low_bytes;
             operand->tag = PRIMITIVE;
             operand->val.primitive_val.tag = DOUBLE;
-            operand->val.primitive_val.val.val_double = (high_bytes<<32) | low_bytes;
-            printf("aaa %F\n", operand->val.primitive_val.val.val_double);
+            memmove(&(operand->val.primitive_val.val.val_double), &(double_bytes), sizeof(double));
             break;
         default:
             printf("Erro \n");
@@ -1346,6 +1349,8 @@ void ixor(){
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = (value_op1 ^ value_op2);
+    
+    push_operand_stack(&(frame->operand_stack), operand);
 }
 
 void lxor(){
@@ -1727,7 +1732,7 @@ void ifeq(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1749,7 +1754,7 @@ void ifne(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1771,7 +1776,7 @@ void iflt(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1793,7 +1798,7 @@ void ifge(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1816,7 +1821,7 @@ void ifgt(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1838,7 +1843,7 @@ void ifle(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1852,10 +1857,8 @@ void if_icmpeq(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 == value2->val.primitive_val.val.val32){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -1864,7 +1867,7 @@ void if_icmpeq(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1878,10 +1881,8 @@ void if_icmpne(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 != value2->val.primitive_val.val.val32){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -1890,7 +1891,7 @@ void if_icmpne(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1904,10 +1905,8 @@ void if_icmplt(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 < value2->val.primitive_val.val.val32){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -1916,7 +1915,7 @@ void if_icmplt(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1930,10 +1929,8 @@ void if_icmpge(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 >= value2->val.primitive_val.val.val32){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -1942,7 +1939,7 @@ void if_icmpge(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1956,10 +1953,8 @@ void if_icmpgt(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 > value2->val.primitive_val.val.val32){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -1968,7 +1963,7 @@ void if_icmpgt(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1982,10 +1977,8 @@ void if_icmple(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 <= value2->val.primitive_val.val.val32){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -1993,7 +1986,7 @@ void if_icmple(){
         indexl = code_attribute->code[jvm_pc.code_pc+2];
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -2007,8 +2000,8 @@ void if_acmpeq(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     switch(value1->val.reference_val.tag){
         case OBJECT:
@@ -2018,7 +2011,7 @@ void if_acmpeq(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc.code_pc = index;
+                jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
             break;
@@ -2029,7 +2022,7 @@ void if_acmpeq(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc.code_pc = index;
+                jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
             break;
@@ -2040,7 +2033,7 @@ void if_acmpeq(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc.code_pc = index;
+                jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
         break;
@@ -2056,10 +2049,8 @@ void if_acmpne(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     switch(value1->val.reference_val.tag){
         case OBJECT:
@@ -2069,7 +2060,7 @@ void if_acmpne(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc.code_pc = index;
+                jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
             break;
@@ -2080,7 +2071,7 @@ void if_acmpne(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc.code_pc = index;
+                jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
             break;
@@ -2091,7 +2082,7 @@ void if_acmpne(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc.code_pc = index;
+                jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
         break;
@@ -2156,6 +2147,15 @@ void getstatic(){
         return;
     }
     class_t *class_field = getClass(class_name);
+    if (class_field->status == CLASSE_NAO_CARREGADA) {
+        loadClass(class_field);
+    }
+    if (class_field->status == CLASSE_NAO_LINKADA) {
+        linkClass(class_field);
+    }
+    if (class_field->status == CLASSE_NAO_INICIALIZADA) {
+        initializeClass(class_field);
+    }
 
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.name_and_type_index;
     u2 field_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
@@ -2189,6 +2189,15 @@ void putstatic(){
     Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
 
     class_t *class_field = getClass(class_name);
+    if (class_field->status == CLASSE_NAO_CARREGADA) {
+        loadClass(class_field);
+    }
+    if (class_field->status == CLASSE_NAO_LINKADA) {
+        linkClass(class_field);
+    }
+    if (class_field->status == CLASSE_NAO_INICIALIZADA) {
+        initializeClass(class_field);
+    }
 
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.name_and_type_index;
     u2 field_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
