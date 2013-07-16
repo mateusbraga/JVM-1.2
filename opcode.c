@@ -2638,27 +2638,190 @@ void iinc() {
 
 void getfield() {
     printf("got into getfield\n");
-    //TODO
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.class_index;
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+    class_t *class_field = getClass(class_name);
+
+    u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.name_and_type_index;
+    u2 field_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
+    Utf8_info_t *field_name = &(jvm_pc.currentClass->class_file.constant_pool[field_name_index].info.Utf8);
+
+    u2 i = 0;
+    for (i = 0; i < class_field->class_file.fields_count; i++) {
+        u2 name_index = class_field->class_file.fields[i].name_index;
+        if (compare_utf8(&(class_field->class_file.constant_pool[name_index].info.Utf8), field_name) == 0) {
+            frame_t *frame = peek_frame_stack(jvm_stack);
+            any_type_t* objref = pop_operand_stack(&(frame->operand_stack));
+            push_operand_stack(&(frame->operand_stack), &(objref->val.reference_val.val.object.attributes[i]));
+            return;
+        }
+
+    }
+
+
+    assert(0);
+    return;
 }
 void putfield() {
     printf("got into putfield\n");
-    //TODO
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.class_index;
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+    class_t *class_field = getClass(class_name);
+
+    u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.name_and_type_index;
+    u2 field_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
+    Utf8_info_t *field_name = &(jvm_pc.currentClass->class_file.constant_pool[field_name_index].info.Utf8);
+
+    u2 i = 0;
+    for (i = 0; i < class_field->class_file.fields_count; i++) {
+        u2 name_index = class_field->class_file.fields[i].name_index;
+        if (compare_utf8(&(class_field->class_file.constant_pool[name_index].info.Utf8), field_name) == 0) {
+            frame_t *frame = peek_frame_stack(jvm_stack);
+            any_type_t* objref = pop_operand_stack(&(frame->operand_stack));
+            any_type_t* value = pop_operand_stack(&(frame->operand_stack));
+            objref->val.reference_val.val.object.attributes[i] = *value;
+            return;
+        }
+
+    }
+
+    assert(0);
+    return;
 }
 void invokevirtual() {
     printf("got into invokevirtual\n");
-    //TODO
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.class_index;
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+    class_t *class_method = getClass(class_name);
+
+    u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
+    u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
+    Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
+
+    u2 i = 0;
+    for (i = 0; i < class_method->class_file.methods_count; i++) {
+        u2 name_index = class_method->class_file.methods[i].name_index;
+        if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0) {
+            callMethod(class_method, &(class_method->class_file.methods[i]));
+            return;
+        }
+
+    }
+
+    assert(0);
+    return;
 }
 void invokespecial() {
     printf("got into invokespecial\n");
-    //TODO
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.class_index;
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+    class_t *class_method = getClass(class_name);
+
+    u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
+    u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
+    Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
+
+    u2 i = 0;
+    for (i = 0; i < class_method->class_file.methods_count; i++) {
+        u2 name_index = class_method->class_file.methods[i].name_index;
+        if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0) {
+            callMethod(class_method, &(class_method->class_file.methods[i]));
+            return;
+        }
+
+    }
+
+    assert(0);
+    return;
 }
 void invokestatic() {
     printf("got into invokestatic\n");
-    //TODO
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.class_index;
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+    class_t *class_method = getClass(class_name);
+
+    u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
+    u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
+    Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
+
+    u2 i = 0;
+    for (i = 0; i < class_method->class_file.methods_count; i++) {
+        u2 name_index = class_method->class_file.methods[i].name_index;
+        if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0) {
+            callMethod(class_method, &(class_method->class_file.methods[i]));
+            return;
+        }
+
+    }
+
+    assert(0);
+    return;
 }
 void invokeinterface() {
     printf("got into invokeinterface\n");
-    //TODO
+    // TODO verificar se esta certa (esta igual as anteriores)
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.class_index;
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+    class_t *class_method = getClass(class_name);
+
+    u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
+    u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
+    Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
+
+    u2 i = 0;
+    for (i = 0; i < class_method->class_file.methods_count; i++) {
+        u2 name_index = class_method->class_file.methods[i].name_index;
+        if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0) {
+            callMethod(class_method, &(class_method->class_file.methods[i]));
+            return;
+        }
+
+    }
+
+    assert(0);
+    return;
 }
 void invokedynamic() {
     printf("got into invokedynamic\n");
@@ -2666,11 +2829,46 @@ void invokedynamic() {
 }
 void anewarray() {
     printf("got into anewarray\n");
-    //TODO
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
+    int32_t contador, i = 0;
+
+    contador = cont->val.primitive_val.val.val32;
+    arrayref->tag = REFERENCE;
+    arrayref->val.reference_val.tag = ARRAY;
+    arrayref->val.reference_val.val.array.length = contador;
+    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
+
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+    class_t *object_class = getClass(class_name);
+
+    for(i=0; i<=contador; i++){
+        arrayref->val.reference_val.val.array.components[i].tag = REFERENCE;
+        arrayref->val.reference_val.val.array.components[i].val.reference_val.tag = OBJECT;
+        arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.length = object_class->class_file.fields_count;
+        arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * object_class->class_file.fields_count);
+    }
+    push_operand_stack(&(frame->operand_stack), arrayref);
 }
 void arraylength() {
     printf("got into arraylength\n");
-    //TODO
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    any_type_t *arrayref = pop_operand_stack(&(frame->operand_stack));
+
+    any_type_t *length = (any_type_t*) malloc(sizeof(any_type_t));
+    length->tag = PRIMITIVE;
+    length->val.primitive_val.tag = INT;
+    length->val.primitive_val.val.val32 = arrayref->val.reference_val.val.array.length;
+
+    push_operand_stack(&(frame->operand_stack), length);
 }
 void athrow() {
     printf("got into athrow\n");
