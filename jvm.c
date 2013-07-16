@@ -380,11 +380,6 @@ method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* 
         }
     }
 
-
-
-
-
-
     printf("Done with getMethod with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
 
     return method;
@@ -786,7 +781,7 @@ int main(int argc, char* argv[]) {
         u1 opcode = code_attribute->code[jvm_pc.code_pc];
 
         //execute the action for the opcode;
-        printf("Going to execute %#x\n", opcode);
+        printf("Going to execute %#x at %d\n", opcode, jvm_pc.code_pc);
         jvm_opcode[opcode]();
         
         goToNextOpcode();
