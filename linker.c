@@ -191,12 +191,12 @@ void verificar (class_t* class) {
  */
 
 void linkClass (class_t* class) {
-    printf("Got in linkClass with arguments: %s\n", utf8_to_string(class->class_name));
+    DEBUG_PRINT("Got in linkClass with arguments: %s\n", utf8_to_string(class->class_name));
 	verificar(class);
 	preparar(class); //Estrutura montada para busca de metodos
 	//resolver(class);
 	class->status = CLASSE_NAO_INICIALIZADA; // Se nenhum erro ocorrer muda o estado da classe e retorna para a função.
-	printf("Done linkClass\n");
+	DEBUG_PRINT("Done linkClass\n");
 }
 
 
