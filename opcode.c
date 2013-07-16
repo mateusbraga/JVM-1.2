@@ -1923,7 +1923,6 @@ void if_acmpne(){
 }
 
 void goto_op(){
-    frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
     u2 index;
@@ -1968,8 +1967,6 @@ void getstatic(){
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 index = (b1<<8)|b2;
-
-    u2 index2 = jvm_pc.class.class_info.constant_pool[index].info.Fieldref.class_index;
 
 }
 
