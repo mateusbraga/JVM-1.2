@@ -1135,7 +1135,45 @@ void lshr(){
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
-// faltam iushr e lushr
+void iushr(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    uint32_t value_op2;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    value_op2 = (uint32_t) op2->val.primitive_val.val.val32;
+    value_op2 = (value_op2 & 0x00FF) & 0x001F;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = INT;
+    operand->val.primitive_val.val.val32 = (op1->val.primitive_val.val.val32 >> value_op2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+
+}
+
+void lushr(){
+    any_type_t *op1, *op2, *operand;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    uint64_t value_op2;
+
+    op1 = pop_operand_stack(&(frame->operand_stack));
+    op2 = pop_operand_stack(&(frame->operand_stack));
+
+    value_op2 = (uint64_t) op2->val.primitive_val.val.val64;
+    value_op2 = (value_op2 & 0x00FF) & 0x003F;
+
+    operand = (any_type_t*) malloc(sizeof(any_type_t));
+    operand->tag = PRIMITIVE;
+    operand->val.primitive_val.tag = LONG;
+    operand->val.primitive_val.val.val64 = (op1->val.primitive_val.val.val64 >> value_op2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
+}
+
 
 void iand(){
     any_type_t *op1, *op2, *operand;
@@ -2147,42 +2185,46 @@ void newarray(){
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 atype = code_attribute->code[jvm_pc.code_pc+1];
     any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
+    int32_t contador, i = 0;
 
-    arrayref->tag = PRIMITIVE;
+    contador = cont->val.primitive_val.val.val32;
+    arrayref->tag = REFERENCE;
+    arrayref->val.reference_val.tag = ARRAY;
+    arrayref->val.reference_val.val.array.length = contador;
+    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
 
-
-    switch(atype){
+    for(i=0; i<=contador; i++){
+        arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
+        switch(atype){
         case 4:
-            arrayref->val.primitive_val.tag = BOOLEAN;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BOOLEAN;
             break;
         case 5:
-            arrayref->val.primitive_val.tag = CHAR;
-            brea;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = CHAR;
+            break;
         case 6:
-            arrayref->val.primitive_val.tag = FLOAT;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = FLOAT;
             break;
         case 7:
-            arrayref->val.primitive_val.tag = DOUBLE;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = DOUBLE;
             break;
         case 8:
-            arrayref->val.primitive_val.tag = BYTE;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BYTE;
             break;
         case 9:
-            arrayref->val.primitive_val.tag = SHORT;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = SHORT;
             break;
         case 10:
-            arrayref->val.primitive_val.tag = INT;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = INT;
             break;
         case 11:
-            arrayref->val.primitive_val.tag = LONG;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = LONG;
             break;
+        }
     }
+    push_operand_stack(&(frame->operand_stack), arrayref);
 
-    push_operand_stack(&(frame->operand_stack));
-
-
-    assert(0);
-    return;
 }
 
 void tableswitch() {
@@ -2472,6 +2514,76 @@ void iinc() {
     }
 }
 
+void getfield() {
+    //TODO
+}
+void putfield() {
+    //TODO
+}
+void invokevirtual() {
+    //TODO
+}
+void invokespecial() {
+    //TODO
+}
+void invokestatic() {
+    //TODO
+}
+void invokeinterface() {
+    //TODO
+}
+void invokedynamic() {
+    //TODO
+}
+void new_op() {
+    //TODO
+}
+void anewarray() {
+    //TODO
+}
+void arraylength() {
+    //TODO
+}
+void athrow() {
+    //TODO
+}
+void checkcast() {
+    //TODO
+}
+void instanceof() {
+    //TODO
+}
+void monitorenter() {
+    //TODO
+}
+void monitorexit() {
+    //TODO
+}
+void multianewarray() {
+    //TODO
+}
+void ifnull() {
+    //TODO
+}
+void ifnonnull() {
+    //TODO
+}
+void goto_w() {
+    //TODO
+}
+void jsr_w() {
+    //TODO
+}
+void breakpoint() {
+    //TODO
+}
+void impdep1() {
+    //TODO
+}
+void impdep2() {
+    //TODO
+}
+
 void (*jvm_opcode[])(void) = {
     NULL, aconst_null, iconst_m1, iconst_0, iconst_1, iconst_2, iconst_3, iconst_4, iconst_5, lconst_0, lconst_1,
     fconst_0, fconst_1, dconst_0, dconst_1, bipush, sipush, ldc, ldc_w, ldc2_w, tload, tload, tload, tload, tload,
@@ -2485,10 +2597,10 @@ void (*jvm_opcode[])(void) = {
     ior, lor, ixor, lxor, iinc, i2l, i2f, i2d, l2i, l2f, l2d, f2i, f2l, f2d, d2i, d2l, d2f, i2b, i2c, i2s, lcmp, fcmpl, fcmpg,
     dcmpl, dcmpg, ifeq, ifne, iflt, ifge, ifgt, ifle, if_icmpeq, if_icmpne, if_icmplt, if_icmpge, if_icmpgt, if_icmple,
     if_acmpeq, if_acmpne, goto_op, jsr, ret, tableswitch, lookupswitch, treturn, treturn, treturn, treturn, treturn, treturn,
-    getstatic, //putstatic, getfield, putfield, invokevirtual, invokespecial, invokestatic, invokeinterface, invokedynamic,
-    //new_op,
+    getstatic, putstatic, getfield, putfield, invokevirtual, invokespecial, invokestatic, invokeinterface, invokedynamic,
+    new_op,
     newarray,
-    //anewarray, arraylength, athrow, checkcast, instanceof, monitorenter, monitorexit, wide, multianewarray,
-    //ifnull, ifnonnull, goto_w, jsr_w, breakpoint, impdep1, impdep2
+    anewarray, arraylength, athrow, checkcast, instanceof, monitorenter, monitorexit, wide, multianewarray,
+    ifnull, ifnonnull, goto_w, jsr_w, breakpoint, impdep1, impdep2
 };
 
