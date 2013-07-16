@@ -2,9 +2,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
+#include <string.h>
 #include "frame_stack.h"
 #include "structs.h"
 #include "jvm.h"
+#include "loader.h"
+#include "linker.h"
+#include "initializer.h"
 
 extern frame_stack_t *jvm_stack;
 
@@ -387,23 +391,26 @@ void ldc2_w(){
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 b = (b1<<8)|b2;
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-    u4 high_bytes;
-    u4 low_bytes;
+    uint64_t high_bytes;
+    uint64_t low_bytes;
 
     switch(jvm_pc.currentClass->class_file.constant_pool[b].tag){
         case CONSTANT_Long:
+            // Testado
             high_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.high_bytes;
             low_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.low_bytes;
             operand->tag = PRIMITIVE;
             operand->val.primitive_val.tag = LONG;
-            operand->val.primitive_val.val.val32 = (high_bytes<<8)|low_bytes;
+            operand->val.primitive_val.val.val64 = (high_bytes<<32)|low_bytes;
             break;
         case CONSTANT_Double:
+            // Testado
             high_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.high_bytes;
             low_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.low_bytes;
+            uint64_t double_bytes = (high_bytes<<32) | low_bytes;
             operand->tag = PRIMITIVE;
             operand->val.primitive_val.tag = DOUBLE;
-            operand->val.primitive_val.val.val32 = (high_bytes<<8)|low_bytes;
+            memmove(&(operand->val.primitive_val.val.val_double), &(double_bytes), sizeof(double));
             break;
         default:
             printf("Erro \n");
@@ -749,8 +756,8 @@ void iadd(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -765,8 +772,8 @@ void ladd(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -781,8 +788,8 @@ void fadd(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -797,8 +804,8 @@ void dadd(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -813,8 +820,8 @@ void isub(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -829,8 +836,8 @@ void lsub(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -845,8 +852,8 @@ void fsub(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -861,8 +868,8 @@ void dsub(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -877,8 +884,8 @@ void imul(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -893,8 +900,8 @@ void lmul(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -909,8 +916,8 @@ void fmul(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -925,8 +932,8 @@ void dmul(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -941,8 +948,8 @@ void idiv(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -957,8 +964,8 @@ void ldiv_op(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -973,8 +980,8 @@ void fdiv(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -989,8 +996,8 @@ void ddiv(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -1005,8 +1012,8 @@ void irem(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -1021,8 +1028,8 @@ void lrem(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -1037,8 +1044,8 @@ void frem(){
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -1048,13 +1055,13 @@ void frem(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
-void drem(){
-    printf("got into drem\n");
+void drem_op(){
+    printf("got into drem_op\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -1342,6 +1349,8 @@ void ixor(){
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = (value_op1 ^ value_op2);
+
+    push_operand_stack(&(frame->operand_stack), operand);
 }
 
 void lxor(){
@@ -1539,7 +1548,7 @@ void d2f(){
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
-    operand->val.primitive_val.val.val64 = (float) op1->val.primitive_val.val.val_double;
+    operand->val.primitive_val.val.val_float = (float) op1->val.primitive_val.val.val_double;
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -1595,8 +1604,8 @@ void lcmp(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint8_t value;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     if(op1->val.primitive_val.val.val64 > op2->val.primitive_val.val.val64)
         value = 1;
@@ -1617,8 +1626,8 @@ void fcmpl(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint8_t value;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     if(op1->val.primitive_val.val.val_float == sqrt(-1) || op2->val.primitive_val.val.val_float == sqrt(-1))
         value = 0;
@@ -1641,8 +1650,8 @@ void fcmpg(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint8_t value;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     if(op1->val.primitive_val.val.val_float == sqrt(-1) || op2->val.primitive_val.val.val_float == sqrt(-1))
         value = 1;
@@ -1665,8 +1674,8 @@ void dcmpl(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint8_t value;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     if(op1->val.primitive_val.val.val_double == (double) sqrt(-1) || op2->val.primitive_val.val.val_double == (double) sqrt(-1))
         value = 0;
@@ -1689,8 +1698,8 @@ void dcmpg(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     uint8_t value;
 
-    op1 = pop_operand_stack(&(frame->operand_stack));
     op2 = pop_operand_stack(&(frame->operand_stack));
+    op1 = pop_operand_stack(&(frame->operand_stack));
 
     if(op1->val.primitive_val.val.val_double == (double) sqrt(-1) || op2->val.primitive_val.val.val_double == (double) sqrt(-1))
         value = 1;
@@ -1723,7 +1732,7 @@ void ifeq(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1745,7 +1754,7 @@ void ifne(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1767,7 +1776,7 @@ void iflt(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1789,7 +1798,7 @@ void ifge(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1812,7 +1821,7 @@ void ifgt(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1834,7 +1843,7 @@ void ifle(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1848,10 +1857,8 @@ void if_icmpeq(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 == value2->val.primitive_val.val.val32){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -1860,7 +1867,7 @@ void if_icmpeq(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1874,10 +1881,8 @@ void if_icmpne(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 != value2->val.primitive_val.val.val32){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -1886,7 +1891,7 @@ void if_icmpne(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1900,10 +1905,8 @@ void if_icmplt(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 < value2->val.primitive_val.val.val32){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -1912,7 +1915,7 @@ void if_icmplt(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1926,10 +1929,8 @@ void if_icmpge(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 >= value2->val.primitive_val.val.val32){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -1938,7 +1939,7 @@ void if_icmpge(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1952,10 +1953,8 @@ void if_icmpgt(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 > value2->val.primitive_val.val.val32){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -1964,7 +1963,7 @@ void if_icmpgt(){
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -1978,10 +1977,8 @@ void if_icmple(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     if(value1->val.primitive_val.val.val32 <= value2->val.primitive_val.val.val32){
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -1989,7 +1986,7 @@ void if_icmple(){
         indexl = code_attribute->code[jvm_pc.code_pc+2];
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -2003,8 +2000,8 @@ void if_acmpeq(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     switch(value1->val.reference_val.tag){
         case OBJECT:
@@ -2014,7 +2011,7 @@ void if_acmpeq(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc.code_pc = index;
+                jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
             break;
@@ -2025,7 +2022,7 @@ void if_acmpeq(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc.code_pc = index;
+                jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
             break;
@@ -2036,7 +2033,7 @@ void if_acmpeq(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc.code_pc = index;
+                jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
         break;
@@ -2052,10 +2049,8 @@ void if_acmpne(){
     u1 indexh, indexl;
     u2 index;
 
-    value1 = (any_type_t*) malloc(sizeof(any_type_t));
-    value2 = (any_type_t*) malloc(sizeof(any_type_t));
-    value1 = pop_operand_stack(&(frame->operand_stack));
     value2 = pop_operand_stack(&(frame->operand_stack));
+    value1 = pop_operand_stack(&(frame->operand_stack));
 
     switch(value1->val.reference_val.tag){
         case OBJECT:
@@ -2065,7 +2060,7 @@ void if_acmpne(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc.code_pc = index;
+                jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
             break;
@@ -2076,7 +2071,7 @@ void if_acmpne(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc.code_pc = index;
+                jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
             break;
@@ -2087,7 +2082,7 @@ void if_acmpne(){
                 indexl = code_attribute->code[jvm_pc.code_pc+2];
                 index = (indexh<<8)|indexl;
 
-                jvm_pc.code_pc = index;
+                jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
         break;
@@ -2148,7 +2143,19 @@ void getstatic(){
     u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
     Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
 
+    if(compare_utf8(class_name, string_to_utf8("java/lang/System")) == 0) {
+        return;
+    }
     class_t *class_field = getClass(class_name);
+    if (class_field->status == CLASSE_NAO_CARREGADA) {
+        loadClass(class_field);
+    }
+    if (class_field->status == CLASSE_NAO_LINKADA) {
+        linkClass(class_field);
+    }
+    if (class_field->status == CLASSE_NAO_INICIALIZADA) {
+        initializeClass(class_field);
+    }
 
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.name_and_type_index;
     u2 field_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
@@ -2182,6 +2189,15 @@ void putstatic(){
     Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
 
     class_t *class_field = getClass(class_name);
+    if (class_field->status == CLASSE_NAO_CARREGADA) {
+        loadClass(class_field);
+    }
+    if (class_field->status == CLASSE_NAO_LINKADA) {
+        linkClass(class_field);
+    }
+    if (class_field->status == CLASSE_NAO_INICIALIZADA) {
+        initializeClass(class_field);
+    }
 
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.name_and_type_index;
     u2 field_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
@@ -2688,6 +2704,7 @@ void putfield() {
     u2 field_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
     Utf8_info_t *field_name = &(jvm_pc.currentClass->class_file.constant_pool[field_name_index].info.Utf8);
 
+
     u2 i = 0;
     for (i = 0; i < class_field->class_file.fields_count; i++) {
         u2 name_index = class_field->class_file.fields[i].name_index;
@@ -2695,7 +2712,7 @@ void putfield() {
             frame_t *frame = peek_frame_stack(jvm_stack);
             any_type_t* objref = pop_operand_stack(&(frame->operand_stack));
             any_type_t* value = pop_operand_stack(&(frame->operand_stack));
-            objref->val.reference_val.val.object.attributes[i] = *value;
+            memmove(&(objref->val.reference_val.val.object.attributes[i]), value, sizeof(any_type_t));
             return;
         }
 
@@ -2720,6 +2737,35 @@ void invokevirtual() {
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
     u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
     Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
+
+    u2 descriptor_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.descriptor_index;
+    Utf8_info_t *descriptor = &(jvm_pc.currentClass->class_file.constant_pool[descriptor_index].info.Utf8);
+
+    if(compare_utf8(string_to_utf8("java/io/PrintStream"), class_name) == 0 &&
+            compare_utf8(string_to_utf8("println"), method_name) == 0) {
+
+        frame_t *frame = peek_frame_stack(jvm_stack);
+        any_type_t *arg = pop_operand_stack(&(frame->operand_stack));
+
+        if (compare_utf8(descriptor, string_to_utf8("(I)V")) == 0) {
+            printf("%d\n", arg->val.primitive_val.val.val32);
+        } else if (compare_utf8(descriptor, string_to_utf8("(J)V")) == 0) {
+            printf("%ld\n", arg->val.primitive_val.val.val64);
+        } else if (compare_utf8(descriptor, string_to_utf8("(S)V")) == 0) {
+            printf("%d\n", arg->val.primitive_val.val.val16);
+        } else if (compare_utf8(descriptor, string_to_utf8("(D)V")) == 0) {
+            printf("%f\n", arg->val.primitive_val.val.val_double);
+        } else if (compare_utf8(descriptor, string_to_utf8("(F)V")) == 0) {
+            printf("%f\n", arg->val.primitive_val.val.val_float);
+        } else if (compare_utf8(descriptor, string_to_utf8("(Ljava/lang/String;)V")) == 0) {
+            u2 k = 0;
+            for(k = 0; k < arg->val.reference_val.val.array.length; k++) {
+                printf("%c", arg->val.reference_val.val.array.components[k].val.primitive_val.val.val_char);
+            }
+            printf("\n");
+        }
+        return;
+    }
 
     u2 i = 0;
     for (i = 0; i < class_method->class_file.methods_count; i++) {
@@ -2746,6 +2792,9 @@ void invokespecial() {
     Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
 
     class_t *class_method = getClass(class_name);
+    if (class_method == NULL) {
+        return;
+    }
 
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
     u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
@@ -2898,7 +2947,7 @@ void checkcast() {
     any_type_t *boolean = (any_type_t*) malloc(sizeof(any_type_t));
     boolean->tag = PRIMITIVE;
     boolean->val.primitive_val.tag = BOOLEAN;
-    
+
     if ( class_obj == objref->val.reference_val.val.object.objClass) {
         boolean->val.primitive_val.val.val_boolean = 1;
     } else {
@@ -2925,7 +2974,7 @@ void instanceof() {
     any_type_t *boolean = (any_type_t*) malloc(sizeof(any_type_t));
     boolean->tag = PRIMITIVE;
     boolean->val.primitive_val.tag = BOOLEAN;
-    
+
     if ( class_obj == objref->val.reference_val.val.object.objClass) {
         boolean->val.primitive_val.val.val_boolean = 1;
     } else {
@@ -3078,16 +3127,16 @@ void impdep2() {
 }
 
 void (*jvm_opcode[])(void) = {
- NULL,aconst_null,iconst_m1,iconst_0,iconst_1,iconst_2,iconst_3,iconst_4,iconst_5,lconst_0,lconst_1,fconst_0,fconst_1,fconst_2,dconst_0,
-dconst_1,bipush,sipush,ldc,ldc_w,ldc2_w,tload,tload,tload,tload,tload,tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,
-tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,taload,taload,taload,taload,taload,taload,
-taload,taload,tstore,tstore,tstore,tstore,tstore,tstore_0,tstore_1,tstore_2, tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tstore_0,tstore_1,	
-tstore_2,tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tastore,tastore,tastore,tastore,tastore,tastore,
-tastore,tastore,pop,pop2,dup,dup_x1,dup_x2,dup2,dup2_x1,dup2_x2,swap,iadd,ladd,fadd,dadd,isub,lsub,fsub,dsub,imul,lmul,fmul,dmul,idiv,ldiv_op,
-fdiv,ddiv,irem,lrem,frem,drem,ineg,lneg,fneg,dneg,ishl,lshl,ishr,lshr,iushr,lushr,iand,land,ior,lor,ixor,lxor,iinc,i2l,i2f,i2d,l2i,l2f,l2d,
-f2i,f2l,f2d,d2i,d2l,d2f,i2b,i2c,i2s,lcmp,fcmpl,fcmpg,dcmpl,dcmpg,ifeq,ifne,iflt,ifge,ifgt,ifle,if_icmpeq,if_icmpne,if_icmplt,if_icmpge,if_icmpgt,
-if_icmple,if_acmpeq,if_acmpne,goto_op,jsr,ret,tableswitch,lookupswitch,treturn,treturn,treturn,treturn,treturn,treturn,getstatic,putstatic,
-getfield,putfield,invokevirtual,invokespecial,invokestatic,invokeinterface,invokedynamic,new_op,newarray,anewarray,arraylength,athrow,checkcast,
-instanceof,monitorenter,monitorexit,wide,multianewarray,ifnull,ifnonnull,goto_w	,jsr_w,breakpoint
+    NULL,aconst_null,iconst_m1,iconst_0,iconst_1,iconst_2,iconst_3,iconst_4,iconst_5,lconst_0,lconst_1,fconst_0,fconst_1,fconst_2,dconst_0,
+    dconst_1,bipush,sipush,ldc,ldc_w,ldc2_w,tload,tload,tload,tload,tload,tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,
+    tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,tload_0,tload_1,tload_2,tload_3,taload,taload,taload,taload,taload,taload,
+    taload,taload,tstore,tstore,tstore,tstore,tstore,tstore_0,tstore_1,tstore_2, tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tstore_0,tstore_1,
+    tstore_2,tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tstore_0,tstore_1,tstore_2,tstore_3,tastore,tastore,tastore,tastore,tastore,tastore,
+    tastore,tastore,pop,pop2,dup,dup_x1,dup_x2,dup2,dup2_x1,dup2_x2,swap,iadd,ladd,fadd,dadd,isub,lsub,fsub,dsub,imul,lmul,fmul,dmul,idiv,ldiv_op,
+    fdiv,ddiv,irem,lrem,frem,drem_op,ineg,lneg,fneg,dneg,ishl,lshl,ishr,lshr,iushr,lushr,iand,land,ior,lor,ixor,lxor,iinc,i2l,i2f,i2d,l2i,l2f,l2d,
+    f2i,f2l,f2d,d2i,d2l,d2f,i2b,i2c,i2s,lcmp,fcmpl,fcmpg,dcmpl,dcmpg,ifeq,ifne,iflt,ifge,ifgt,ifle,if_icmpeq,if_icmpne,if_icmplt,if_icmpge,if_icmpgt,
+    if_icmple,if_acmpeq,if_acmpne,goto_op,jsr,ret,tableswitch,lookupswitch,treturn,treturn,treturn,treturn,treturn,treturn,getstatic,putstatic,
+    getfield,putfield,invokevirtual,invokespecial,invokestatic,invokeinterface,invokedynamic,new_op,newarray,anewarray,arraylength,athrow,checkcast,
+    instanceof,monitorenter,monitorexit,wide,multianewarray,ifnull,ifnonnull,goto_w	,jsr_w,breakpoint
 };
 

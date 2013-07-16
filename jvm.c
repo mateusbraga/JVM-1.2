@@ -210,12 +210,13 @@ any_type_t* utf8_to_array_reference(Utf8_info_t* utf8) {
  * @return Estrutura da classe criada
  */
 class_t *createClass(Utf8_info_t* class_name) {
+    int index = jvm_number_of_classes;
     jvm_number_of_classes++;
-    jvm_classes[jvm_number_of_classes] = (class_t*) malloc(sizeof(class_t));
-    jvm_classes[jvm_number_of_classes]->class_name = class_name;
-    jvm_classes[jvm_number_of_classes]->status = CLASSE_NAO_CARREGADA;
+    jvm_classes[index] = (class_t*) malloc(sizeof(class_t));
+    jvm_classes[index]->class_name = class_name;
+    jvm_classes[index]->status = CLASSE_NAO_CARREGADA;
 
-    return jvm_classes[jvm_number_of_classes];
+    return jvm_classes[index];
 }
 
 /**
@@ -403,29 +404,6 @@ method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* 
             exit(1);
         }
     }
-
-    /*int arg = 1;*/
-    /*if (compare_utf8(class->class_name, string_to_utf8("java/io/PrintStream")) == 0) {*/
-        /*if(compare_utf8(method_name, string_to_utf8("println")) == 0) {*/
-            /*if (compare_utf8(descriptor, string_to_utf8("(I)V")) == 0) {*/
-                /*printf("%d\n", arg);*/
-            /*} else if (compare_utf8(descriptor, string_to_utf8("(J)V")) == 0) {*/
-                /*printf("%d\n", arg);*/
-            /*} else if (compare_utf8(descriptor, string_to_utf8("(S)V")) == 0) {*/
-                /*printf("%d\n", arg);*/
-            /*} else if (compare_utf8(descriptor, string_to_utf8("(D)V")) == 0) {*/
-                /*printf("%f\n", arg);*/
-            /*} else if (compare_utf8(descriptor, string_to_utf8("(F)V")) == 0) {*/
-                /*printf("%f\n", arg);*/
-            /*} else if (compare_utf8(descriptor, string_to_utf8("(Ljava/lang/String;)V")) == 0) {*/
-                /*printf("%s\n", arg);*/
-            /*}*/
-        /*}*/
-    /*}*/
-
-
-
-
 
     printf("Done with getMethod with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
 
@@ -828,7 +806,7 @@ int main(int argc, char* argv[]) {
         u1 opcode = code_attribute->code[jvm_pc.code_pc];
 
         //execute the action for the opcode;
-        printf("Going to execute %#x\n", opcode);
+        printf("Going to execute %#x at %d\n", opcode, jvm_pc.code_pc);
         jvm_opcode[opcode]();
         
         goToNextOpcode();
