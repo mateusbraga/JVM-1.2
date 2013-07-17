@@ -34,9 +34,9 @@ int getNumberOfOpcodeOperandsInBytes(u1* code, u2 index);
 void goToNextOpcode();
 // OPCODE STUFF - END
 
-void createMultiArray(any_type_t *arrayref, u1 tamanho, u1 dimensao, class_t *tipo);
+void createMultiArray(any_type_t *arrayref, u1 *tamanho, u1 dimensao, u1 tipo, u1 dimension);
 
-//#define DEBUG 0
+#define DEBUG 0
 #ifdef DEBUG
 #define DEBUG_PRINT(...) do{ fprintf( stdout, __VA_ARGS__ ); } while( 0 )
 #else
