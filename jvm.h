@@ -36,6 +36,13 @@ void goToNextOpcode();
 
 void createMultiArray(any_type_t *arrayref, u1 tamanho, u1 dimensao, class_t *tipo);
 
+//#define DEBUG 0
+#ifdef DEBUG
+#define DEBUG_PRINT(...) do{ fprintf( stdout, __VA_ARGS__ ); } while( 0 )
+#else
+#define DEBUG_PRINT(...) do{ } while ( 0 )
+#endif
+
 // JVM OPERATION STUFF - BEGIN
 void throwException(class_t* exception_class);
 void returnFromFunction();

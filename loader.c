@@ -554,8 +554,8 @@ void MostraClasse(class_file_t* classe){
 
 /*-----------------------------------------------------------------------------------------------------------------*/
 void loadClass(class_t* class){
-    printf("Got in loadClass with arguments: %s\n", utf8_to_string(class->class_name));
+    DEBUG_PRINT("Got in loadClass with arguments: %s\n", utf8_to_string(class->class_name));
     set_class_file(class);
     class->status = CLASSE_NAO_LINKADA;
-    printf("Done loadClass\n");
+    DEBUG_PRINT("Done loadClass\n");
 }
