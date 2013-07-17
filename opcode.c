@@ -351,6 +351,7 @@ void ldc(){
     }
 
     frame_t* frame = peek_frame_stack(jvm_stack);
+    print_any_type(operand);
     push_operand_stack(&(frame->operand_stack), operand);
 }
 /**
@@ -523,10 +524,14 @@ void taload(){
     index = pop_operand_stack(&(frame->operand_stack));
     arrayref = pop_operand_stack(&(frame->operand_stack));
 
+    print_any_type(index);
+    print_any_type(arrayref);
+
     int_index = index->val.primitive_val.val.val32;
 
     DEBUG_PRINT("got into taload %d %d %d\n", arrayref->tag, arrayref->val.reference_val.tag, arrayref->val.reference_val.val.array.length);
 
+    print_any_type(&(arrayref->val.reference_val.val.array.components[int_index]));
     push_operand_stack(&(frame->operand_stack), &(arrayref->val.reference_val.val.array.components[int_index]));
 }
 
@@ -665,7 +670,22 @@ void dup(){
 
     push_operand_stack(&(frame->operand_stack), operand);
     push_operand_stack(&(frame->operand_stack), operand);
+}
 
+/**
+ * @brief Returnar se variável é um double ou um long
+ *
+ * @param anytype variável a checkar
+ * @return 1 se double ou long, senão 0.
+ *
+ */
+int isLongOrDouble(any_type_t* anytype) {
+    if (anytype->tag == PRIMITIVE) {
+            if(anytype->val.primitive_val.tag == LONG && anytype->val.primitive_val.tag == DOUBLE) {
+                return 1;
+            }
+    }
+    return 0;
 }
 
 /**
@@ -681,14 +701,14 @@ void dup_x1(){
     operand1 = pop_operand_stack(&(frame->operand_stack));
     operand2 = pop_operand_stack(&(frame->operand_stack));
 
-    if(operand1->val.primitive_val.tag == LONG || operand2->val.primitive_val.tag == LONG || operand1->val.primitive_val.tag == DOUBLE || operand2->val.primitive_val.tag == DOUBLE)
-        exit(1); //algum erro
+    if(isLongOrDouble(operand1) || isLongOrDouble(operand2)) {
+        printf("ERROR: dup_x1 com operando LONG / DOUBLE\n");
+        exit(1);
+    }
 
     push_operand_stack(&(frame->operand_stack), operand1);
     push_operand_stack(&(frame->operand_stack), operand2);
     push_operand_stack(&(frame->operand_stack), operand1);
-
-
 }
 
 /**
@@ -702,15 +722,16 @@ void dup_x2(){
 
     operand1 = pop_operand_stack(&(frame->operand_stack));
     operand2 = pop_operand_stack(&(frame->operand_stack));
-    operand3 = pop_operand_stack(&(frame->operand_stack));
+    if(isLongOrDouble(operand2))
+        operand3 = pop_operand_stack(&(frame->operand_stack));
 
     push_operand_stack(&(frame->operand_stack), operand1);
-    if(operand2->val.primitive_val.tag != LONG && operand2->val.primitive_val.tag != DOUBLE)
+    if(isLongOrDouble(operand2))
         push_operand_stack(&(frame->operand_stack), operand3);
     push_operand_stack(&(frame->operand_stack), operand2);
     push_operand_stack(&(frame->operand_stack), operand1);
-
 }
+
 /**
  * @brief duplicate top two stack words (two values, if value1 is not double nor long; a single value, if value1 is double or long) (operand_stack: 	{value2, value1} -> {value2, value1}, {value2, value1})
  *
@@ -721,15 +742,14 @@ void dup2(){
     frame_t *frame = peek_frame_stack(jvm_stack);
 
     operand1 = pop_operand_stack(&(frame->operand_stack));
-    operand2 = pop_operand_stack(&(frame->operand_stack));
+        operand2 = pop_operand_stack(&(frame->operand_stack));
 
-    push_operand_stack(&(frame->operand_stack), operand1);
-    if(operand1->val.primitive_val.tag != LONG && operand1->val.primitive_val.tag != DOUBLE)
+    if(!isLongOrDouble(operand1))
         push_operand_stack(&(frame->operand_stack), operand2);
     push_operand_stack(&(frame->operand_stack), operand1);
-    if(operand1->val.primitive_val.tag != LONG && operand1->val.primitive_val.tag != DOUBLE)
+    if(!isLongOrDouble(operand1))
         push_operand_stack(&(frame->operand_stack), operand2);
-
+    push_operand_stack(&(frame->operand_stack), operand1);
 }
 
 /**
@@ -743,16 +763,16 @@ void dup2_x1(){
 
     operand1 = pop_operand_stack(&(frame->operand_stack));
     operand2 = pop_operand_stack(&(frame->operand_stack));
-    operand3 = pop_operand_stack(&(frame->operand_stack));
+    if(!isLongOrDouble(operand1))
+        operand3 = pop_operand_stack(&(frame->operand_stack));
 
-    push_operand_stack(&(frame->operand_stack), operand1);
-    if(operand1->val.primitive_val.tag != LONG && operand1->val.primitive_val.tag != DOUBLE)
+    if(!isLongOrDouble(operand1))
         push_operand_stack(&(frame->operand_stack), operand2);
-    push_operand_stack(&(frame->operand_stack), operand3);
     push_operand_stack(&(frame->operand_stack), operand1);
-    if(operand1->val.primitive_val.tag != LONG && operand1->val.primitive_val.tag != DOUBLE)
-        push_operand_stack(&(frame->operand_stack), operand2);
-
+    if(!isLongOrDouble(operand1))
+        push_operand_stack(&(frame->operand_stack), operand3);
+    push_operand_stack(&(frame->operand_stack), operand2);
+    push_operand_stack(&(frame->operand_stack), operand1);
 }
 
 /**
@@ -761,23 +781,28 @@ void dup2_x1(){
  */
 void dup2_x2(){
     DEBUG_PRINT("got into dup2_x2\n");
-    any_type_t *operand1, *operand2, *operand3, *operand4;
+    any_type_t *operand1 = NULL;
+    any_type_t *operand2 = NULL;
+    any_type_t *operand3 = NULL; 
+    any_type_t *operand4 = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
     operand1 = pop_operand_stack(&(frame->operand_stack));
     operand2 = pop_operand_stack(&(frame->operand_stack));
-    operand3 = pop_operand_stack(&(frame->operand_stack));
-    operand4 = pop_operand_stack(&(frame->operand_stack));
+    if(!isLongOrDouble(operand1) && isLongOrDouble(operand2))
+        operand3 = pop_operand_stack(&(frame->operand_stack));
+    if(!isLongOrDouble(operand1) && !isLongOrDouble(operand2))
+        operand4 = pop_operand_stack(&(frame->operand_stack));
 
-    push_operand_stack(&(frame->operand_stack), operand1);
-    if(operand1->val.primitive_val.tag != LONG && operand1->val.primitive_val.tag != DOUBLE)
+    if(!isLongOrDouble(operand1))
         push_operand_stack(&(frame->operand_stack), operand2);
-    push_operand_stack(&(frame->operand_stack), operand3);
-    if(operand3->val.primitive_val.tag != LONG && operand3->val.primitive_val.tag != DOUBLE)
+    push_operand_stack(&(frame->operand_stack), operand1);
+    if(!isLongOrDouble(operand1) && !isLongOrDouble(operand2)) 
         push_operand_stack(&(frame->operand_stack), operand4);
+    if(isLongOrDouble(operand1) && isLongOrDouble(operand2)) 
+        push_operand_stack(&(frame->operand_stack), operand3);
+    push_operand_stack(&(frame->operand_stack), operand2);
     push_operand_stack(&(frame->operand_stack), operand1);
-    if(operand1->val.primitive_val.tag != LONG && operand1->val.primitive_val.tag != DOUBLE)
-        push_operand_stack(&(frame->operand_stack), operand2);
 }
 
 /**
@@ -811,6 +836,9 @@ void iadd(){
 
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
+
+    print_any_type(op2);
+    print_any_type(op1);
 
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
@@ -2370,7 +2398,7 @@ void if_acmpeq(){
                 jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
-        break;
+            break;
     }
 
 }
@@ -2423,7 +2451,7 @@ void if_acmpne(){
                 jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
-        break;
+            break;
     }
 }
 
@@ -2692,38 +2720,38 @@ void newarray(){
     for(i=0; i<=contador; i++){
         arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
         switch(atype){
-        case 4:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BOOLEAN;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_boolean = 0;
-            break;
-        case 5:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = CHAR;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_char = 0;
-            break;
-        case 6:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = FLOAT;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_float = 0;
-            break;
-        case 7:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = DOUBLE;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_double = 0;
-            break;
-        case 8:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BYTE;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val8 = 0;
-            break;
-        case 9:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = SHORT;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val16 = 0;
-            break;
-        case 10:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = INT;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val32 = 0;
-            break;
-        case 11:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = LONG;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val64 = 0;
-            break;
+            case 4:
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BOOLEAN;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_boolean = 0;
+                break;
+            case 5:
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = CHAR;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_char = 0;
+                break;
+            case 6:
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = FLOAT;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_float = 0;
+                break;
+            case 7:
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = DOUBLE;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_double = 0;
+                break;
+            case 8:
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BYTE;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val8 = 0;
+                break;
+            case 9:
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = SHORT;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val16 = 0;
+                break;
+            case 10:
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = INT;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val32 = 0;
+                break;
+            case 11:
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = LONG;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val64 = 0;
+                break;
         }
     }
 
@@ -3157,18 +3185,18 @@ void invokevirtual() {
 
         if (compare_utf8(descriptor, string_to_utf8("(I)V")) == 0) {
             switch(arg->val.primitive_val.tag){
-            case INT:
-                printf("%d\n", arg->val.primitive_val.val.val32);
-                break;
-            case SHORT:
-                printf("%d\n", arg->val.primitive_val.val.val16);
-                break;
-            case BYTE:
-                printf("%d\n", arg->val.primitive_val.val.val8);
-                break;
-            default:
-                printf(("ERRO: arg isn't int, byte or short)"));
-                exit(1);
+                case INT:
+                    printf("%d\n", arg->val.primitive_val.val.val32);
+                    break;
+                case SHORT:
+                    printf("%d\n", arg->val.primitive_val.val.val16);
+                    break;
+                case BYTE:
+                    printf("%d\n", arg->val.primitive_val.val.val8);
+                    break;
+                default:
+                    printf(("ERRO: arg isn't int, byte or short)"));
+                    exit(1);
 
             }
         } else if (compare_utf8(descriptor, string_to_utf8("(J)V")) == 0) {
