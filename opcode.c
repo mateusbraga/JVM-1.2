@@ -2726,9 +2726,11 @@ void putfield() {
         u2 name_index = class_field->class_file.fields[i].name_index;
         if (compare_utf8(&(class_field->class_file.constant_pool[name_index].info.Utf8), field_name) == 0) {
             frame_t *frame = peek_frame_stack(jvm_stack);
-            any_type_t* objref = pop_operand_stack(&(frame->operand_stack));
             any_type_t* value = pop_operand_stack(&(frame->operand_stack));
-    DEBUG_PRINT("hiasdf %d %d %s\n", objref->val.reference_val.tag, value->tag, utf8_to_string(field_name));
+            any_type_t* objref = pop_operand_stack(&(frame->operand_stack));
+    DEBUG_PRINT("hiasdf %d %d %d\n", value->tag, value->val.reference_val.tag, value->val.primitive_val.val.val32);
+    DEBUG_PRINT("hiasdf %d %d %d\n", objref->tag, objref->val.primitive_val.tag, objref->val.primitive_val.val.val32);
+    DEBUG_PRINT("hiasdf %d %d %d\n", FLOAT, DOUBLE, RETURN_ADDRESS);
             memmove(&(objref->val.reference_val.val.object.attributes[i]), value, sizeof(any_type_t));
     DEBUG_PRINT("hiasdf\n");
             return;
@@ -2765,9 +2767,6 @@ void invokevirtual() {
         frame_t *frame = peek_frame_stack(jvm_stack);
         any_type_t *arg = pop_operand_stack(&(frame->operand_stack));
 
-    DEBUG_PRINT("hi1 \n");
-    DEBUG_PRINT("hi1 %d\n", arg->tag);
-    DEBUG_PRINT("hi1 \n");
         if (compare_utf8(descriptor, string_to_utf8("(I)V")) == 0) {
             switch(arg->val.primitive_val.tag){
             case INT:
@@ -2801,7 +2800,6 @@ void invokevirtual() {
         }
         return;
     }
-    DEBUG_PRINT("hi\n");
 
     u2 i = 0;
     for (i = 0; i < class_method->class_file.methods_count; i++) {
@@ -2845,12 +2843,12 @@ void invokespecial() {
     u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
     Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
 
-    printf("hi %s %s\n", utf8_to_string(class_method->class_name), utf8_to_string(method_name));
+    DEBUG_PRINT("hi %s %s\n", utf8_to_string(class_method->class_name), utf8_to_string(method_name));
 
     u2 i = 0;
     for (i = 0; i < class_method->class_file.methods_count; i++) {
         u2 name_index = class_method->class_file.methods[i].name_index;
-    printf("hey %s %s\n", utf8_to_string(&(class_method->class_file.constant_pool[name_index].info.Utf8)), utf8_to_string(method_name));
+    DEBUG_PRINT("hey %s %s\n", utf8_to_string(&(class_method->class_file.constant_pool[name_index].info.Utf8)), utf8_to_string(method_name));
         if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0) {
             callMethod(class_method, &(class_method->class_file.methods[i]));
             return;
