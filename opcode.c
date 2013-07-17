@@ -3507,7 +3507,7 @@ void multianewarray() {
     u1 dimension = code_attribute->code[jvm_pc.code_pc+3];
     u2 index = (b1<<8)|b2;
     u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
-    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+    /*Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);*/
     u1* c = jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8.bytes;
 
     for (i = dimension; i > 0; i--) {

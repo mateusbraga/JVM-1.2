@@ -129,9 +129,16 @@ u2 scan_utf8_char_from_char(char* string, u2 *pos) {
     }
 }
 
+/**
+ * @brief Create a multiarray a partir de arrayref com dimensões, tamanho e tipo
+ *
+ * @param any_type_t* Arrayref array à inicializar
+ * @param u1 Tamanho da array atual
+ * @param u1 Dimensão da array atual
+ * @param u1 Dimensão auxiliar para a recursão
+ */
 void createMultiArray(any_type_t *arrayref, u1 *tamanho, u1 dimensao, u1 tipo, u1 dimension) {
-    int32_t contador;
-    u1 i, j;
+    u1 i;
     if (dimensao == 1) {
         for(i=0; i<tamanho[dimensao]; i++){
             switch(tipo) {

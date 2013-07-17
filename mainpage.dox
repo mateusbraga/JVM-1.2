@@ -1,5 +1,6 @@
 /**
 \mainpage JVM 01/2013
+\section JVM
 
 Documentação da JVM desenvolvida no primeiro semestre de 2013 em grupo na disciplina de Software Básica.
 
@@ -14,8 +15,9 @@ Nossa JVM implementa parte da especificação em: http://docs.oracle.com/javase/
 
 -----
 
-INSERIR DIAGRAMA DE ATIVAÇÂO (DIAGRAMA DE COMUNICAÇÂO ENTRE OS MÓDULOS)
+\subsection diagrama Diagrama de Comunicaçâo entre os Módulos
+\image html diagrama.png
 
-INSERIR DESCRIÇÂO DAS PRINCIPAIS ESTRUTURAS DE DADOS UTILIZADAS
+\subsection estruturas-descricao Descrição das principais estruturas de dados utilizadas
 
 */
