@@ -14,9 +14,14 @@ extern frame_stack_t *jvm_stack;
 
 extern pc_t jvm_pc;
 
+#define MAX_DIMENSION            650000
+
+/** \addtogroup Funções de Execução
+ * @{
+ */
 
 /**
- * Empilha uma referência nula na pilha de operandos
+ * @brief push a null reference onto the stack
  *
  */
 void aconst_null(){
@@ -32,7 +37,7 @@ void aconst_null(){
 }
 
 /**
- * Empilha o valor int -1 na pilha de operandos
+ * @brief load the int value -1 onto the stack
  *
  */
 void iconst_m1(){
@@ -48,10 +53,10 @@ void iconst_m1(){
 }
 
 /**
- * Empilha o valor int 0 na pilha de operandos
+ * @brief load the int value 0 onto the stack
  *
  */
-void iconst_0(){
+ void iconst_0(){
     DEBUG_PRINT("got into iconst_0\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -64,10 +69,10 @@ void iconst_0(){
 }
 
 /**
- * Empilha o valor int 1 na pilha de operandos
+ * @brief load the int value 1 onto the stack
  *
  */
-void iconst_1(){
+ void iconst_1(){
     DEBUG_PRINT("got into iconst_1\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
@@ -80,7 +85,7 @@ void iconst_1(){
 }
 
 /**
- * Empilha o valor int 2 na pilha de operandos
+ * @brief load the int value 2 onto the stack
  *
  */
 void iconst_2(){
@@ -96,13 +101,16 @@ void iconst_2(){
 }
 
 /**
- * Empilha o valor int 3 na pilha de operandos
+ * @brief load the int value 3 onto the stack
  *
  */
 void iconst_3(){
     DEBUG_PRINT("got into iconst_3\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
+    if(operand == NULL){
+        printf( "Socorro! malloc devolveu NULL!\n");
+        exit(EXIT_FAILURE);
+    }
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 3;
@@ -114,7 +122,7 @@ void iconst_3(){
 }
 
 /**
- * Empilha o valor int 4 na pilha de operandos
+ * @brief load the int value 4 onto the stack
  *
  */
 void iconst_4(){
@@ -130,13 +138,16 @@ void iconst_4(){
 }
 
 /**
- * Empilha o valor int 5 na pilha de operandos
+ * @brief load the int value 5 onto the stack
  *
  */
 void iconst_5(){
     DEBUG_PRINT("got into iconst_5\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
+    if(operand == NULL) {
+        printf("Socorro! malloc falhor\n");
+        exit(EXIT_FAILURE);
+    }
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 5;
@@ -146,7 +157,7 @@ void iconst_5(){
 }
 
 /**
- * Empilha o valor long 0 na pilha de operandos
+ * @brief load the long value 0 onto the stack
  *
  */
 void lconst_0(){
@@ -162,7 +173,7 @@ void lconst_0(){
 }
 
 /**
- * Empilha o valor long 1 na pilha de operandos
+ * @brief load the long value 1 onto the stack
  *
  */
 void lconst_1(){
@@ -179,7 +190,7 @@ void lconst_1(){
 
 
 /**
- * Empilha o valor float 0 na pilha de operandos
+ * @brief load the float value 0 onto the stack
  *
  */
 void fconst_0(){
@@ -195,7 +206,7 @@ void fconst_0(){
 }
 
 /**
- * Empilha o valor float 1 na pilha de operandos
+ * @brief load the long value 1 onto the stack
  *
  */
 void fconst_1(){
@@ -211,7 +222,7 @@ void fconst_1(){
 }
 
 /**
- * Empilha o valor float 2 na pilha de operandos
+ * @brief load the long value 2 onto the stack
  *
  */
 void fconst_2(){
@@ -227,7 +238,7 @@ void fconst_2(){
 }
 
 /**
- * Empilha o valor double 0 na pilha de operandos
+ * @brief load the double value 0 onto the stack
  *
  */
 void dconst_0(){
@@ -243,7 +254,7 @@ void dconst_0(){
 }
 
 /**
- * Empilha o valor double 1 na pilha de operandos
+ * @brief load the long value 1 onto the stack
  *
  */
 void dconst_1(){
@@ -259,7 +270,7 @@ void dconst_1(){
 }
 
 /**
- * Empilha byte b como int value na pilha de operandos.
+ * @brief push a byte onto the stack as an integer value
  *
  */
 void bipush(){
@@ -281,7 +292,7 @@ void bipush(){
 }
 
 /**
- * Empilha short b como int value na pilha de operandos.
+ * @brief push a short onto the stack
  *
  */
 void sipush(){
@@ -304,7 +315,7 @@ void sipush(){
 
 
 /**
- * Empilha (String, Integer, Float) constant_pool[index] na pilha de operandos.
+ * @brief push a constant #index from a constant pool (String, int or float) onto the stack
  *
  */
 void ldc(){
@@ -342,9 +353,8 @@ void ldc(){
     frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
 }
-
 /**
- * Empilha (String, Integer, Float) constant_pool[wide_index] na pilha de operandos.
+ * @brief push a constant #index from a constant pool (String, int or float) onto the stack (wide index is constructed as indexbyte1 << 8 + indexbyte2)
  *
  */
 void ldc_w(){
@@ -385,7 +395,7 @@ void ldc_w(){
 }
 
 /**
- * Empilha (Long, Double) constant_pool[index] na pilha de operandos.
+ * @brief push a constant #index from a constant pool (double or long) onto the stack (wide index is constructed as indexbyte1 << 8 + indexbyte2)
  *
  */
 void ldc2_w(){
@@ -426,7 +436,7 @@ void ldc2_w(){
 }
 
 /**
- * Empilha na pilha de operandos any_type_t value de uma local_var[index]. Valida para todos os tload()
+ * @brief load an (int, long, float, double, reference) value from a local variable #index
  *
  */
 void tload(){
@@ -445,7 +455,7 @@ void tload(){
 }
 
 /**
- * Empilha na pilha de operandos any_type_t value de uma local_var[0]. Valida para todos os tload_0()
+ * @brief load an (int, long, float, double, reference) value from a local 0
  *
  */
 void tload_0(){
@@ -454,14 +464,12 @@ void tload_0(){
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[0];
-    if(operand->val.primitive_val.tag == DOUBLE)
-        DEBUG_PRINT("tload_0 %f\n", operand->val.primitive_val.val.val_double);
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
 /**
- * Empilha na pilha de operandos any_type_t value de uma local_var[1]. Valida para todos os tload_1()
+ * @brief load an (int, long, float, double, reference) value from a local 1
  *
  */
 void tload_1(){
@@ -475,7 +483,7 @@ void tload_1(){
 }
 
 /**
- * Empilha na pilha de operandos any_type_t value de uma local_var[2]. Valida para todos os tload_2()
+ * @brief load an (int, long, float, double, reference) value from a local 2
  *
  */
 void tload_2(){
@@ -484,14 +492,12 @@ void tload_2(){
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[2];
-    if(operand->val.primitive_val.tag == DOUBLE)
-        DEBUG_PRINT("tload_2 %f\n", operand->val.primitive_val.val.val_double);
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
 /**
- * Empilha na pilha de operandos any_type_t value de uma local_var[3]. Valida para todos os tload_3()
+ * @brief load an (int, long, float, double, reference) value from a local 3
  *
  */
 void tload_3(){
@@ -505,27 +511,27 @@ void tload_3(){
 }
 
 /**
- * Carrega um anytype_t value de uma local_var[index]. Valida para todos os taload()
+ * @brief load an int from an array (operand_stack: arrayref, index -> value)
  *
  */
 void taload(){
     DEBUG_PRINT("got into taload\n");
-    any_type_t *index, *arrayref, *operand;
+    any_type_t *index, *arrayref;
     uint32_t int_index;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    operand = (any_type_t*) malloc(sizeof(any_type_t));
     index = pop_operand_stack(&(frame->operand_stack));
     arrayref = pop_operand_stack(&(frame->operand_stack));
 
     int_index = index->val.primitive_val.val.val32;
 
-    *operand = arrayref->val.reference_val.val.array.components[int_index];
-    push_operand_stack(&(frame->operand_stack), operand);
+    DEBUG_PRINT("got into taload %d %d %d\n", arrayref->tag, arrayref->val.reference_val.tag, arrayref->val.reference_val.val.array.length);
+
+    push_operand_stack(&(frame->operand_stack), &(arrayref->val.reference_val.val.array.components[int_index]));
 }
 
 /**
- * Atribui any_type_t value a local_var[index]. Valida para todos os tstore()
+ * @brief store (int, long, float, double, reference) value into variable #index
  *
  */
 void tstore(){
@@ -544,7 +550,7 @@ void tstore(){
 }
 
 /**
- * Atribui any_type_t value a local_var[index]. Valida para todos os tstore_0()
+ * @brief store (int, long, float, double, reference) value into variable 0
  *
  */
 void tstore_0(){
@@ -560,7 +566,7 @@ void tstore_0(){
 }
 
 /**
- * Atribui any_type_t value a local_var[index]. Valida para todos os tstore_1()
+ * @brief store (int, long, float, double, reference) value into variable 1
  *
  */
 void tstore_1(){
@@ -576,10 +582,10 @@ void tstore_1(){
 }
 
 /**
- * Atribui any_type_t value a local_var[index]. Valida para todos os tstore_2()
+ * @brief store (int, long, float, double, reference) value into variable 2
  *
  */
-void tstore_2(){
+ void tstore_2(){
     DEBUG_PRINT("got into tstore_2\n");
     any_type_t *value;
 
@@ -592,7 +598,7 @@ void tstore_2(){
 }
 
 /**
- * Atribui any_type_t value a local_var[index]. Valida para todos os tstore_3()
+ * @brief store (int, long, float, double, reference) value into variable 3
  *
  */
 void tstore_3(){
@@ -606,7 +612,10 @@ void tstore_3(){
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
             frame->local_var.var[4] = value;
 }
-
+/**
+ * @brief store an (int, long, float, double, reference, byte, boolean, char short) into an array (operand_stack: arrayref, index, value ->)
+ *
+ */
 void tastore(){
     DEBUG_PRINT("got into tastore\n");
     any_type_t *index, *arrayref, *value;
@@ -621,13 +630,19 @@ void tastore(){
 
     memmove(&(arrayref->val.reference_val.val.array.components[int_index]), value, sizeof(any_type_t));
 }
-
+/**
+ * @brief discard the top value on the stack (operand_stack: value ->)
+ *
+ */
 void pop(){
     DEBUG_PRINT("got into pop\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
     pop_operand_stack(&(frame->operand_stack));
 }
-
+/**
+ * @brief discard the top two values on the stack (or one value, if it is a double or long) (operand_stack: {value2, value1} ->)
+ *
+ */
 void pop2(){
     DEBUG_PRINT("got into pop2\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -637,7 +652,10 @@ void pop2(){
     if(value->val.primitive_val.tag != LONG && value->val.primitive_val.tag != DOUBLE)
         pop_operand_stack(&(frame->operand_stack));
 }
-
+/**
+ * @brief duplicate the value on top of the stack (operand_stack: value -> value, value)
+ *
+ */
 void dup(){
     DEBUG_PRINT("got into dup\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
@@ -650,6 +668,10 @@ void dup(){
 
 }
 
+/**
+ * @brief insert a copy of the top value into the stack two values from the top. value1 and value2 must not be of the type double or long. (operand_stack: value2, value1 -> value1, value2, value1)
+ *
+ */
 void dup_x1(){
     DEBUG_PRINT("got into dup_x1\n");
     any_type_t *operand1 = (any_type_t*) malloc(sizeof(any_type_t));
@@ -669,6 +691,10 @@ void dup_x1(){
 
 }
 
+/**
+ * @brief insert a copy of the top value into the stack two (if value2 is double or long it takes up the entry of value3, too) or three values (if value2 is neither double nor long) from the top (operand_stack: value3, value2, value1 -> value1, value3, value2, value1)
+ *
+ */
 void dup_x2(){
     DEBUG_PRINT("got into dup_x2\n");
     any_type_t *operand1, *operand2, *operand3;
@@ -685,7 +711,10 @@ void dup_x2(){
     push_operand_stack(&(frame->operand_stack), operand1);
 
 }
-
+/**
+ * @brief duplicate top two stack words (two values, if value1 is not double nor long; a single value, if value1 is double or long) (operand_stack: 	{value2, value1} -> {value2, value1}, {value2, value1})
+ *
+ */
 void dup2(){
     DEBUG_PRINT("got into dup2\n");
     any_type_t *operand1, *operand2;
@@ -703,6 +732,10 @@ void dup2(){
 
 }
 
+/**
+ * @brief duplicate two words and insert beneath third word (operand_stack: value3, {value2, value1} -> {value2, value1}, value3, {value2, value1})
+ *
+ */
 void dup2_x1(){
     DEBUG_PRINT("got into dup2_x1\n");
     any_type_t *operand1, *operand2, *operand3;
@@ -722,6 +755,10 @@ void dup2_x1(){
 
 }
 
+/**
+ * @brief duplicate two words and insert beneath fourth word (operand_stack: {value4, value3}, {value2, value1} -> {value2, value1}, {value4, value3}, {value2, value1})
+ *
+ */
 void dup2_x2(){
     DEBUG_PRINT("got into dup2_x2\n");
     any_type_t *operand1, *operand2, *operand3, *operand4;
@@ -743,6 +780,10 @@ void dup2_x2(){
         push_operand_stack(&(frame->operand_stack), operand2);
 }
 
+/**
+ * @brief swaps two top words on the stack (note that value1 and value2 must not be double or long)
+ *
+ */
 void swap(){
     DEBUG_PRINT("got into swap\n");
     any_type_t *operand1 = (any_type_t*) malloc(sizeof(any_type_t));
@@ -759,6 +800,10 @@ void swap(){
     push_operand_stack(&(frame->operand_stack), operand2);
 }
 
+/**
+ * @brief add two ints
+ *
+ */
 void iadd(){
     DEBUG_PRINT("got into iadd\n");
     any_type_t *op1, *op2, *operand;
@@ -775,6 +820,10 @@ void iadd(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief add two longs
+ *
+ */
 void ladd(){
     DEBUG_PRINT("got into ladd\n");
     any_type_t *op1, *op2, *operand;
@@ -791,6 +840,10 @@ void ladd(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief add two floats
+ *
+ */
 void fadd(){
     DEBUG_PRINT("got into fadd\n");
     any_type_t *op1, *op2, *operand;
@@ -799,8 +852,6 @@ void fadd(){
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
 
-    DEBUG_PRINT("%f/n", (op1->val.primitive_val.val.val_float));
-
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
@@ -808,26 +859,30 @@ void fadd(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief add two doubles
+ *
+ */
 void dadd(){
     DEBUG_PRINT("got into dadd\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
-    DEBUG_PRINT("hi hi\n");
 
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
 
-    DEBUG_PRINT("hi hi %f\n", (op1->val.primitive_val.val.val_double));
-    DEBUG_PRINT("hi hi %f\n", (op2->val.primitive_val.val.val_double));
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = DOUBLE;
     operand->val.primitive_val.val.val_double = (op1->val.primitive_val.val.val_double)+(op2->val.primitive_val.val.val_double);
-    DEBUG_PRINT("hi hi\n");
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief subtract two ints
+ *
+ */
 void isub(){
     DEBUG_PRINT("got into isub\n");
     any_type_t *op1, *op2, *operand;
@@ -844,6 +899,10 @@ void isub(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief subtract two long
+ *
+ */
 void lsub(){
     DEBUG_PRINT("got into lsub\n");
     any_type_t *op1, *op2, *operand;
@@ -860,6 +919,10 @@ void lsub(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief subtract two float
+ *
+ */
 void fsub(){
     DEBUG_PRINT("got into fsub\n");
     any_type_t *op1, *op2, *operand;
@@ -876,6 +939,10 @@ void fsub(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief subtract two double
+ *
+ */
 void dsub(){
     DEBUG_PRINT("got into dsub\n");
     any_type_t *op1, *op2, *operand;
@@ -892,6 +959,10 @@ void dsub(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief multiply two ints
+ *
+ */
 void imul(){
     DEBUG_PRINT("got into imul\n");
     any_type_t *op1, *op2, *operand;
@@ -908,6 +979,10 @@ void imul(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief multiply two long
+ *
+ */
 void lmul(){
     DEBUG_PRINT("got into lmul\n");
     any_type_t *op1, *op2, *operand;
@@ -924,6 +999,10 @@ void lmul(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief multiply two float
+ *
+ */
 void fmul(){
     DEBUG_PRINT("got into fmul\n");
     any_type_t *op1, *op2, *operand;
@@ -940,6 +1019,10 @@ void fmul(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief multiply two double
+ *
+ */
 void dmul(){
     DEBUG_PRINT("got into dmul\n");
     any_type_t *op1, *op2, *operand;
@@ -956,6 +1039,10 @@ void dmul(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief divide two ints
+ *
+ */
 void idiv(){
     DEBUG_PRINT("got into idiv\n");
     any_type_t *op1, *op2, *operand;
@@ -972,6 +1059,10 @@ void idiv(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief divide two long
+ *
+ */
 void ldiv_op(){
     DEBUG_PRINT("got into ldiv_op\n");
     any_type_t *op1, *op2, *operand;
@@ -988,6 +1079,10 @@ void ldiv_op(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief divide two float
+ *
+ */
 void fdiv(){
     DEBUG_PRINT("got into fdiv\n");
     any_type_t *op1, *op2, *operand;
@@ -1004,6 +1099,10 @@ void fdiv(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief divide two double
+ *
+ */
 void ddiv(){
     DEBUG_PRINT("got into ddiv\n");
     any_type_t *op1, *op2, *operand;
@@ -1020,6 +1119,10 @@ void ddiv(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief logical int remainder
+ *
+ */
 void irem(){
     DEBUG_PRINT("got into irem\n");
     any_type_t *op1, *op2, *operand;
@@ -1036,6 +1139,10 @@ void irem(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief remainder of division of two longs
+ *
+ */
 void lrem(){
     DEBUG_PRINT("got into lrem\n");
     any_type_t *op1, *op2, *operand;
@@ -1052,6 +1159,10 @@ void lrem(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief remainder of division of two float
+ *
+ */
 void frem(){
     DEBUG_PRINT("got into frem\n");
     any_type_t *op1, *op2, *operand;
@@ -1068,6 +1179,10 @@ void frem(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief remainder of division of two double
+ *
+ */
 void drem_op(){
     DEBUG_PRINT("got into drem_op\n");
     any_type_t *op1, *op2, *operand;
@@ -1084,7 +1199,10 @@ void drem_op(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
-
+/**
+ * @brief negate int
+ *
+ */
 void ineg(){
     DEBUG_PRINT("got into ineg\n");
     any_type_t *op1, *operand;
@@ -1100,6 +1218,10 @@ void ineg(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief negate long
+ *
+ */
 void lneg(){
     DEBUG_PRINT("got into lneg\n");
     any_type_t *op1, *operand;
@@ -1115,6 +1237,10 @@ void lneg(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief negate float
+ *
+ */
 void fneg(){
     DEBUG_PRINT("got into fneg\n");
     any_type_t *op1, *operand;
@@ -1130,6 +1256,10 @@ void fneg(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief negate double
+ *
+ */
 void dneg(){
     DEBUG_PRINT("got into dneg\n");
     any_type_t *op1, *operand;
@@ -1145,6 +1275,10 @@ void dneg(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief int shift left
+ *
+ */
 void ishl(){
     DEBUG_PRINT("got into ishl\n");
     any_type_t *op1, *op2, *operand;
@@ -1165,6 +1299,10 @@ void ishl(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief long shift left
+ *
+ */
 void lshl(){
     DEBUG_PRINT("got into lshl\n");
     any_type_t *op1, *op2, *operand;
@@ -1185,6 +1323,10 @@ void lshl(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief int shift right
+ *
+ */
 void ishr(){
     DEBUG_PRINT("got into ishr\n");
     any_type_t *op1, *op2, *operand;
@@ -1205,6 +1347,10 @@ void ishr(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief long shift right
+ *
+ */
 void lshr(){
     DEBUG_PRINT("got into lshr\n");
     any_type_t *op1, *op2, *operand;
@@ -1224,6 +1370,11 @@ void lshr(){
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
+
+/**
+ * @brief int logical shift right
+ *
+ */
 void iushr(){
     DEBUG_PRINT("got into iushr\n");
     any_type_t *op1, *op2, *operand;
@@ -1245,6 +1396,10 @@ void iushr(){
 
 }
 
+/**
+ * @brief long logical shift right
+ *
+ */
 void lushr(){
     DEBUG_PRINT("got into lushr\n");
     any_type_t *op1, *op2, *operand;
@@ -1265,7 +1420,10 @@ void lushr(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
-
+/**
+ * @brief perform a bitwise and on two integers
+ *
+ */
 void iand(){
     DEBUG_PRINT("got into iand\n");
     any_type_t *op1, *op2, *operand;
@@ -1286,6 +1444,10 @@ void iand(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief perform a bitwise and on two longs
+ *
+ */
 void land(){
     DEBUG_PRINT("got into land\n");
     any_type_t *op1, *op2, *operand;
@@ -1306,6 +1468,10 @@ void land(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief perform a bitwise or on two integers
+ *
+ */
 void ior(){
     DEBUG_PRINT("got into ior\n");
     any_type_t *op1, *op2, *operand;
@@ -1326,6 +1492,10 @@ void ior(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief perform a bitwise or on two longs
+ *
+ */
 void lor(){
     DEBUG_PRINT("got into lor\n");
     any_type_t *op1, *op2, *operand;
@@ -1346,6 +1516,10 @@ void lor(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief perform a bitwise xor on two integers
+ *
+ */
 void ixor(){
     DEBUG_PRINT("got into ixor\n");
     any_type_t *op1, *op2, *operand;
@@ -1366,6 +1540,10 @@ void ixor(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief perform a bitwise xor on two longs
+ *
+ */
 void lxor(){
     DEBUG_PRINT("got into lxor\n");
     any_type_t *op1, *op2, *operand;
@@ -1386,6 +1564,10 @@ void lxor(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert an int into a long
+ *
+ */
 void i2l(){
     DEBUG_PRINT("got into i2l\n");
     any_type_t *op1, *operand;
@@ -1401,6 +1583,10 @@ void i2l(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert an int into a float
+ *
+ */
 void i2f(){
     DEBUG_PRINT("got into i2f\n");
     any_type_t *op1, *operand;
@@ -1416,6 +1602,10 @@ void i2f(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert an int into a double
+ *
+ */
 void i2d(){
     DEBUG_PRINT("got into i2d\n");
     any_type_t *op1, *operand;
@@ -1431,6 +1621,10 @@ void i2d(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert a long into an int
+ *
+ */
 void l2i(){
     DEBUG_PRINT("got into l2i\n");
     any_type_t *op1, *operand;
@@ -1446,6 +1640,10 @@ void l2i(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert a long into a float
+ *
+ */
 void l2f(){
     DEBUG_PRINT("got into l2f\n");
     any_type_t *op1, *operand;
@@ -1461,6 +1659,10 @@ void l2f(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert a long into a double
+ *
+ */
 void l2d(){
     DEBUG_PRINT("got into l2d\n");
     any_type_t *op1, *operand;
@@ -1476,6 +1678,10 @@ void l2d(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert a float into an int
+ *
+ */
 void f2i(){
     DEBUG_PRINT("got into f2i\n");
     any_type_t *op1, *operand;
@@ -1491,6 +1697,10 @@ void f2i(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert a float into a long
+ *
+ */
 void f2l(){
     DEBUG_PRINT("got into f2l\n");
     any_type_t *op1, *operand;
@@ -1506,6 +1716,10 @@ void f2l(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert a float into a double
+ *
+ */
 void f2d(){
     DEBUG_PRINT("got into f2d\n");
     any_type_t *op1, *operand;
@@ -1521,6 +1735,10 @@ void f2d(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert a double into an int
+ *
+ */
 void d2i(){
     DEBUG_PRINT("got into d2i\n");
     any_type_t *op1, *operand;
@@ -1536,6 +1754,10 @@ void d2i(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert a double into a long
+ *
+ */
 void d2l(){
     DEBUG_PRINT("got into d2l\n");
     any_type_t *op1, *operand;
@@ -1551,6 +1773,10 @@ void d2l(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert a double into a float
+ *
+ */
 void d2f(){
     DEBUG_PRINT("got into d2f\n");
     any_type_t *op1, *operand;
@@ -1566,6 +1792,10 @@ void d2f(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert an int into a byte
+ *
+ */
 void i2b(){
     DEBUG_PRINT("got into i2b\n");
     any_type_t *op1, *operand;
@@ -1581,6 +1811,10 @@ void i2b(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert an int into a char
+ *
+ */
 void i2c(){
     DEBUG_PRINT("got into i2c\n");
     any_type_t *op1, *operand;
@@ -1597,6 +1831,10 @@ void i2c(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief convert an int into a short
+ *
+ */
 void i2s(){
     DEBUG_PRINT("got into i2s\n");
     any_type_t *op1, *operand;
@@ -1613,6 +1851,10 @@ void i2s(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief compare two longs values
+ *
+ */
 void lcmp(){
     DEBUG_PRINT("got into lcmp\n");
     any_type_t *op1, *op2, *operand;
@@ -1637,6 +1879,10 @@ void lcmp(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief compare two floats values (NaN = -1)
+ *
+ */
 void fcmpl(){
     DEBUG_PRINT("got into fcmpl\n");
     any_type_t *op1, *op2, *operand;
@@ -1663,6 +1909,10 @@ void fcmpl(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief compare two floats values (NaN = 1)
+ *
+ */
 void fcmpg(){
     DEBUG_PRINT("got into fcmpg\n");
     any_type_t *op1, *op2, *operand;
@@ -1689,6 +1939,10 @@ void fcmpg(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief compare two doubles values (NaN = -1)
+ *
+ */
 void dcmpl(){
     DEBUG_PRINT("got into dcmpl\n");
     any_type_t *op1, *op2, *operand;
@@ -1715,6 +1969,10 @@ void dcmpl(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
+/**
+ * @brief compare two doubles values (NaN = 1)
+ *
+ */
 void dcmpg(){
     DEBUG_PRINT("got into dcmpl\n");
     any_type_t *op1, *op2, *operand;
@@ -1741,7 +1999,10 @@ void dcmpg(){
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
-
+/**
+ * @brief if value is 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void ifeq(){
     DEBUG_PRINT("got into ifeq\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
@@ -1764,6 +2025,10 @@ void ifeq(){
     }
 }
 
+/**
+ * @brief if value is not 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void ifne(){
     DEBUG_PRINT("got into ifne\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
@@ -1786,6 +2051,10 @@ void ifne(){
     }
 }
 
+/**
+ * @brief if value is less than 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void iflt(){
     DEBUG_PRINT("got into iflt\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
@@ -1808,6 +2077,10 @@ void iflt(){
     }
 }
 
+/**
+ * @brief if value is greater than or equal to 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void ifge(){
     DEBUG_PRINT("got into ifge\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
@@ -1830,6 +2103,10 @@ void ifge(){
 }
 
 
+/**
+ * @brief if value is greater than 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void ifgt(){
     DEBUG_PRINT("got into ifgt\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
@@ -1852,6 +2129,10 @@ void ifgt(){
     }
 }
 
+/**
+ * @brief if value is less than or equal to 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void ifle(){
     DEBUG_PRINT("got into ifle\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
@@ -1874,6 +2155,10 @@ void ifle(){
     }
 }
 
+/**
+ * @brief if ints are equal, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void if_icmpeq(){
     DEBUG_PRINT("got into if_icmpeq\n");
     any_type_t *value1, *value2;
@@ -1898,6 +2183,10 @@ void if_icmpeq(){
     }
 }
 
+/**
+ * @brief if ints are not equal, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void if_icmpne(){
     DEBUG_PRINT("got into if_icmpne\n");
     any_type_t *value1, *value2;
@@ -1922,6 +2211,10 @@ void if_icmpne(){
     }
 }
 
+/**
+ * @brief if ints are not equal, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void if_icmplt(){
     DEBUG_PRINT("got into if_icmplt\n");
     any_type_t *value1, *value2;
@@ -1946,6 +2239,10 @@ void if_icmplt(){
     }
 }
 
+/**
+ * @brief if value1 is greater than or equal to value2, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void if_icmpge(){
     DEBUG_PRINT("got into if_icmpge\n");
     any_type_t *value1, *value2;
@@ -1970,6 +2267,10 @@ void if_icmpge(){
     }
 }
 
+/**
+ * @brief if value1 is greater than value2, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void if_icmpgt(){
     DEBUG_PRINT("got into if_icmpgt\n");
     any_type_t *value1, *value2;
@@ -1994,6 +2295,10 @@ void if_icmpgt(){
     }
 }
 
+/**
+ * @brief if value1 is less than or equal to value2, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void if_icmple(){
     DEBUG_PRINT("got into if_icmple\n");
     any_type_t *value1, *value2;
@@ -2017,6 +2322,10 @@ void if_icmple(){
     }
 }
 
+/**
+ * @brief if references are equal, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void if_acmpeq(){
     DEBUG_PRINT("got into if_acmpeq\n");
     any_type_t *value1, *value2;
@@ -2066,6 +2375,10 @@ void if_acmpeq(){
 
 }
 
+/**
+ * @brief if references are not equal, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void if_acmpne(){
     DEBUG_PRINT("got into if_acmpne\n");
     any_type_t *value1, *value2;
@@ -2114,6 +2427,10 @@ void if_acmpne(){
     }
 }
 
+/**
+ * @brief goes to another instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void goto_op(){
     DEBUG_PRINT("got into goto_op\n");
     code_attribute_t *code_attribute;
@@ -2125,11 +2442,14 @@ void goto_op(){
     indexl = code_attribute->code[jvm_pc.code_pc+2];
     index = (indexh<<8)|indexl;
 
-    jvm_pc.code_pc = index;
+    jvm_pc.code_pc += index;
     jvm_pc.jumped = 1;
-
 }
 
+/**
+ * @brief jump to subroutine at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2) and place the return address on the stack
+ *
+ */
 void jsr(){
     DEBUG_PRINT("got into jsr\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
@@ -2152,11 +2472,19 @@ void jsr(){
     jvm_pc.jumped = 1;
 }
 
+/**
+ * @brief return an (int, long, float, double, reference, void) from a method
+ *
+ */
 void treturn(){
     DEBUG_PRINT("got into treturn\n");
     returnFromFunction();
 }
 
+/**
+ * @brief get a static field value of a class, where the field is identified by field reference in the constant pool index (index1 << 8 + index2)
+ *
+ */
 void getstatic(){
     DEBUG_PRINT("got into getstatic\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -2189,10 +2517,8 @@ void getstatic(){
     u2 i = 0;
     for (i = 0; i < class_field->class_file.fields_count; i++) {
         u2 name_index = class_field->class_file.fields[i].name_index;
-        DEBUG_PRINT("field %d\n", i);
         if (compare_utf8(&(class_field->class_file.constant_pool[name_index].info.Utf8), field_name) == 0) {
             frame_t *frame = peek_frame_stack(jvm_stack);
-            DEBUG_PRINT("static: %d\n", class_field->static_fields[i]->val.primitive_val.val.val32);
             push_operand_stack(&(frame->operand_stack), class_field->static_fields[i]);
             return;
         }
@@ -2204,6 +2530,10 @@ void getstatic(){
     return;
 }
 
+/**
+ * @brief set static field to value in a class, where the field is identified by a field reference index in constant pool (indexbyte1 << 8 + indexbyte2)
+ *
+ */
 void putstatic(){
     DEBUG_PRINT("got into putstatic\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -2234,6 +2564,10 @@ void putstatic(){
 
 }
 
+/**
+ * @brief create new object of type identified by class reference in constant pool index (indexbyte1 << 8 + indexbyte2)
+ *
+ */
 void new_op() {
     DEBUG_PRINT("got into new_op\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -2332,13 +2666,21 @@ void new_op() {
 /*}*/
 /*}*/
 
+/**
+ * @brief create new array with count elements of primitive type identified by atype
+ *
+ */
 void newarray(){
     DEBUG_PRINT("got into newarray\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
+
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 atype = code_attribute->code[jvm_pc.code_pc+1];
+
     any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
+
     any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
+
     int32_t contador, i = 0;
 
     contador = cont->val.primitive_val.val.val32;
@@ -2390,6 +2732,10 @@ void newarray(){
 
 }
 
+/**
+ * @brief continue execution from an address in the table at offset index
+ *
+ */
 void tableswitch() {
     DEBUG_PRINT("got into tableswitch\n");
     int offset = 0;
@@ -2448,6 +2794,10 @@ void tableswitch() {
     jvm_pc.jumped = 1;
 }
 
+/**
+ * @brief a target address is looked up from a table using a key and execution continues from the instruction at that address
+ *
+ */
 void lookupswitch() {
     DEBUG_PRINT("got into lookupswitch\n");
     int offset = 0;
@@ -2509,6 +2859,10 @@ void lookupswitch() {
     jvm_pc.jumped = 1;
 }
 
+/**
+ * @brief execute opcode, where opcode is either iload, fload, aload, lload, dload, istore, fstore, astore, lstore, dstore, or ret, but assume the index is 16 bit; or execute iinc, where the index is 16 bits and the constant to increment by is a signed 16 bit short
+ *
+ */
 void wide() {
     DEBUG_PRINT("got into wide\n");
     any_type_t* operand;
@@ -2625,6 +2979,10 @@ void wide() {
     }
 }
 
+/**
+ * @brief continue execution from address taken from a local variable #index (the asymmetry with jsr is intentional)
+ *
+ */
 void ret() {
     DEBUG_PRINT("got into ret\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -2654,6 +3012,10 @@ void ret() {
     jvm_pc.jumped = 1;
 }
 
+/**
+ * @brief increment local variable #index by signed byte const
+ *
+ */
 void iinc() {
     DEBUG_PRINT("got into iinc\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -2682,6 +3044,10 @@ void iinc() {
     }
 }
 
+/**
+ * @brief get a field value of an object objectref, where the field is identified by field reference in the constant pool index (index1 << 8 + index2)
+ *
+ */
 void getfield() {
     DEBUG_PRINT("got into getfield\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -2715,6 +3081,11 @@ void getfield() {
     assert(0);
     return;
 }
+
+/**
+ * @brief set field to value in an object objectref, where the field is identified by a field reference index in constant pool (indexbyte1 << 8 + indexbyte2)
+ *
+ */
 void putfield() {
     DEBUG_PRINT("got into putfield\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -2740,11 +3111,7 @@ void putfield() {
             frame_t *frame = peek_frame_stack(jvm_stack);
             any_type_t* value = pop_operand_stack(&(frame->operand_stack));
             any_type_t* objref = pop_operand_stack(&(frame->operand_stack));
-    DEBUG_PRINT("hiasdf %d %d %d\n", value->tag, value->val.reference_val.tag, value->val.primitive_val.val.val32);
-    DEBUG_PRINT("hiasdf %d %d %d\n", objref->tag, objref->val.primitive_val.tag, objref->val.primitive_val.val.val32);
-    DEBUG_PRINT("hiasdf %d %d %d\n", FLOAT, DOUBLE, RETURN_ADDRESS);
             memmove(&(objref->val.reference_val.val.object.attributes[i]), value, sizeof(any_type_t));
-    DEBUG_PRINT("hiasdf\n");
             return;
         }
 
@@ -2753,6 +3120,11 @@ void putfield() {
     assert(0);
     return;
 }
+
+/**
+ * @brief invoke virtual method on object objectref, where the method is identified by method reference index in constant pool (indexbyte1 << 8 + indexbyte2)
+ *
+ */
 void invokevirtual() {
     DEBUG_PRINT("got into invokevirtual\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -2777,6 +3149,10 @@ void invokevirtual() {
             compare_utf8(string_to_utf8("println"), method_name) == 0) {
 
         frame_t *frame = peek_frame_stack(jvm_stack);
+        if (compare_utf8(descriptor, string_to_utf8("()V")) == 0) {
+            printf("\n");
+            return;
+        }
         any_type_t *arg = pop_operand_stack(&(frame->operand_stack));
 
         if (compare_utf8(descriptor, string_to_utf8("(I)V")) == 0) {
@@ -2826,6 +3202,11 @@ void invokevirtual() {
     assert(0);
     return;
 }
+
+/**
+ * @brief invoke instance method on object objectref, where the method is identified by method reference index in constant pool (indexbyte1 << 8 + indexbyte2)
+ *
+ */
 void invokespecial() {
     DEBUG_PRINT("got into invokespecial\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -2855,12 +3236,10 @@ void invokespecial() {
     u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
     Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
 
-    DEBUG_PRINT("hi %s %s\n", utf8_to_string(class_method->class_name), utf8_to_string(method_name));
 
     u2 i = 0;
     for (i = 0; i < class_method->class_file.methods_count; i++) {
         u2 name_index = class_method->class_file.methods[i].name_index;
-    DEBUG_PRINT("hey %s %s\n", utf8_to_string(&(class_method->class_file.constant_pool[name_index].info.Utf8)), utf8_to_string(method_name));
         if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0) {
             callMethod(class_method, &(class_method->class_file.methods[i]));
             return;
@@ -2871,6 +3250,11 @@ void invokespecial() {
     assert(0);
     return;
 }
+
+/**
+ * @brief invoke a static method, where the method is identified by method reference index in constant pool (indexbyte1 << 8 + indexbyte2)
+ *
+ */
 void invokestatic() {
     DEBUG_PRINT("got into invokestatic\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -2903,7 +3287,6 @@ void invokestatic() {
     for (i = 0; i < class_method->class_file.methods_count; i++) {
         u2 name_index = class_method->class_file.methods[i].name_index;
         u2 desc_index = class_method->class_file.methods[i].descriptor_index;
-        DEBUG_PRINT("Procurando por method_name %s, comparar com %s\n", utf8_to_string(method_name), utf8_to_string(&(class_method->class_file.constant_pool[name_index].info.Utf8)));
         if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0 &&
                 compare_utf8(descriptor, &(class_method->class_file.constant_pool[desc_index].info.Utf8)) == 0) {
             callMethod(class_method, &(class_method->class_file.methods[i]));
@@ -2914,6 +3297,11 @@ void invokestatic() {
     assert(0);
     return;
 }
+
+/**
+ * @brief invokes an interface method on object objectref, where the interface method is identified by method reference index in constant pool (indexbyte1 << 8 + indexbyte2)
+ *
+ */
 void invokeinterface() {
     DEBUG_PRINT("got into invokeinterface\n");
     // TODO verificar se esta certa (esta igual as anteriores)
@@ -2945,10 +3333,20 @@ void invokeinterface() {
     assert(0);
     return;
 }
+
+/**
+ * @brief invokes a dynamic method identified by method reference index in constant pool (indexbyte1 << 8 + indexbyte2)
+ *
+ */
 void invokedynamic() {
     DEBUG_PRINT("got into invokedynamic\n");
     //TODO
 }
+
+/**
+ * @brief create new object of type identified by class reference in constant pool index (indexbyte1 << 8 + indexbyte2)
+ *
+ */
 void anewarray() {
     DEBUG_PRINT("got into anewarray\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -2981,6 +3379,11 @@ void anewarray() {
     }
     push_operand_stack(&(frame->operand_stack), arrayref);
 }
+
+/**
+ * @brief get the length of an array
+ *
+ */
 void arraylength() {
     DEBUG_PRINT("got into arraylength\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
@@ -2993,12 +3396,22 @@ void arraylength() {
 
     push_operand_stack(&(frame->operand_stack), length);
 }
+
+/**
+ * @brief throws an error or exception (notice that the rest of the stack is cleared, leaving only a reference to the Throwable)
+ *
+ */
 void athrow() {
     DEBUG_PRINT("got into athrow\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
     any_type_t *objref = pop_operand_stack(&(frame->operand_stack));
     throwException(objref->val.reference_val.val.object.objClass);
 }
+
+/**
+ * @brief checks whether an objectref is of a certain type, the class reference of which is in the constant pool at index (indexbyte1 << 8 + indexbyte2)
+ *
+ */
 void checkcast() {
     DEBUG_PRINT("got into checkcast\n");
     // TODO acho que esta errado, parece que tem que botar eh um objref de volta na pilha e nao um boolean
@@ -3027,6 +3440,10 @@ void checkcast() {
     push_operand_stack(&(frame->operand_stack), boolean);
 }
 
+/**
+ * @brief determines if an object objectref is of a given type, identified by class reference index in constant pool (indexbyte1 << 8 + indexbyte2)
+ *
+ */
 void instanceof() {
     DEBUG_PRINT("got into instanceof\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
@@ -3054,21 +3471,35 @@ void instanceof() {
     push_operand_stack(&(frame->operand_stack), boolean);
 }
 
+/**
+ * @brief enter monitor for object ("grab the lock" - start of synchronized() section)
+ *
+ */
 void monitorenter() {
     DEBUG_PRINT("got into monitorenter\n");
     printf("ERROR: monitorenter is not implemented!\n");
     exit(1);
 }
+/**
+ * @brief exit monitor for object ("release the lock" - end of synchronized() section)
+ *
+ */
 void monitorexit() {
     DEBUG_PRINT("got into monitorexit\n");
     printf("ERROR: monitorexit is not implemented!\n");
     exit(1);
 }
+
+/**
+ * @brief create a new array of dimensions dimensions with elements of type identified by class reference in constant pool index (indexbyte1 << 8 + indexbyte2); the sizes of each dimension is identified by count1, [count2, etc.]
+ *
+ */
 void multianewarray() {
     DEBUG_PRINT("got into multianewarray\n");
-    frame_t *frame = peek_frame_stack(jvm_stack);
     any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
     int32_t contador;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    u1 i, tamanhos[MAX_DIMENSION];
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
@@ -3076,16 +3507,28 @@ void multianewarray() {
     u1 dimension = code_attribute->code[jvm_pc.code_pc+3];
     u2 index = (b1<<8)|b2;
     u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
-    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
-    class_t *object_class = getClass(class_name);
+    /*Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);*/
+    u1* c = jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8.bytes;
 
-    any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
-    contador = cont->val.primitive_val.val.val32;
+    for (i = dimension; i > 0; i--) {
+        any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
+        contador = cont->val.primitive_val.val.val32;
+        tamanhos[i] = contador;
+    }
 
-    createMultiArray(arrayref, contador, dimension, object_class);
+    arrayref->tag = REFERENCE;
+    arrayref->val.reference_val.tag = ARRAY;
+    arrayref->val.reference_val.val.array.length = contador;
+    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
+    createMultiArray(arrayref->val.reference_val.val.array.components, tamanhos, dimension, c[dimension], dimension);
 
     push_operand_stack(&(frame->operand_stack), arrayref);
 }
+
+/**
+ * @brief if value is null, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void ifnull() {
     DEBUG_PRINT("got into ifnull\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
@@ -3107,6 +3550,11 @@ void ifnull() {
 
     }
 }
+
+/**
+ * @brief if value is not null, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+ *
+ */
 void ifnonnull() {
     DEBUG_PRINT("got into ifnonnull\n");
     any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
@@ -3127,6 +3575,11 @@ void ifnonnull() {
         jvm_pc.jumped = 1;
     }
 }
+
+/**
+ * @brief goes to another instruction at branchoffset (signed int constructed from unsigned bytes branchbyte1 << 24 + branchbyte2 << 16 + branchbyte3 << 8 + branchbyte4)
+ *
+ */
 void goto_w() {
     DEBUG_PRINT("got into goto_w\n");
     u1 byte1 = 0;
@@ -3147,6 +3600,11 @@ void goto_w() {
     jvm_pc.code_pc = index;
     jvm_pc.jumped = 1;
 }
+
+/**
+ * @brief jump to subroutine at branchoffset (signed int constructed from unsigned bytes branchbyte1 << 24 + branchbyte2 << 16 + branchbyte3 << 8 + branchbyte4) and place the return address on the stack
+ *
+ */
 void jsr_w() {
     DEBUG_PRINT("got into jsr_w\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
@@ -3174,16 +3632,31 @@ void jsr_w() {
     jvm_pc.code_pc = index;
     jvm_pc.jumped = 1;
 }
+
+/**
+ * @brief reserved for breakpoints in Java debuggers; should not appear in any class file
+ *
+ */
 void breakpoint() {
     DEBUG_PRINT("got into breakpoint\n");
     printf("ERROR: breakpoint is not implemented!\n");
     exit(1);
 }
+
+/**
+ * @brief reserved for implementation-dependent operations within debuggers; should not appear in any class file
+ *
+ */
 void impdep1() {
     DEBUG_PRINT("got into impdep1\n");
     printf("ERROR: impdep1 is not implemented!\n");
     exit(1);
 }
+
+/**
+ * @brief reserved for implementation-dependent operations within debuggers; should not appear in any class file
+ *
+ */
 void impdep2() {
     DEBUG_PRINT("got into impdep2\n");
     printf("ERROR: impdep2 is not implemented!\n");

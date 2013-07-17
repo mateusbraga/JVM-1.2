@@ -129,28 +129,85 @@ u2 scan_utf8_char_from_char(char* string, u2 *pos) {
     }
 }
 
-void createMultiArray(any_type_t *arrayref, u1 tamanho, u1 dimensao, class_t *tipo) {
-    int32_t contador;
-    u1 i, j;
+/**
+ * @brief Create a multiarray a partir de arrayref com dimensões, tamanho e tipo
+ *
+ * @param any_type_t* Arrayref array à inicializar
+ * @param u1 Tamanho da array atual
+ * @param u1 Dimensão da array atual
+ * @param u1 Dimensão auxiliar para a recursão
+ */
+void createMultiArray(any_type_t *arrayref, u1 *tamanho, u1 dimensao, u1 tipo, u1 dimension) {
+    u1 i;
     if (dimensao == 1) {
-        for(i=0; i<=tamanho; i++){
+        for(i=0; i<tamanho[dimensao]; i++){
+            switch(tipo) {
+                case 'B': //byte
+                    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
+                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BYTE;
+                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val8 = 0;
+                    break;
+                case 'C': //char
+                    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
+                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = CHAR;
+                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_char = 0;
+                    break;
+                case 'D': //double
+                    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
+                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = DOUBLE;
+                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_double = 0;
+                    break;
+                case 'F': //float
+                    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
+                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = FLOAT;
+                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_float = 0;
+                    break;
+                case 'I': //integer
+                    arrayref[i].tag = PRIMITIVE;
+                    arrayref[i].val.primitive_val.tag = INT;
+                    arrayref[i].val.primitive_val.val.val32 = 0;
+                    break;
+                case 'J': //long
+                    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
+                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = LONG;
+                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val64 = 0;
+                    break;
+                case 'S': //short
+                    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
+                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = SHORT;
+                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val16 = 0;
+                    break;
+                case 'Z': //boolean
+                    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
+                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BOOLEAN;
+                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_boolean = 0;
+                    break;
+               /* case 'L': //reference
+                    operand->tag = REFERENCE;
+                    operand->val.reference_val.tag = OBJECT;
+                    operand->val.reference_val.val.object.length = 0;
+                    operand->val.reference_val.val.object.attributes = NULL;
+                    break;*/
+                default:
+                    printf("Unexpected char on method descriptor: %c\n", tipo);
+                    exit(1);
+            }
+          /*  class_t *object_class = getClass(class_name);
             arrayref->val.reference_val.val.array.components[i].tag = REFERENCE;
             arrayref->val.reference_val.val.array.components[i].val.reference_val.tag = OBJECT;
             arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.objClass = tipo;
             arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.length = tipo->class_file.fields_count;
-            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * tipo->class_file.fields_count);
+            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * tipo->class_file.fields_count);*/
         }
     }
     else {
-        for(i=0; i<=tamanho; i++){
-            frame_t *frame = peek_frame_stack(jvm_stack);
-            any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
-            contador = cont->val.primitive_val.val.val32;
-            arrayref->val.reference_val.val.array.components[i].tag = REFERENCE;
-            arrayref->val.reference_val.val.array.components[i].val.reference_val.tag = ARRAY;
-            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.array.length = contador;
-            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
-            createMultiArray(&arrayref->val.reference_val.val.array.components[i], contador, dimensao-1, tipo);
+        for(i=0; i<tamanho[dimensao]; i++){
+            arrayref[i].tag = REFERENCE;
+            arrayref[i].val.reference_val.tag = ARRAY;
+            arrayref[i].val.reference_val.val.array.length = tamanho[dimensao-1];
+            arrayref[i].val.reference_val.val.array.components =  (any_type_t*) malloc(sizeof(any_type_t) * tamanho[dimensao-1]);
+            
+            createMultiArray(arrayref[i].val.reference_val.val.array.components, tamanho, dimensao-1, tipo, dimension);
         }
     }
 }
@@ -347,7 +404,6 @@ int hasReturnValue(class_t* class, method_info_t* method) {
  * @see compare_utf8
  */
 method_info_t* getMethodOnThisClass(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
-
     DEBUG_PRINT("got into getMethodOnThisClass with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
 
     int i = 0;
@@ -730,7 +786,6 @@ void callMethod(class_t* class, method_info_t* method) {
 
     //get number of arguments from classfile
     int number_of_arguments = getNumberOfArguments(class, method);
-    DEBUG_PRINT("number_of_arguments = %d\n", number_of_arguments);
 
     // pop arguments from operand stack and
     // insert them on local_var
@@ -805,10 +860,8 @@ int main(int argc, char* argv[]) {
     frame->current_class = NULL;
     push_frame_stack(&jvm_stack, frame);
 
-    DEBUG_PRINT("heasdf\n");
     method_info_t *main_method = getMethod(class, string_to_utf8("main"), string_to_utf8("([Ljava/lang/String;)V"));
 
-    DEBUG_PRINT("heasdf\n");
     // frame 
     frame->current_class = class;
     frame->current_method = main_method;
