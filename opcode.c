@@ -108,7 +108,9 @@ void iconst_3(){
     operand->val.primitive_val.val.val32 = 3;
 
     frame_t* frame = peek_frame_stack(jvm_stack);
+
     push_operand_stack(&(frame->operand_stack), operand);
+
 }
 
 /**
@@ -452,7 +454,7 @@ void tload_0(){
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[0];
-    if(operand->val.primitive_val.tag == DOUBLE) 
+    if(operand->val.primitive_val.tag == DOUBLE)
         DEBUG_PRINT("tload_0 %f\n", operand->val.primitive_val.val.val_double);
 
     push_operand_stack(&(frame->operand_stack), operand);
@@ -482,7 +484,7 @@ void tload_2(){
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[2];
-    if(operand->val.primitive_val.tag == DOUBLE) 
+    if(operand->val.primitive_val.tag == DOUBLE)
         DEBUG_PRINT("tload_2 %f\n", operand->val.primitive_val.val.val_double);
 
     push_operand_stack(&(frame->operand_stack), operand);
@@ -2350,30 +2352,40 @@ void newarray(){
         switch(atype){
         case 4:
             arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BOOLEAN;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_boolean = 0;
             break;
         case 5:
             arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = CHAR;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_char = 0;
             break;
         case 6:
             arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = FLOAT;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_float = 0;
             break;
         case 7:
             arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = DOUBLE;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_double = 0;
             break;
         case 8:
             arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BYTE;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val8 = 0;
             break;
         case 9:
             arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = SHORT;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val16 = 0;
             break;
         case 10:
             arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = INT;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val32 = 0;
             break;
         case 11:
             arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = LONG;
+            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val64 = 0;
             break;
         }
     }
+
+
     push_operand_stack(&(frame->operand_stack), arrayref);
 
 }
