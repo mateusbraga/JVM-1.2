@@ -421,6 +421,11 @@ int getNumberOfArguments(class_t* class, method_info_t* method) {
     u2 length = class->class_file.constant_pool[method->descriptor_index].info.Utf8.length;
 
     int counter = 0;
+
+    if ((method->access_flags & ACC_STATIC) != ACC_STATIC) {
+        counter++;
+    }
+
     int i = 1;
     for (i = 1; i < length; i++) {
         switch (b[i]) {
@@ -725,6 +730,7 @@ void callMethod(class_t* class, method_info_t* method) {
 
     //get number of arguments from classfile
     int number_of_arguments = getNumberOfArguments(class, method);
+    DEBUG_PRINT("number_of_arguments = %d\n", number_of_arguments);
 
     // pop arguments from operand stack and
     // insert them on local_var
