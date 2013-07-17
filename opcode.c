@@ -510,18 +510,18 @@ void tload_3(){
  */
 void taload(){
     DEBUG_PRINT("got into taload\n");
-    any_type_t *index, *arrayref, *operand;
+    any_type_t *index, *arrayref;
     uint32_t int_index;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    operand = (any_type_t*) malloc(sizeof(any_type_t));
     index = pop_operand_stack(&(frame->operand_stack));
     arrayref = pop_operand_stack(&(frame->operand_stack));
 
     int_index = index->val.primitive_val.val.val32;
 
-    *operand = arrayref->val.reference_val.val.array.components[int_index];
-    push_operand_stack(&(frame->operand_stack), operand);
+    DEBUG_PRINT("got into taload %d %d %d\n", arrayref->tag, arrayref->val.reference_val.tag, arrayref->val.reference_val.val.array.length);
+
+    push_operand_stack(&(frame->operand_stack), &(arrayref->val.reference_val.val.array.components[int_index]));
 }
 
 /**
@@ -770,7 +770,10 @@ void iadd(){
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
+    DEBUG_PRINT("got into iadd %d %d %d\n", op2->tag, op2->val.primitive_val.tag, op2->val.primitive_val.val.val32);
+    DEBUG_PRINT("got into iadd %d %d %d\n", op1->tag, op1->val.primitive_val.tag, op1->val.primitive_val.val.val32);
     operand->val.primitive_val.val.val32 = (op1->val.primitive_val.val.val32)+(op2->val.primitive_val.val.val32);
+    DEBUG_PRINT("got into iadd\n");
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -2125,9 +2128,8 @@ void goto_op(){
     indexl = code_attribute->code[jvm_pc.code_pc+2];
     index = (indexh<<8)|indexl;
 
-    jvm_pc.code_pc = index;
+    jvm_pc.code_pc += index;
     jvm_pc.jumped = 1;
-
 }
 
 void jsr(){
@@ -2335,13 +2337,18 @@ void new_op() {
 void newarray(){
     DEBUG_PRINT("got into newarray\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
+
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 atype = code_attribute->code[jvm_pc.code_pc+1];
+
     any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
+
     any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
+
     int32_t contador, i = 0;
 
     contador = cont->val.primitive_val.val.val32;
+    DEBUG_PRINT("got into newarray - contador = %d\n", contador);
     arrayref->tag = REFERENCE;
     arrayref->val.reference_val.tag = ARRAY;
     arrayref->val.reference_val.val.array.length = contador;
