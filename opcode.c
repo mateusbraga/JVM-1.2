@@ -14,13 +14,11 @@ extern frame_stack_t *jvm_stack;
 
 extern pc_t jvm_pc;
 
-<<<<<<< HEAD
+#define MAX_DIMENSION            650000
+
 /** \addtogroup Funções de Execução
  * @{
  */
-=======
-#define MAX_DIMENSION            650000
->>>>>>> 604923a0b22975d9e98cd695951a41385f568d46
 
 /**
  * @brief push a null reference onto the stack
