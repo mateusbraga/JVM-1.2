@@ -16,7 +16,7 @@ extern pc_t jvm_pc;
 
 #define MAX_DIMENSION            650000
 
-/** \addtogroup Funções de Execução
+/** \addtogroup Opcodes
  * @{
  */
 

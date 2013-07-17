@@ -5,6 +5,11 @@
 #include "structs.h"
 #include "jvm.h"
 
+/** \addtogroup Loader
+ * @{
+ */
+
+
 /**
  * @brief Lê um arquivo e monta a tabela de atributos.
  * 
@@ -559,3 +564,4 @@ void loadClass(class_t* class){
     class->status = CLASSE_NAO_LINKADA;
     DEBUG_PRINT("Done loadClass\n");
 }
+/** @} */
