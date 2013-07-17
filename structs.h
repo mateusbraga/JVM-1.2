@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+/** \addtogroup Estruturas
+ * @{
+ */
 // CLASS FILE FORMAT STUFF - BEGIN
 
 /* Tags */
@@ -456,3 +459,4 @@ typedef struct pc_struct {
 
 
 #endif
+/** @} */

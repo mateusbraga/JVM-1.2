@@ -7,7 +7,7 @@
 #include "jvm.h"
 
 // PREPARATION STUFF - BEGIN
-/** \addtogroup Linking
+/** \addtogroup Linker
  * @{
  */
 
@@ -229,3 +229,4 @@ void linkClass (class_t* class) {
 	// 	}
 	// }
 		//Tem que verificar varias static constraints sobre instrucao, como??
+/** @} */

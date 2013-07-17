@@ -61,3 +61,4 @@ void initializeClass(class_t* class) {
 	class->status = CLASSE_PRONTA;
 	DEBUG_PRINT("Done initializeClass\n");
 }
+/** @} */
