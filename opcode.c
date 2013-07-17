@@ -14,6 +14,7 @@ extern frame_stack_t *jvm_stack;
 
 extern pc_t jvm_pc;
 
+#define MAX_DIMENSION            650000
 
 /**
  * Empilha uma referência nula na pilha de operandos
@@ -136,7 +137,10 @@ void iconst_4(){
 void iconst_5(){
     DEBUG_PRINT("got into iconst_5\n");
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
+    if(operand == NULL) {
+        printf("Socorro! malloc falhor\n");
+        exit(EXIT_FAILURE);
+    }
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 5;
@@ -3073,9 +3077,10 @@ void monitorexit() {
 }
 void multianewarray() {
     DEBUG_PRINT("got into multianewarray\n");
-    frame_t *frame = peek_frame_stack(jvm_stack);
     any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
     int32_t contador;
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    u1 i, tamanhos[MAX_DIMENSION];
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
@@ -3084,12 +3089,19 @@ void multianewarray() {
     u2 index = (b1<<8)|b2;
     u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
     Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
-    class_t *object_class = getClass(class_name);
+    u1* c = jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8.bytes;
 
-    any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
-    contador = cont->val.primitive_val.val.val32;
+    for (i = dimension; i > 0; i--) {
+        any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
+        contador = cont->val.primitive_val.val.val32;
+        tamanhos[i] = contador;
+    }
 
-    createMultiArray(arrayref, contador, dimension, object_class);
+    arrayref->tag = REFERENCE;
+    arrayref->val.reference_val.tag = ARRAY;
+    arrayref->val.reference_val.val.array.length = contador;
+    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
+    createMultiArray(&(arrayref->val.reference_val.val.array.components), &tamanhos, dimension, c[dimension], dimension);
 
     push_operand_stack(&(frame->operand_stack), arrayref);
 }
