@@ -7,6 +7,10 @@
 #include "jvm.h"
 
 // PREPARATION STUFF - BEGIN
+/** \addtogroup Linking
+ * @{
+ */
+
 /**
  * @brief Preparacao. Inicializa todos os campos estaticos com seus valores defaults.
  *

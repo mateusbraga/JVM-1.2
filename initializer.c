@@ -9,6 +9,10 @@
 extern pc_t jvm_pc;
 extern void (*jvm_opcode[])(void);
 
+/** \addtogroup Inicializar
+ * @{
+ */
+
 /**
  * @brief Funcao que inincializa o metodo clinit.
  *
