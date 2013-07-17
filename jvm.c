@@ -351,7 +351,7 @@ method_info_t* getMethodOnThisClass(class_t* class, Utf8_info_t* method_name, Ut
     DEBUG_PRINT("got into getMethodOnThisClass with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
 
     int i = 0;
-    for (i = 0; class->class_file.methods_count; i++) {
+    for (i = 0; i < class->class_file.methods_count; i++) {
         method_info_t* method = &(class->class_file.methods[i]);
         Utf8_info_t* method_name_aux = &(class->class_file.constant_pool[method->name_index].info.Utf8);
 
@@ -392,14 +392,12 @@ method_info_t* getMethod(class_t* class, Utf8_info_t* method_name, Utf8_info_t* 
 
     method_info_t* method = getMethodOnThisClass(class, method_name, descriptor);
     while (method == NULL) {
-        //TODO see if it is an Object method
         class = getSuperClass(class);
         if (class == NULL) {
-            printf("ERROR: Object class not implemented\n");
+            printf("ERROR: Method %s not found\n", utf8_to_string(method_name));
             exit(1);
         }
 
-        method = getMethodOnThisClass(class, method_name, descriptor);
         if ((method->access_flags & ACC_PRIVATE) == ACC_PRIVATE) {
             printf("ERROR: Founded method is private\n");
             exit(1);
@@ -660,16 +658,22 @@ void throwException(class_t* exception_class) {
  */
 void returnFromFunction() {
     DEBUG_PRINT("got into returnFromFunction\n");
+
     // pop stack
     frame_t *frame = pop_frame_stack(&jvm_stack);
-    if (frame->return_address.method == NULL) {
+
+    Utf8_info_t* current_method_name = &(frame->current_class->class_file.constant_pool[frame->current_method->name_index].info.Utf8);
+
+    if (compare_utf8(current_method_name, string_to_utf8("<clinit>")) == 0) {
+        // Executou clinit da classe da funcao main
+        return;
+    } else if (frame->return_address.method == NULL) {
         // Execução retornou da função main. Programa executado com sucesso
         exit(0);
     }
 
     // change PC
     jvm_pc = frame->return_address;
-    printf("new jvm_pc code_pc %d\n", jvm_pc.code_pc);
 
     // put return value on the new frame's operand stack if any
     if(hasReturnValue(frame->current_class, frame->current_method)) {
@@ -728,8 +732,15 @@ void callMethod(class_t* class, method_info_t* method) {
     int local_var_index = 0;
     for (i = 0; i < number_of_arguments; i++) {
         any_type_t *operand = pop_operand_stack(&(invokerFrame->operand_stack));
+        push_operand_stack(&(frame->operand_stack), operand);
+    }
+    for (i = 0; i < number_of_arguments; i++) {
+        any_type_t *operand = pop_operand_stack(&(frame->operand_stack));
+
         frame->local_var.var[local_var_index] = operand;
         local_var_index++;
+        if(operand->val.primitive_val.tag == DOUBLE ||operand->val.primitive_val.tag == LONG) 
+            local_var_index++;
     }
 
 
@@ -782,11 +793,17 @@ int main(int argc, char* argv[]) {
     }
 
     class_t *class = createClass(string_to_utf8(argv[1]));
+    
+    // frame init
+    frame_t *frame = (frame_t*) malloc(sizeof(frame_t));
+    frame->current_class = NULL;
+    push_frame_stack(&jvm_stack, frame);
 
+    DEBUG_PRINT("heasdf\n");
     method_info_t *main_method = getMethod(class, string_to_utf8("main"), string_to_utf8("([Ljava/lang/String;)V"));
 
-    // frame inicial
-    frame_t *frame = (frame_t*) malloc(sizeof(frame_t));
+    DEBUG_PRINT("heasdf\n");
+    // frame 
     frame->current_class = class;
     frame->current_method = main_method;
     frame->return_address.method = NULL;
@@ -798,10 +815,10 @@ int main(int argc, char* argv[]) {
     frame->operand_stack.size = 1;
     frame->operand_stack.operand = (any_type_t**) malloc(frame->operand_stack.size * sizeof(any_type_t**));
 
-    push_frame_stack(&jvm_stack, frame);
     push_operand_stack(&(frame->operand_stack), args);
 
     callMethod(class, main_method);
+    jvm_pc.jumped = 0;
 
     code_attribute_t* code_attribute = NULL;
     do {
@@ -812,8 +829,7 @@ int main(int argc, char* argv[]) {
         //execute the action for the opcode;
         DEBUG_PRINT("Going to execute %#x at %d\n", opcode, jvm_pc.code_pc);
         jvm_opcode[opcode]();
-        printf("code_pc %d\n", jvm_pc.code_pc);
-        
+
         code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         goToNextOpcode();
     } while(jvm_pc.code_pc < code_attribute->code_length);

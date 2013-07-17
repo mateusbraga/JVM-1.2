@@ -452,6 +452,8 @@ void tload_0(){
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[0];
+    if(operand->val.primitive_val.tag == DOUBLE) 
+        DEBUG_PRINT("tload_0 %f\n", operand->val.primitive_val.val.val_double);
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -480,6 +482,8 @@ void tload_2(){
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[2];
+    if(operand->val.primitive_val.tag == DOUBLE) 
+        DEBUG_PRINT("tload_2 %f\n", operand->val.primitive_val.val.val_double);
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -2183,8 +2187,10 @@ void getstatic(){
     u2 i = 0;
     for (i = 0; i < class_field->class_file.fields_count; i++) {
         u2 name_index = class_field->class_file.fields[i].name_index;
+        DEBUG_PRINT("field %d\n", i);
         if (compare_utf8(&(class_field->class_file.constant_pool[name_index].info.Utf8), field_name) == 0) {
             frame_t *frame = peek_frame_stack(jvm_stack);
+            DEBUG_PRINT("static: %d\n", class_field->static_fields[i]->val.primitive_val.val.val32);
             push_operand_stack(&(frame->operand_stack), class_field->static_fields[i]);
             return;
         }
@@ -2208,15 +2214,6 @@ void putstatic(){
     Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
 
     class_t *class_field = getClass(class_name);
-    if (class_field->status == CLASSE_NAO_CARREGADA) {
-        loadClass(class_field);
-    }
-    if (class_field->status == CLASSE_NAO_LINKADA) {
-        linkClass(class_field);
-    }
-    if (class_field->status == CLASSE_NAO_INICIALIZADA) {
-        initializeClass(class_field);
-    }
 
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Fieldref.name_and_type_index;
     u2 field_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
@@ -2731,7 +2728,9 @@ void putfield() {
             frame_t *frame = peek_frame_stack(jvm_stack);
             any_type_t* objref = pop_operand_stack(&(frame->operand_stack));
             any_type_t* value = pop_operand_stack(&(frame->operand_stack));
+    DEBUG_PRINT("hiasdf %d %d %s\n", objref->val.reference_val.tag, value->tag, utf8_to_string(field_name));
             memmove(&(objref->val.reference_val.val.object.attributes[i]), value, sizeof(any_type_t));
+    DEBUG_PRINT("hiasdf\n");
             return;
         }
 
@@ -2766,6 +2765,9 @@ void invokevirtual() {
         frame_t *frame = peek_frame_stack(jvm_stack);
         any_type_t *arg = pop_operand_stack(&(frame->operand_stack));
 
+    DEBUG_PRINT("hi1 \n");
+    DEBUG_PRINT("hi1 %d\n", arg->tag);
+    DEBUG_PRINT("hi1 \n");
         if (compare_utf8(descriptor, string_to_utf8("(I)V")) == 0) {
             switch(arg->val.primitive_val.tag){
             case INT:
@@ -2796,6 +2798,7 @@ void invokevirtual() {
         }
         return;
     }
+    DEBUG_PRINT("hi\n");
 
     u2 i = 0;
     for (i = 0; i < class_method->class_file.methods_count; i++) {
@@ -2825,14 +2828,26 @@ void invokespecial() {
     if (class_method == NULL) {
         return;
     }
+    if (class_method->status == CLASSE_NAO_CARREGADA) {
+        loadClass(class_method);
+    }
+    if (class_method->status == CLASSE_NAO_LINKADA) {
+        linkClass(class_method);
+    }
+    if (class_method->status == CLASSE_NAO_INICIALIZADA) {
+        initializeClass(class_method);
+    }
 
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
     u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
     Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
 
+    printf("hi %s %s\n", utf8_to_string(class_method->class_name), utf8_to_string(method_name));
+
     u2 i = 0;
     for (i = 0; i < class_method->class_file.methods_count; i++) {
         u2 name_index = class_method->class_file.methods[i].name_index;
+    printf("hey %s %s\n", utf8_to_string(&(class_method->class_file.constant_pool[name_index].info.Utf8)), utf8_to_string(method_name));
         if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0) {
             callMethod(class_method, &(class_method->class_file.methods[i]));
             return;
