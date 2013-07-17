@@ -5,6 +5,14 @@
 #include "structs.h"
 #include "jvm.h"
 
+/**
+ * @brief Lê um arquivo e monta a tabela de atributos.
+ * 
+ * @param classe - Ponteiro para uma classe
+ * @param fp - Ponteiro para um arquivo .class de onde as informações serão lidas
+ * @param attributesCount - Quantidade de elementos na tabela de atributos
+ * @return ponteiro para a tabela de atributos
+ */
 attribute_info_t* GetAtributos(class_file_t* classe, FILE *fp, u2 attributesCount){
     attribute_info_t *atributos;
     Utf8_info_t* nome;
@@ -104,6 +112,14 @@ attribute_info_t* GetAtributos(class_file_t* classe, FILE *fp, u2 attributesCoun
     return atributos;
 }
 /*-----------------------------------------------------------------------------------------------------------------*/
+/**
+ * @brief Lê a tabela de atributos e imprime ela na tela.
+ * 
+ * @param classe - ponteiro para a classe
+ * @param atributos - ponteiro para a tabela de atributos
+ * @param qtd - quantidade de elementos da tabela
+ * @return não retorna nada
+ */ 
 void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd){    
     Utf8_info_t* nome;
     u4 i, j;
@@ -146,6 +162,14 @@ void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd
 }
 
 /*-----------------------------------------------------------------------------------------------------------------*/
+/**
+ * @brief Lê um arquivo e monta a tabela de métodos.
+ * 
+ * @param classe - Ponteiro para uma classe
+ * @param fp - Ponteiro para um arquivo .class de onde as informações serão lidas
+ * @param methodsCount - Quantidade de elementos na tabela de métodos
+ * @return ponteiro para a tabela de métodos
+ */
 
 method_info_t* GetMetodo(class_file_t* classe,  FILE *fp, u2 methodsCount){
     method_info_t *metodos;
@@ -163,7 +187,13 @@ method_info_t* GetMetodo(class_file_t* classe,  FILE *fp, u2 methodsCount){
     return metodos;
 }
 /*-----------------------------------------------------------------------------------------------------------------*/
-
+/**
+ * @brief Lê a tabela de métodos e imprime ela na tela.
+ * 
+ * @param metodos - ponteiro para a tabela de métodos
+ * @param qtd - quantidade de elementos da tabela
+ * @return não retorna nada
+ */ 
 void ImprimeMetodos(class_file_t* classe){
     u2 qtd;
     method_info_t* metodos;
@@ -181,6 +211,14 @@ void ImprimeMetodos(class_file_t* classe){
 }
 
 /*-----------------------------------------------------------------------------------------------------------------*/
+/**
+ * @brief Lê um arquivo e monta a tabela de campos.
+ * 
+ * @param classe - Ponteiro para uma classe
+ * @param fp - Ponteiro para um arquivo .classe de onde as informações serão lidas
+ * @param fieldCount - Quantidade de elementos na tabela de campos
+ * @return ponteiro para a tabela de campos
+ */
 
 field_info_t* GetFields(class_file_t* classe, FILE *fp, u2 fieldCount){
     field_info_t *fields;
@@ -197,7 +235,14 @@ field_info_t* GetFields(class_file_t* classe, FILE *fp, u2 fieldCount){
 
     return fields;
 }
-/*------------------------------------------------------------------------------------------------------------------*/
+
+/**
+ * @brief Lê a tabela de campos e imprime ela na tela.
+ * 
+ * @param fields - ponteiro para a tabela de campos
+ * @param qtd - quantidade de elementos da tabela
+ * @return não retorna nada
+ */
 void ImprimeFields(class_file_t* classe){
     u2 qtd;
     field_info_t* fields;
@@ -217,6 +262,13 @@ void ImprimeFields(class_file_t* classe){
 
 
 /*-----------------------------------------------------------------------------------------------------------------*/
+/**
+ * @brief Lê um arquivo e monta a tabela de constantes a partir dele.
+ * 
+ * @param fp - Um ponteiro para o arquivo .class de onde sera lido
+ * @param constantCount - um inteiro que indica a quantidade de elementos da tabela
+ * @return ponteiro para a tabela de constantes
+ */
 
 cp_info_t* GetConstantes(FILE *fp, u2 constantCount){
     cp_info_t *constantes;
@@ -280,6 +332,13 @@ cp_info_t* GetConstantes(FILE *fp, u2 constantCount){
     return constantes;
 }
 /*-----------------------------------------------------------------------------------------------------------------*/
+/**
+ * @brief Lê a tabela de constantes e mostra de acordo com a especificacão e baseado no programa jclasslib.
+ * 
+ * @param constantes - Um ponteiro para a tabela de constantes
+ * @param qtd - Quantidade de elementos desta tabela
+ * @return não retorna nada
+ */
 void ImprimeConstantes(cp_info_t *constantes, u2 qtd){
     u2 i;  
     u2 index;
@@ -380,7 +439,12 @@ void ImprimeConstantes(cp_info_t *constantes, u2 qtd){
 } 
 
 /*-----------------------------------------------------------------------------------------------------------------*/
-
+/**
+ * @brief A partir do nome no argumento a função lê um arquivo e monta a classe a partir dele.
+ * 
+ * @param class - estrutura de uma classe
+ * @return nada
+ */ 
 void set_class_file(class_t* class){
     u2 i;
     FILE *fp;
@@ -445,7 +509,12 @@ void set_class_file(class_t* class){
 }
 
 /*-----------------------------------------------------------------------------------------------------------------*/
-
+/**
+ * @brief Lê a classe passada (que foi montada a partir da função "void set_class_file" e imprime a sua estrutura na tela.
+ * 
+ * @param classe - Ponteiro para a classe que será mostrada
+ * @return não retorna nada
+*/
 void MostraClasse(class_file_t* classe){
     register u2 i;
 
