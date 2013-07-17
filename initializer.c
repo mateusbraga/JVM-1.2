@@ -33,7 +33,6 @@ void initializeClass(class_t* class) {
 			callMethod(class, &(class->class_file.methods[i]));
 			jvm_pc.jumped = 0;
 
-            Utf8_info_t* current_method_name;
             code_attribute_t* code_attribute = NULL;
             while(1) {
                 //fetch opcode
@@ -50,7 +49,6 @@ void initializeClass(class_t* class) {
 
                 code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
                 goToNextOpcode();
-                current_method_name = &(jvm_pc.currentClass->class_file.constant_pool[jvm_pc.method->name_index].info.Utf8);
             }
 
 			break;
