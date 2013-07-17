@@ -458,8 +458,6 @@ void tload_0(){
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[0];
-    if(operand->val.primitive_val.tag == DOUBLE)
-        DEBUG_PRINT("tload_0 %f\n", operand->val.primitive_val.val.val_double);
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -488,8 +486,6 @@ void tload_2(){
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[2];
-    if(operand->val.primitive_val.tag == DOUBLE)
-        DEBUG_PRINT("tload_2 %f\n", operand->val.primitive_val.val.val_double);
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -774,10 +770,7 @@ void iadd(){
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
-    DEBUG_PRINT("got into iadd %d %d %d\n", op2->tag, op2->val.primitive_val.tag, op2->val.primitive_val.val.val32);
-    DEBUG_PRINT("got into iadd %d %d %d\n", op1->tag, op1->val.primitive_val.tag, op1->val.primitive_val.val.val32);
     operand->val.primitive_val.val.val32 = (op1->val.primitive_val.val.val32)+(op2->val.primitive_val.val.val32);
-    DEBUG_PRINT("got into iadd\n");
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -806,8 +799,6 @@ void fadd(){
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
 
-    DEBUG_PRINT("%f/n", (op1->val.primitive_val.val.val_float));
-
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
@@ -819,18 +810,14 @@ void dadd(){
     DEBUG_PRINT("got into dadd\n");
     any_type_t *op1, *op2, *operand;
     frame_t *frame = peek_frame_stack(jvm_stack);
-    DEBUG_PRINT("hi hi\n");
 
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
 
-    DEBUG_PRINT("hi hi %f\n", (op1->val.primitive_val.val.val_double));
-    DEBUG_PRINT("hi hi %f\n", (op2->val.primitive_val.val.val_double));
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = DOUBLE;
     operand->val.primitive_val.val.val_double = (op1->val.primitive_val.val.val_double)+(op2->val.primitive_val.val.val_double);
-    DEBUG_PRINT("hi hi\n");
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -2195,10 +2182,8 @@ void getstatic(){
     u2 i = 0;
     for (i = 0; i < class_field->class_file.fields_count; i++) {
         u2 name_index = class_field->class_file.fields[i].name_index;
-        DEBUG_PRINT("field %d\n", i);
         if (compare_utf8(&(class_field->class_file.constant_pool[name_index].info.Utf8), field_name) == 0) {
             frame_t *frame = peek_frame_stack(jvm_stack);
-            DEBUG_PRINT("static: %d\n", class_field->static_fields[i]->val.primitive_val.val.val32);
             push_operand_stack(&(frame->operand_stack), class_field->static_fields[i]);
             return;
         }
@@ -2352,7 +2337,6 @@ void newarray(){
     int32_t contador, i = 0;
 
     contador = cont->val.primitive_val.val.val32;
-    DEBUG_PRINT("got into newarray - contador = %d\n", contador);
     arrayref->tag = REFERENCE;
     arrayref->val.reference_val.tag = ARRAY;
     arrayref->val.reference_val.val.array.length = contador;
@@ -2751,11 +2735,7 @@ void putfield() {
             frame_t *frame = peek_frame_stack(jvm_stack);
             any_type_t* value = pop_operand_stack(&(frame->operand_stack));
             any_type_t* objref = pop_operand_stack(&(frame->operand_stack));
-    DEBUG_PRINT("hiasdf %d %d %d\n", value->tag, value->val.reference_val.tag, value->val.primitive_val.val.val32);
-    DEBUG_PRINT("hiasdf %d %d %d\n", objref->tag, objref->val.primitive_val.tag, objref->val.primitive_val.val.val32);
-    DEBUG_PRINT("hiasdf %d %d %d\n", FLOAT, DOUBLE, RETURN_ADDRESS);
             memmove(&(objref->val.reference_val.val.object.attributes[i]), value, sizeof(any_type_t));
-    DEBUG_PRINT("hiasdf\n");
             return;
         }
 
@@ -2788,6 +2768,10 @@ void invokevirtual() {
             compare_utf8(string_to_utf8("println"), method_name) == 0) {
 
         frame_t *frame = peek_frame_stack(jvm_stack);
+        if (compare_utf8(descriptor, string_to_utf8("()V")) == 0) {
+            printf("\n");
+            return;
+        }
         any_type_t *arg = pop_operand_stack(&(frame->operand_stack));
 
         if (compare_utf8(descriptor, string_to_utf8("(I)V")) == 0) {
@@ -2866,12 +2850,10 @@ void invokespecial() {
     u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
     Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
 
-    DEBUG_PRINT("hi %s %s\n", utf8_to_string(class_method->class_name), utf8_to_string(method_name));
 
     u2 i = 0;
     for (i = 0; i < class_method->class_file.methods_count; i++) {
         u2 name_index = class_method->class_file.methods[i].name_index;
-    DEBUG_PRINT("hey %s %s\n", utf8_to_string(&(class_method->class_file.constant_pool[name_index].info.Utf8)), utf8_to_string(method_name));
         if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0) {
             callMethod(class_method, &(class_method->class_file.methods[i]));
             return;
@@ -2914,7 +2896,6 @@ void invokestatic() {
     for (i = 0; i < class_method->class_file.methods_count; i++) {
         u2 name_index = class_method->class_file.methods[i].name_index;
         u2 desc_index = class_method->class_file.methods[i].descriptor_index;
-        DEBUG_PRINT("Procurando por method_name %s, comparar com %s\n", utf8_to_string(method_name), utf8_to_string(&(class_method->class_file.constant_pool[name_index].info.Utf8)));
         if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0 &&
                 compare_utf8(descriptor, &(class_method->class_file.constant_pool[desc_index].info.Utf8)) == 0) {
             callMethod(class_method, &(class_method->class_file.methods[i]));
@@ -3101,7 +3082,7 @@ void multianewarray() {
     arrayref->val.reference_val.tag = ARRAY;
     arrayref->val.reference_val.val.array.length = contador;
     arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
-    createMultiArray(&(arrayref->val.reference_val.val.array.components), &tamanhos, dimension, c[dimension], dimension);
+    createMultiArray(arrayref->val.reference_val.val.array.components, tamanhos, dimension, c[dimension], dimension);
 
     push_operand_stack(&(frame->operand_stack), arrayref);
 }

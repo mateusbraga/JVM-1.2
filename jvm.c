@@ -199,7 +199,8 @@ void createMultiArray(any_type_t *arrayref, u1 *tamanho, u1 dimensao, u1 tipo, u
             arrayref[i].val.reference_val.tag = ARRAY;
             arrayref[i].val.reference_val.val.array.length = tamanho[dimensao-1];
             arrayref[i].val.reference_val.val.array.components =  (any_type_t*) malloc(sizeof(any_type_t) * tamanho[dimensao-1]);
-            createMultiArray(&(arrayref[i].val.reference_val.val.array.components), &tamanho, dimensao-1, tipo, dimension);
+            
+            createMultiArray(arrayref[i].val.reference_val.val.array.components, tamanho, dimensao-1, tipo, dimension);
         }
     }
 }
@@ -396,7 +397,6 @@ int hasReturnValue(class_t* class, method_info_t* method) {
  * @see compare_utf8
  */
 method_info_t* getMethodOnThisClass(class_t* class, Utf8_info_t* method_name, Utf8_info_t* descriptor) {
-
     DEBUG_PRINT("got into getMethodOnThisClass with arguments: %s, %s, %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name), utf8_to_string(descriptor));
 
     int i = 0;
@@ -779,7 +779,6 @@ void callMethod(class_t* class, method_info_t* method) {
 
     //get number of arguments from classfile
     int number_of_arguments = getNumberOfArguments(class, method);
-    DEBUG_PRINT("number_of_arguments = %d\n", number_of_arguments);
 
     // pop arguments from operand stack and
     // insert them on local_var
@@ -854,10 +853,8 @@ int main(int argc, char* argv[]) {
     frame->current_class = NULL;
     push_frame_stack(&jvm_stack, frame);
 
-    DEBUG_PRINT("heasdf\n");
     method_info_t *main_method = getMethod(class, string_to_utf8("main"), string_to_utf8("([Ljava/lang/String;)V"));
 
-    DEBUG_PRINT("heasdf\n");
     // frame 
     frame->current_class = class;
     frame->current_method = main_method;
