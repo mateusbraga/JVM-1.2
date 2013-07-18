@@ -6,20 +6,18 @@
 #include "structs.h"
 #include "jvm.h"
 
-// PREPARATION STUFF - BEGIN
 /** \addtogroup Linker
  * @{
  */
 
+// PREPARATION STUFF - BEGIN
 /**
  * @brief Preparacao. Inicializa todos os campos estaticos com seus valores defaults.
  *
  * @param classe que sera preparada.
  * 
  */
-
 void preparar (class_t* class) {
-
 	class->static_fields = (any_type_t**) malloc(sizeof(any_type_t*) * class->class_file.fields_count);
 	u2 i;
 	for (i = 1; i < class->class_file.fields_count; i++) {
@@ -88,6 +86,7 @@ void preparar (class_t* class) {
 	}
 }
 // PREPARATION STUFF - END
+
 // VERIFICATION STUFF - BEGIN
 /**
  * @brief Verificacao. Analisa se a classe final nao eh extendida. Se toda classe tem superclasse. Se tudo que aponta para a constant pool aponta para o local correto.
@@ -95,7 +94,6 @@ void preparar (class_t* class) {
  * @param classe que sera verificada
  * 
  */
-
 void verificar (class_t* class) {
 	if (class->status == CLASSE_NAO_CARREGADA) {
         loadClass(class);
@@ -168,24 +166,22 @@ void verificar (class_t* class) {
 		printf("Erro: Class Final possui uma subclasse.\n");
 		exit(1);
     }
-	if ((class->class_file.this_class >=  class->class_file.constant_pool_count) || (class->class_file.this_class < 0)) {
-		printf("Erro: Indice da classe eh maior ou menor que o tamanho da constante pool\n");
+	if (class->class_file.this_class >=  class->class_file.constant_pool_count) {
+		printf("Erro: Índice da classe é maior que o tamanho da constante pool\n");
 		exit(1);
 	}
 	
 	//Verificar se toda classe (Menos Object) tem superclass.
 	if (class->class_file.super_class == 0) {
 		//Pego o nome em Utf8 da classe. Comparar se ela eh Object.
-	    Utf8_info_t* name_compare;
-	    name_compare = string_to_utf8("java/lang/Object");
-	    if (compare_utf8(class->class_name, name_compare) != 0) {
+	    Utf8_info_t* object_class_name = string_to_utf8("java/lang/Object");
+	    if (compare_utf8(class->class_name, object_class_name) != 0) {
 	    	printf("Erro: Class nao possui super classe\n");
 			exit(1);
 	    }
 	}
-
 }
-// PREPARATION STUFF - END
+// VERIFICATION STUFF - END
 
 /**
  * @brief Funcao que inincia o linker.
@@ -193,40 +189,15 @@ void verificar (class_t* class) {
  * @param Classe que sera linkada
  *
  */
-
 void linkClass (class_t* class) {
     DEBUG_PRINT("Got in linkClass with arguments: %s\n", utf8_to_string(class->class_name));
+
 	verificar(class);
-	preparar(class); //Estrutura montada para busca de metodos
+	preparar(class);
 	//resolver(class);
+	
 	class->status = CLASSE_NAO_INICIALIZADA; // Se nenhum erro ocorrer muda o estado da classe e retorna para a função.
+
 	DEBUG_PRINT("Done linkClass\n");
 }
-
-
-	// 	//Verificar se o code_length eh maior do que 0 e menor do que 65536.
-	// u2 i;
-	// u2 j;
-	// u4 tamanho;
-	// //Comeca do 0 ou do 1?
-	// for (i = 0; i < (class->class_file.fields_count - 1); i++) {
-	// 	/*Metodo que recebe um ponteiro para um atributo e retorna o code_length dele*/
-	// 	for (j = 0; j < (class->class_file.fields[i]->attributes_count - 1); j++) {
-	// 		tamanho = getCodeLength(class->class_file.fields[i]->attributes[j]);
-	// 		if ((tamanho < 0) || (tamanho > 65536)) {
-	// 	    	printf("Erro: code_length do campo com tamanho menor do que 0 ou maior do que 65536\n", this_class_name);
-	// 			exit(1);
-	// 		}
-	// 	}
-	// }
- //    for (i = 0; i < (class->class_file.methods_counts - 1); i++) {
-	// 	for (j = 0; j < (class->class_file.methods[i]->attributes_count - 1); j++) {
-	// 		tamanho = getCodeLength(class->class_file.methods[i]->attributes[j]);
-	// 		if ((tamanho < 0) || (tamanho > 65536)) {
-	// 	    	printf("Erro: code_length do campo com tamanho menor do que 0 ou maior do que 65536\n", this_class_name);
-	// 			exit(1);
-	// 		}
-	// 	}
-	// }
-		//Tem que verificar varias static constraints sobre instrucao, como??
 /** @} */

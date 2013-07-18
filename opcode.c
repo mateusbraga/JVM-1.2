@@ -14,7 +14,7 @@ extern frame_stack_t *jvm_stack;
 
 extern pc_t jvm_pc;
 
-#define MAX_DIMENSION            650000
+#define MAX_DIMENSION 65000
 
 /** \addtogroup Opcodes
  * @{
@@ -327,7 +327,6 @@ void ldc(){
             operand->tag = PRIMITIVE;
             operand->val.primitive_val.tag = FLOAT;
             memmove(&(operand->val.primitive_val.val.val_float), &(bytes), sizeof(float));
-
             break;
         case CONSTANT_String:
             bytes1 = jvm_pc.currentClass->class_file.constant_pool[b].info.String.string_index;

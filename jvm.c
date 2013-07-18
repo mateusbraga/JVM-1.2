@@ -728,7 +728,7 @@ void returnFromFunction() {
     if (compare_utf8(current_method_name, string_to_utf8("<clinit>")) == 0) {
         // Executou clinit da classe da funcao main
         return;
-    } else if (frame->return_address.method == NULL) {
+    } else if (compare_utf8(current_method_name, string_to_utf8("main")) == 0) {
         // Execução retornou da função main. Programa executado com sucesso
         exit(0);
     }
@@ -819,6 +819,106 @@ void callMethod(class_t* class, method_info_t* method) {
 /** @} */
 // JVM OPERATION STUFF - END
 
+void print_any_type(any_type_t* anytype) {
+    if (anytype == NULL) {
+        DEBUG_PRINT("ERROR: anytype == NULL in print_any_type\n");
+        exit(1);
+    }
+    switch (anytype->tag) {
+        case PRIMITIVE:
+            switch(anytype->val.primitive_val.tag) {
+                case BOOLEAN:
+                    DEBUG_PRINT("anytype is BOOLEAN == %d\n", anytype->val.primitive_val.val.val_boolean);
+                    break;
+                case CHAR:
+                    DEBUG_PRINT("anytype is CHAR == %d\n", anytype->val.primitive_val.val.val_char);
+                    break;
+                case FLOAT:
+                    DEBUG_PRINT("anytype is FLOAT == %f\n", anytype->val.primitive_val.val.val_float);
+                    break;
+                case DOUBLE:
+                    DEBUG_PRINT("anytype is DOUBLE == %f\n", anytype->val.primitive_val.val.val_double);
+                    break;
+                case RETURN_ADDRESS:
+                    DEBUG_PRINT("anytype is RETURN_ADDRESS == %ud\n", anytype->val.primitive_val.val.val_return_addr);
+                    break;
+                case BYTE:
+                    DEBUG_PRINT("anytype is byte == %d\n", anytype->val.primitive_val.val.val8);
+                    break;
+                case SHORT:
+                    DEBUG_PRINT("anytype is short == %d\n", anytype->val.primitive_val.val.val16);
+                    break;
+                case INT:
+                    DEBUG_PRINT("anytype is int == %d\n", anytype->val.primitive_val.val.val32);
+                    break;
+                case LONG:
+                    DEBUG_PRINT("anytype is long == %ld\n", anytype->val.primitive_val.val.val64);
+                    break;
+            }
+        case REFERENCE:
+            switch(anytype->val.reference_val.tag) {
+                case OBJECT:
+                    DEBUG_PRINT("anytype is OBJECT of class %s\n", utf8_to_string(anytype->val.reference_val.val.object.objClass->class_name));
+                    break;
+                case ARRAY:
+                    if ( anytype->val.reference_val.val.array.length > 0) {
+                        switch (anytype->val.reference_val.val.array.components[0].tag) {
+                            case PRIMITIVE:
+                                switch(anytype->val.reference_val.val.array.components[0].val.primitive_val.tag) {
+                                    case BOOLEAN:
+                                        DEBUG_PRINT("anytype is ARRAY of length %d and type BOOLEAN \n", (anytype->val.reference_val.val.array.length));
+                                        break;
+                                    case CHAR:
+                                        DEBUG_PRINT("anytype is ARRAY of length %d and type CHAR \n", (anytype->val.reference_val.val.array.length));
+                                        break;
+                                    case FLOAT:
+                                        DEBUG_PRINT("anytype is ARRAY of length %d and type FLOAT \n", (anytype->val.reference_val.val.array.length));
+                                        break;
+                                    case DOUBLE:
+                                        DEBUG_PRINT("anytype is ARRAY of length %d and type DOUBLE \n", (anytype->val.reference_val.val.array.length));
+                                        break;
+                                    case RETURN_ADDRESS:
+                                        DEBUG_PRINT("anytype is ARRAY of length %d and type RETURN_ADDRESS \n", (anytype->val.reference_val.val.array.length));
+                                        break;
+                                    case BYTE:
+                                        DEBUG_PRINT("anytype is ARRAY of length %d and type BYTE \n", (anytype->val.reference_val.val.array.length));
+                                        break;
+                                    case SHORT:
+                                        DEBUG_PRINT("anytype is ARRAY of length %d and type SHORT \n", (anytype->val.reference_val.val.array.length));
+                                        break;
+                                    case INT:
+                                        DEBUG_PRINT("anytype is ARRAY of length %d and type INT \n", (anytype->val.reference_val.val.array.length));
+                                        break;
+                                    case LONG:
+                                        DEBUG_PRINT("anytype is ARRAY of length %d and type LONG \n", (anytype->val.reference_val.val.array.length));
+                                        break;
+                                }
+                                break;
+                            case REFERENCE:
+                                switch(anytype->val.reference_val.val.array.components[0].val.reference_val.tag) {
+                                    case OBJECT:
+                                        DEBUG_PRINT("anytype is ARRAY of length %d and type OBJECT \n", (anytype->val.reference_val.val.array.length));
+                                        break;
+                                    case ARRAY:
+                                        DEBUG_PRINT("anytype is ARRAY of length %d and type ARRAY \n", (anytype->val.reference_val.val.array.length));
+                                        break;
+                                    case NULL_REFERENCE:
+                                        DEBUG_PRINT("anytype is ARRAY of length %d and type NULL_REFERENCE \n", (anytype->val.reference_val.val.array.length));
+                                        break;
+                                }
+                                break;
+                        }
+                    } else {
+                        DEBUG_PRINT("anytype is ARRAY of length %d\n", (anytype->val.reference_val.val.array.length));
+                    }
+                    break;
+                case NULL_REFERENCE:
+                    DEBUG_PRINT("anytype is NULL_REFERENCE\n");
+                    break;
+            }
+    }
+}
+
 /**
  * @brief Função main. Inicio da JVM
  *
@@ -841,30 +941,14 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    // passar argv[2:] como argumento (array de strings)
-    any_type_t *args = (any_type_t*) malloc(sizeof(any_type_t)); 
-    args->tag = REFERENCE;
-    args->val.reference_val.tag = ARRAY;
-    args->val.reference_val.val.array.length = argc-2;
-    args->val.reference_val.val.array.components = (any_type_t *) malloc(args->val.reference_val.val.array.length * sizeof(any_type_t));
-
-    uint32_t i = 0;
-    for (i = 0; i < args->val.reference_val.val.array.length; i++) {
-        args->val.reference_val.val.array.components[i] = *(char_to_array_reference(argv[i+2]));
-    }
-
     class_t *class = createClass(string_to_utf8(argv[1]));
-    
+
     // frame init
     frame_t *frame = (frame_t*) malloc(sizeof(frame_t));
-    frame->current_class = NULL;
+    frame->current_class = class;
     push_frame_stack(&jvm_stack, frame);
 
-    method_info_t *main_method = getMethod(class, string_to_utf8("main"), string_to_utf8("([Ljava/lang/String;)V"));
-
-    // frame 
-    frame->current_class = class;
-    frame->current_method = main_method;
+    frame->current_method = getMethod(class, string_to_utf8("main"), string_to_utf8("([Ljava/lang/String;)V"));
     frame->return_address.method = NULL;
     frame->return_address.code_pc = 0;
     frame->local_var.size = 0;
@@ -874,9 +958,22 @@ int main(int argc, char* argv[]) {
     frame->operand_stack.size = 1;
     frame->operand_stack.operand = (any_type_t**) malloc(frame->operand_stack.size * sizeof(any_type_t**));
 
+
+    // Criar array de strings com argumentos passados (argv[2:]) e colocar na pilha de operandos
+    any_type_t *args = (any_type_t*) malloc(sizeof(any_type_t)); 
+    args->tag = REFERENCE;
+    args->val.reference_val.tag = ARRAY;
+    args->val.reference_val.val.array.length = argc-2;
+    args->val.reference_val.val.array.components = (any_type_t *) malloc(args->val.reference_val.val.array.length * sizeof(any_type_t));
+    uint32_t i = 0;
+    for (i = 0; i < args->val.reference_val.val.array.length; i++) {
+        args->val.reference_val.val.array.components[i] = *(char_to_array_reference(argv[i+2]));
+    }
     push_operand_stack(&(frame->operand_stack), args);
 
-    callMethod(class, main_method);
+
+    // Chamar main
+    callMethod(frame->current_class, frame->current_method);
     jvm_pc.jumped = 0;
 
     code_attribute_t* code_attribute = NULL;
@@ -889,8 +986,9 @@ int main(int argc, char* argv[]) {
         DEBUG_PRINT("Going to execute %#x at %d\n", opcode, jvm_pc.code_pc);
         jvm_opcode[opcode]();
 
-        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
         goToNextOpcode();
+
+        code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     } while(jvm_pc.code_pc < code_attribute->code_length);
 
     return 0;
