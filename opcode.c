@@ -438,6 +438,8 @@ void tload(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[index];
 
+    print_any_type(operand);
+
     push_operand_stack(&(frame->operand_stack), operand);
 
 }
@@ -516,8 +518,8 @@ void taload(){
 
     int_index = index->val.primitive_val.val.val32;
 
-    DEBUG_PRINT("got into taload %d %d %d\n", arrayref->tag, arrayref->val.reference_val.tag, arrayref->val.reference_val.val.array.length);
 
+    DEBUG_PRINT("Colocou na pilha\n");
     print_any_type(&(arrayref->val.reference_val.val.array.components[int_index]));
     push_operand_stack(&(frame->operand_stack), &(arrayref->val.reference_val.val.array.components[int_index]));
 }
@@ -615,8 +617,11 @@ void tastore(){
     frame_t *frame = peek_frame_stack(jvm_stack);
 
     value = pop_operand_stack(&(frame->operand_stack));
+    print_any_type(value);
     index = pop_operand_stack(&(frame->operand_stack));
+    print_any_type(index);
     arrayref = pop_operand_stack(&(frame->operand_stack));
+    print_any_type(arrayref);
 
     int_index = index->val.primitive_val.val.val32;
 
@@ -826,14 +831,13 @@ void iadd(){
     op2 = pop_operand_stack(&(frame->operand_stack));
     op1 = pop_operand_stack(&(frame->operand_stack));
 
-    print_any_type(op2);
-    print_any_type(op1);
-
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = (op1->val.primitive_val.val.val32)+(op2->val.primitive_val.val.val32);
 
+    DEBUG_PRINT("Colocou na pilha\n");
+    print_any_type(operand);
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
@@ -2689,65 +2693,127 @@ void new_op() {
  */
 void newarray(){
     DEBUG_PRINT("got into newarray\n");
-    frame_t *frame = peek_frame_stack(jvm_stack);
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 atype = code_attribute->code[jvm_pc.code_pc+1];
 
-
+    frame_t *frame = peek_frame_stack(jvm_stack);
     any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
-
-    int32_t contador, i = 0;
-
-    contador = cont->val.primitive_val.val.val32;
+    int32_t tamanho = cont->val.primitive_val.val.val32;
 
     any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
     arrayref->tag = REFERENCE;
     arrayref->val.reference_val.tag = ARRAY;
-    arrayref->val.reference_val.val.array.length = contador;
-    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
+    arrayref->val.reference_val.val.array.length = tamanho;
+    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * tamanho);
 
-    for(i=0; i<=contador; i++){
-        arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
-        switch(atype){
-            case 4:
+    int32_t  i = 0;
+    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
+    switch(atype){ // got from http://www.vmth.ucdavis.edu/incoming/Jasmin/ref-newarray.html
+        case 4:
+            for(i=0; i<=tamanho; i++){
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BOOLEAN;
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_boolean = 0;
-                break;
-            case 5:
+            }
+            break;
+        case 5:
+            for(i=0; i<=tamanho; i++){
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = CHAR;
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_char = 0;
-                break;
-            case 6:
+            }
+            break;
+        case 6:
+            for(i=0; i<=tamanho; i++){
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = FLOAT;
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_float = 0;
-                break;
-            case 7:
+            }
+            break;
+        case 7:
+            for(i=0; i<=tamanho; i++){
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = DOUBLE;
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_double = 0;
-                break;
-            case 8:
+            }
+            break;
+        case 8:
+            for(i=0; i<=tamanho; i++){
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BYTE;
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val8 = 0;
-                break;
-            case 9:
+            }
+            break;
+        case 9:
+            for(i=0; i<=tamanho; i++){
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = SHORT;
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val16 = 0;
-                break;
-            case 10:
+            }
+            break;
+        case 10:
+            for(i=0; i<=tamanho; i++){
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = INT;
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val32 = 0;
-                break;
-            case 11:
+            }
+            break;
+        case 11:
+            for(i=0; i<=tamanho; i++){
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = LONG;
                 arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val64 = 0;
-                break;
-        }
+            }
+            break;
     }
 
-
     push_operand_stack(&(frame->operand_stack), arrayref);
+}
 
+/**
+ * @brief create new object of type identified by class reference in constant pool index (indexbyte1 << 8 + indexbyte2)
+ *
+ */
+void anewarray() {
+    DEBUG_PRINT("got into anewarray\n");
+
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
+    int32_t tamanho = cont->val.primitive_val.val.val32;
+
+
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+    class_t *object_class = getClass(class_name);
+
+
+    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
+    arrayref->tag = REFERENCE;
+    arrayref->val.reference_val.tag = ARRAY;
+    arrayref->val.reference_val.val.array.length = tamanho;
+    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * tamanho);
+
+    int32_t i = 0;
+    for(i=0; i<=tamanho; i++){
+        createObject(object_class, &(arrayref->val.reference_val.val.array.components[i]));
+    }
+    push_operand_stack(&(frame->operand_stack), arrayref);
+}
+
+/**
+ * @brief get the length of an array
+ *
+ */
+void arraylength() {
+    DEBUG_PRINT("got into arraylength\n");
+
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    any_type_t *arrayref = pop_operand_stack(&(frame->operand_stack));
+
+    any_type_t *length = (any_type_t*) malloc(sizeof(any_type_t));
+    length->tag = PRIMITIVE;
+    length->val.primitive_val.tag = INT;
+    length->val.primitive_val.val.val32 = arrayref->val.reference_val.val.array.length;
+
+    push_operand_stack(&(frame->operand_stack), length);
 }
 
 /**
@@ -3172,6 +3238,7 @@ void invokevirtual() {
             return;
         }
         any_type_t *arg = pop_operand_stack(&(frame->operand_stack));
+                    print_any_type(arg);
 
         if (compare_utf8(descriptor, string_to_utf8("(I)V")) == 0) {
             switch(arg->val.primitive_val.tag){
@@ -3185,7 +3252,7 @@ void invokevirtual() {
                     printf("%d\n", arg->val.primitive_val.val.val8);
                     break;
                 default:
-                    printf(("ERRO: arg isn't int, byte or short)"));
+                    printf(("ERRO: arg isn't int, byte or short\n"));
                     exit(1);
 
             }
@@ -3362,61 +3429,6 @@ void invokedynamic() {
 }
 
 /**
- * @brief create new object of type identified by class reference in constant pool index (indexbyte1 << 8 + indexbyte2)
- *
- */
-void anewarray() {
-    DEBUG_PRINT("got into anewarray\n");
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
-    int32_t contador, i = 0;
-
-    contador = cont->val.primitive_val.val.val32;
-
-    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
-    arrayref->tag = REFERENCE;
-    arrayref->val.reference_val.tag = ARRAY;
-    arrayref->val.reference_val.val.array.length = contador;
-    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
-    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
-    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
-    u2 index = (b1<<8)|b2;
-
-    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
-    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
-
-    class_t *object_class = getClass(class_name);
-
-    for(i=0; i<=contador; i++){
-        arrayref->val.reference_val.val.array.components[i].tag = REFERENCE;
-        arrayref->val.reference_val.val.array.components[i].val.reference_val.tag = OBJECT;
-        arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.objClass = object_class;
-        arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.length = object_class->class_file.fields_count;
-        arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * object_class->class_file.fields_count);
-    }
-    push_operand_stack(&(frame->operand_stack), arrayref);
-}
-
-/**
- * @brief get the length of an array
- *
- */
-void arraylength() {
-    DEBUG_PRINT("got into arraylength\n");
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    any_type_t *arrayref = pop_operand_stack(&(frame->operand_stack));
-
-    any_type_t *length = (any_type_t*) malloc(sizeof(any_type_t));
-    length->tag = PRIMITIVE;
-    length->val.primitive_val.tag = INT;
-    length->val.primitive_val.val.val32 = arrayref->val.reference_val.val.array.length;
-
-    push_operand_stack(&(frame->operand_stack), length);
-}
-
-/**
  * @brief throws an error or exception (notice that the rest of the stack is cleared, leaving only a reference to the Throwable)
  *
  */
@@ -3515,32 +3527,41 @@ void monitorexit() {
  */
 void multianewarray() {
     DEBUG_PRINT("got into multianewarray\n");
-    int32_t contador;
+
     frame_t *frame = peek_frame_stack(jvm_stack);
-    u1 i, tamanhos[MAX_DIMENSION];
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
-    u1 dimension = code_attribute->code[jvm_pc.code_pc+3];
     u2 index = (b1<<8)|b2;
-    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
-    /*Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);*/
-    u1* c = jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8.bytes;
+    u1 dimension = code_attribute->code[jvm_pc.code_pc+3];
 
-    for (i = dimension; i > 0; i--) {
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
+    Utf8_info_t *type = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+
+    any_type_t **auxList = (any_type_t**) malloc(sizeof(any_type_t*) * dimension);
+    u1 i = 0;
+    DEBUG_PRINT("dimension is %d\n", dimension);
+    for(i=0; i < dimension; i++){
+        auxList[i] = pop_operand_stack(&(frame->operand_stack));
+    }
+    for(i=0; i < dimension; i++){
+        push_operand_stack(&(frame->operand_stack), auxList[i]);
+    }
+    free(auxList);
+
+
+    int32_t *tamanhos = (int32_t*) malloc(sizeof(int32_t) * dimension);
+    for(i=0; i<dimension; i++){
         any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
-        contador = cont->val.primitive_val.val.val32;
-        tamanhos[i] = contador;
+        print_any_type(cont);
+        tamanhos[i] = cont->val.primitive_val.val.val32;
     }
 
-    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
-    arrayref->tag = REFERENCE;
-    arrayref->val.reference_val.tag = ARRAY;
-    arrayref->val.reference_val.val.array.length = contador;
-    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
-    createMultiArray(arrayref->val.reference_val.val.array.components, tamanhos, dimension, c[dimension], dimension);
+    any_type_t *arrayref = createMultiArray(type, tamanhos, 0, NULL);
 
+    print_any_type(arrayref);
     push_operand_stack(&(frame->operand_stack), arrayref);
 }
 

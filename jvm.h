@@ -34,11 +34,13 @@ int getNumberOfOpcodeOperandsInBytes(u1* code, u2 index);
 void goToNextOpcode();
 // OPCODE STUFF - END
 
-void createMultiArray(any_type_t *arrayref, u1 *tamanho, u1 dimensao, u1 tipo, u1 dimension);
+any_type_t* createMultiArray(Utf8_info_t* type, int32_t* length, u1 dimension, any_type_t* arrayref);
+void print_any_type(any_type_t* anytype);
+any_type_t* createObject(class_t* class, any_type_t* objref);
 
-//#define DEBUG 0
+#define DEBUG 0
 #ifdef DEBUG
-#define DEBUG_PRINT(...) do{ fprintf( stdout, __VA_ARGS__ ); } while( 0 )
+#define DEBUG_PRINT(...) do{ fprintf( stderr, __VA_ARGS__ ); } while( 0 )
 #else
 #define DEBUG_PRINT(...) do{ } while ( 0 )
 #endif

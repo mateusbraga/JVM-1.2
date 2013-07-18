@@ -129,87 +129,165 @@ u2 scan_utf8_char_from_char(char* string, u2 *pos) {
     }
 }
 
-/**
- * @brief Create a multiarray a partir de arrayref com dimensões, tamanho e tipo
- *
- * @param any_type_t* Arrayref array à inicializar
- * @param u1 Tamanho da array atual
- * @param u1 Dimensão da array atual
- * @param u1 Dimensão auxiliar para a recursão
- */
-void createMultiArray(any_type_t *arrayref, u1 *tamanho, u1 dimensao, u1 tipo, u1 dimension) {
-    u1 i;
-    if (dimensao == 1) {
-        for(i=0; i<tamanho[dimensao]; i++){
-            switch(tipo) {
+
+any_type_t* createMultiArray(Utf8_info_t* type, int32_t* length, u1 dimension, any_type_t* arrayref) {
+    DEBUG_PRINT("got into createMultiArray with arguments: %s, %d, %d, %p\n", utf8_to_string(type), length[dimension], dimension, (void*) arrayref);
+    if(arrayref == NULL) {
+        arrayref = (any_type_t*) malloc(sizeof(any_type_t));
+    }
+
+    Utf8_info_t* class_name = NULL;
+    class_t *class = NULL;
+    u2 i = 0;
+    switch(type->bytes[dimension]) {
+        case 'B': //byte
+            arrayref->tag = PRIMITIVE;
+            arrayref->val.primitive_val.tag = BYTE;
+            arrayref->val.primitive_val.val.val8 = 0;
+            break;
+        case 'C': //char
+            arrayref->tag = PRIMITIVE;
+            arrayref->val.primitive_val.tag = CHAR;
+            arrayref->val.primitive_val.val.val_char = 0;
+            break;
+        case 'D': //double
+            arrayref->tag = PRIMITIVE;
+            arrayref->val.primitive_val.tag = DOUBLE;
+            arrayref->val.primitive_val.val.val_double = 0;
+            break;
+        case 'F': //float
+            arrayref->tag = PRIMITIVE;
+            arrayref->val.primitive_val.tag = FLOAT;
+            arrayref->val.primitive_val.val.val_float = 0;
+            break;
+        case 'I': //integer
+            arrayref[i].tag = PRIMITIVE;
+            arrayref[i].val.primitive_val.tag = INT;
+            arrayref[i].val.primitive_val.val.val32 = 0;
+            DEBUG_PRINT("new int na array\n");
+            break;
+        case 'J': //long
+            arrayref->tag = PRIMITIVE;
+            arrayref->val.primitive_val.tag = LONG;
+            arrayref->val.primitive_val.val.val64 = 0;
+            break;
+        case 'S': //short
+            arrayref->tag = PRIMITIVE;
+            arrayref->val.primitive_val.tag = SHORT;
+            arrayref->val.primitive_val.val.val16 = 0;
+            break;
+        case 'Z': //boolean
+            arrayref->tag = PRIMITIVE;
+            arrayref->val.primitive_val.tag = BOOLEAN;
+            arrayref->val.primitive_val.val.val_boolean = 0;
+            break;
+        case 'L': //reference
+            class_name = (Utf8_info_t*) malloc(sizeof(Utf8_info_t));
+            class_name->bytes = (u1*) malloc(sizeof(u1) * type->length - 1 - 1 -dimension);
+            strncpy((char*)class_name->bytes, (char*) &(type->bytes[1 + dimension + 1]), type->length - 1 - 1 - dimension);
+            class_name->length = type->length - 1 -1 -dimension;
+
+            class = getClass(class_name);
+
+            createObject(class, arrayref);
+            break;
+        case '[': //reference - array
+
+            arrayref->tag = REFERENCE;
+            arrayref->val.reference_val.tag = ARRAY;
+            arrayref->val.reference_val.val.array.length = length[dimension];
+            arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * length[dimension]);
+
+            for(i=0;i < length[dimension]; i++) {
+                createMultiArray(type, length, dimension + 1, &(arrayref->val.reference_val.val.array.components[i]));
+            }
+
+            break;
+        default:
+            printf("Unexpected initial char on method descriptor: %s\n", utf8_to_string(type));
+            exit(1);
+    }
+
+    DEBUG_PRINT("Done with createMultiArray with arguments\n");
+    return arrayref;
+}
+
+any_type_t* createObject(class_t* class, any_type_t* objref) {
+    if(objref == NULL) {
+        objref = (any_type_t*) malloc(sizeof(any_type_t));
+    }
+
+    objref->tag = REFERENCE;
+    objref->val.reference_val.tag = OBJECT;
+    objref->val.reference_val.val.object.objClass = class;
+    objref->val.reference_val.val.object.length = class->class_file.fields_count;
+    objref->val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * class->class_file.fields_count);
+
+    u2 i = 0;
+    for(i=0;i <= class->class_file.fields_count; i++) {
+        if ((class->class_file.fields[i].access_flags & ACC_STATIC) == 0) {
+            any_type_t *operand = &(objref->val.reference_val.val.object.attributes[i]);
+            u1* b = class->class_file.constant_pool[class->class_file.fields[i].descriptor_index].info.Utf8.bytes;
+            switch(b[0]) {
                 case 'B': //byte
-                    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
-                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BYTE;
-                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val8 = 0;
+                    operand->tag = PRIMITIVE;
+                    operand->val.primitive_val.tag = BYTE;
+                    operand->val.primitive_val.val.val8 = 0;
                     break;
                 case 'C': //char
-                    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
-                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = CHAR;
-                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_char = 0;
+                    operand->tag = PRIMITIVE;
+                    operand->val.primitive_val.tag = CHAR;
+                    operand->val.primitive_val.val.val_char = 0;
                     break;
                 case 'D': //double
-                    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
-                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = DOUBLE;
-                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_double = 0;
+                    operand->tag = PRIMITIVE;
+                    operand->val.primitive_val.tag = DOUBLE;
+                    operand->val.primitive_val.val.val_double = 0;
                     break;
                 case 'F': //float
-                    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
-                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = FLOAT;
-                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_float = 0;
+                    operand->tag = PRIMITIVE;
+                    operand->val.primitive_val.tag = FLOAT;
+                    operand->val.primitive_val.val.val_float = 0;
                     break;
                 case 'I': //integer
-                    arrayref[i].tag = PRIMITIVE;
-                    arrayref[i].val.primitive_val.tag = INT;
-                    arrayref[i].val.primitive_val.val.val32 = 0;
+                    operand->tag = PRIMITIVE;
+                    operand->val.primitive_val.tag = INT;
+                    operand->val.primitive_val.val.val32 = 0;
                     break;
                 case 'J': //long
-                    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
-                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = LONG;
-                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val64 = 0;
+                    operand->tag = PRIMITIVE;
+                    operand->val.primitive_val.tag = LONG;
+                    operand->val.primitive_val.val.val64 = 0;
                     break;
                 case 'S': //short
-                    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
-                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = SHORT;
-                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val16 = 0;
+                    operand->tag = PRIMITIVE;
+                    operand->val.primitive_val.tag = SHORT;
+                    operand->val.primitive_val.val.val16 = 0;
                     break;
                 case 'Z': //boolean
-                    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
-                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BOOLEAN;
-                    arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_boolean = 0;
+                    operand->tag = PRIMITIVE;
+                    operand->val.primitive_val.tag = BOOLEAN;
+                    operand->val.primitive_val.val.val_boolean = 0;
                     break;
-               /* case 'L': //reference
+                case 'L': //reference
                     operand->tag = REFERENCE;
                     operand->val.reference_val.tag = OBJECT;
                     operand->val.reference_val.val.object.length = 0;
                     operand->val.reference_val.val.object.attributes = NULL;
-                    break;*/
+                    break;
+                case '[': //reference - array
+                    operand->tag = REFERENCE;
+                    operand->val.reference_val.tag = ARRAY;
+                    operand->val.reference_val.val.array.length = 0;
+                    operand->val.reference_val.val.array.components = NULL;
+                    break;
                 default:
-                    printf("Unexpected char on method descriptor: %c\n", tipo);
+                    printf("Unexpected char on method descriptor: %c\n", b[0]);
                     exit(1);
             }
-          /*  class_t *object_class = getClass(class_name);
-            arrayref->val.reference_val.val.array.components[i].tag = REFERENCE;
-            arrayref->val.reference_val.val.array.components[i].val.reference_val.tag = OBJECT;
-            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.objClass = tipo;
-            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.length = tipo->class_file.fields_count;
-            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * tipo->class_file.fields_count);*/
         }
     }
-    else {
-        for(i=0; i<tamanho[dimensao]; i++){
-            arrayref[i].tag = REFERENCE;
-            arrayref[i].val.reference_val.tag = ARRAY;
-            arrayref[i].val.reference_val.val.array.length = tamanho[dimensao-1];
-            arrayref[i].val.reference_val.val.array.components =  (any_type_t*) malloc(sizeof(any_type_t) * tamanho[dimensao-1]);
-            
-            createMultiArray(arrayref[i].val.reference_val.val.array.components, tamanho, dimensao-1, tipo, dimension);
-        }
-    }
+    return objref;
 }
 
 /**
@@ -854,7 +932,11 @@ void print_any_type(any_type_t* anytype) {
                 case LONG:
                     DEBUG_PRINT("anytype is long == %ld\n", anytype->val.primitive_val.val.val64);
                     break;
+                default:
+                    DEBUG_PRINT("anytype is invalid!\n");
+
             }
+            break;
         case REFERENCE:
             switch(anytype->val.reference_val.tag) {
                 case OBJECT:
@@ -892,6 +974,8 @@ void print_any_type(any_type_t* anytype) {
                                     case LONG:
                                         DEBUG_PRINT("anytype is ARRAY of length %d and type LONG \n", (anytype->val.reference_val.val.array.length));
                                         break;
+                                    default:
+                                        DEBUG_PRINT("anytype is array invalid!\n");
                                 }
                                 break;
                             case REFERENCE:
@@ -905,6 +989,8 @@ void print_any_type(any_type_t* anytype) {
                                     case NULL_REFERENCE:
                                         DEBUG_PRINT("anytype is ARRAY of length %d and type NULL_REFERENCE \n", (anytype->val.reference_val.val.array.length));
                                         break;
+                                    default:
+                                        DEBUG_PRINT("anytype is array reference invalid!\n");
                                 }
                                 break;
                         }
@@ -915,6 +1001,8 @@ void print_any_type(any_type_t* anytype) {
                 case NULL_REFERENCE:
                     DEBUG_PRINT("anytype is NULL_REFERENCE\n");
                     break;
+                default:
+                    DEBUG_PRINT("anytype is invalid!\n");
             }
     }
 }
