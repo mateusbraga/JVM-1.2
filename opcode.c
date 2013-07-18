@@ -2861,10 +2861,10 @@ void tableswitch() {
     any_type_t *operand = pop_operand_stack(&(frame->operand_stack));
     u4 index = operand->val.primitive_val.val.val32;
 
-    if (index < low && index > high) {
+    if (index < low || index > high) {
         jvm_pc.code_pc = myDefault + jvm_pc.code_pc;
     } else {
-        offset += index - low;
+        offset += (index - low) * 4;
 
         byte1 = code_attribute->code[jvm_pc.code_pc + offset];
         byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
