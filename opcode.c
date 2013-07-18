@@ -26,8 +26,8 @@ extern pc_t jvm_pc;
  */
 void aconst_null(){
     DEBUG_PRINT("got into aconst_null\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = REFERENCE;
     operand->val.reference_val.tag = NULL_REFERENCE;
     operand->val.reference_val.val.val_null = NULL;
@@ -42,8 +42,8 @@ void aconst_null(){
  */
 void iconst_m1(){
     DEBUG_PRINT("got into iconst_m1\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = -1;
@@ -58,8 +58,8 @@ void iconst_m1(){
  */
  void iconst_0(){
     DEBUG_PRINT("got into iconst_0\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 0;
@@ -74,8 +74,8 @@ void iconst_m1(){
  */
  void iconst_1(){
     DEBUG_PRINT("got into iconst_1\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 1;
@@ -90,8 +90,8 @@ void iconst_m1(){
  */
 void iconst_2(){
     DEBUG_PRINT("got into iconst_2\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 2;
@@ -106,19 +106,14 @@ void iconst_2(){
  */
 void iconst_3(){
     DEBUG_PRINT("got into iconst_3\n");
+
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-    if(operand == NULL){
-        printf( "Socorro! malloc devolveu NULL!\n");
-        exit(EXIT_FAILURE);
-    }
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 3;
 
     frame_t* frame = peek_frame_stack(jvm_stack);
-
     push_operand_stack(&(frame->operand_stack), operand);
-
 }
 
 /**
@@ -127,8 +122,8 @@ void iconst_3(){
  */
 void iconst_4(){
     DEBUG_PRINT("got into iconst_4\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 4;
@@ -143,11 +138,8 @@ void iconst_4(){
  */
 void iconst_5(){
     DEBUG_PRINT("got into iconst_5\n");
+
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-    if(operand == NULL) {
-        printf("Socorro! malloc falhor\n");
-        exit(EXIT_FAILURE);
-    }
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 5;
@@ -162,8 +154,8 @@ void iconst_5(){
  */
 void lconst_0(){
     DEBUG_PRINT("got into lconst_0\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = LONG;
     operand->val.primitive_val.val.val64 = 0;
@@ -178,8 +170,8 @@ void lconst_0(){
  */
 void lconst_1(){
     DEBUG_PRINT("got into lconst_1\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = LONG;
     operand->val.primitive_val.val.val64 = 1;
@@ -195,8 +187,8 @@ void lconst_1(){
  */
 void fconst_0(){
     DEBUG_PRINT("got into fconst_0\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
     operand->val.primitive_val.val.val_float = 0;
@@ -211,8 +203,8 @@ void fconst_0(){
  */
 void fconst_1(){
     DEBUG_PRINT("got into fconst_1\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
     operand->val.primitive_val.val.val_float = 1;
@@ -227,8 +219,8 @@ void fconst_1(){
  */
 void fconst_2(){
     DEBUG_PRINT("got into fconst_2\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
     operand->val.primitive_val.val.val_float = 2;
@@ -243,8 +235,8 @@ void fconst_2(){
  */
 void dconst_0(){
     DEBUG_PRINT("got into dconst_0\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = DOUBLE;
     operand->val.primitive_val.val.val_double = 0;
@@ -259,8 +251,8 @@ void dconst_0(){
  */
 void dconst_1(){
     DEBUG_PRINT("got into dconst_1\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = DOUBLE;
     operand->val.primitive_val.val.val_double = 1;
@@ -281,14 +273,12 @@ void bipush(){
     int32_t value2 = value;
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = value2;
 
     frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
-
 }
 
 /**
@@ -304,7 +294,6 @@ void sipush(){
     int32_t value = (int32_t) aux;
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = value;
@@ -322,10 +311,10 @@ void ldc(){
     DEBUG_PRINT("got into ldc\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b = code_attribute->code[jvm_pc.code_pc+1];
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     u4 bytes;
     u2 bytes1;
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     switch(jvm_pc.currentClass->class_file.constant_pool[b].tag){
         case CONSTANT_Integer:
             bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Integer.bytes;
@@ -364,10 +353,10 @@ void ldc_w(){
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 b = (b1<<8)|b2;
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     u4 bytes;
     u2 bytes1;
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     switch(jvm_pc.currentClass->class_file.constant_pool[b].tag){
         case CONSTANT_Integer:
             bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Integer.bytes;
@@ -405,10 +394,10 @@ void ldc2_w(){
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 b = (b1<<8)|b2;
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     uint64_t high_bytes;
     uint64_t low_bytes;
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     switch(jvm_pc.currentClass->class_file.constant_pool[b].tag){
         case CONSTANT_Long:
             // Testado
@@ -446,7 +435,6 @@ void tload(){
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
-    operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[index];
@@ -652,7 +640,7 @@ void pop2(){
     DEBUG_PRINT("got into pop2\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     value = pop_operand_stack(&(frame->operand_stack));
     if(value->val.primitive_val.tag != LONG && value->val.primitive_val.tag != DOUBLE)
         pop_operand_stack(&(frame->operand_stack));
@@ -663,7 +651,7 @@ void pop2(){
  */
 void dup(){
     DEBUG_PRINT("got into dup\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *operand = NULL;
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = pop_operand_stack(&(frame->operand_stack));
@@ -694,8 +682,8 @@ int isLongOrDouble(any_type_t* anytype) {
  */
 void dup_x1(){
     DEBUG_PRINT("got into dup_x1\n");
-    any_type_t *operand1 = (any_type_t*) malloc(sizeof(any_type_t));
-    any_type_t *operand2 = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *operand1 = NULL;
+    any_type_t *operand2 = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
     operand1 = pop_operand_stack(&(frame->operand_stack));
@@ -811,15 +799,17 @@ void dup2_x2(){
  */
 void swap(){
     DEBUG_PRINT("got into swap\n");
-    any_type_t *operand1 = (any_type_t*) malloc(sizeof(any_type_t));
-    any_type_t *operand2 = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *operand1 = NULL;
+    any_type_t *operand2 = NULL;
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand1 = pop_operand_stack(&(frame->operand_stack));
     operand2 = pop_operand_stack(&(frame->operand_stack));
 
-    if(operand1->val.primitive_val.tag == LONG || operand2->val.primitive_val.tag == LONG || operand1->val.primitive_val.tag == DOUBLE || operand2->val.primitive_val.tag == DOUBLE)
-        exit(1); // algum erro
+    if(isLongOrDouble(operand1) || isLongOrDouble(operand2)) {
+        printf("ERROR: swap com operando LONG / DOUBLE\n");
+        exit(1);
+    }
 
     push_operand_stack(&(frame->operand_stack), operand1);
     push_operand_stack(&(frame->operand_stack), operand2);
@@ -2033,7 +2023,7 @@ void dcmpg(){
  */
 void ifeq(){
     DEBUG_PRINT("got into ifeq\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -2059,7 +2049,7 @@ void ifeq(){
  */
 void ifne(){
     DEBUG_PRINT("got into ifne\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -2085,7 +2075,7 @@ void ifne(){
  */
 void iflt(){
     DEBUG_PRINT("got into iflt\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -2111,7 +2101,7 @@ void iflt(){
  */
 void ifge(){
     DEBUG_PRINT("got into ifge\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -2137,7 +2127,7 @@ void ifge(){
  */
 void ifgt(){
     DEBUG_PRINT("got into ifgt\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -2163,7 +2153,7 @@ void ifgt(){
  */
 void ifle(){
     DEBUG_PRINT("got into ifle\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -2480,12 +2470,12 @@ void goto_op(){
  */
 void jsr(){
     DEBUG_PRINT("got into jsr\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
     u2 index;
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = RETURN_ADDRESS;
     operand->val.primitive_val.val.val_return_addr = jvm_pc.code_pc;
@@ -2705,13 +2695,14 @@ void newarray(){
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 atype = code_attribute->code[jvm_pc.code_pc+1];
 
-    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
 
     any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
 
     int32_t contador, i = 0;
 
     contador = cont->val.primitive_val.val.val32;
+
+    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
     arrayref->tag = REFERENCE;
     arrayref->val.reference_val.tag = ARRAY;
     arrayref->val.reference_val.val.array.length = contador;
@@ -3378,11 +3369,12 @@ void invokedynamic() {
 void anewarray() {
     DEBUG_PRINT("got into anewarray\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
-    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
     any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
     int32_t contador, i = 0;
 
     contador = cont->val.primitive_val.val.val32;
+
+    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
     arrayref->tag = REFERENCE;
     arrayref->val.reference_val.tag = ARRAY;
     arrayref->val.reference_val.val.array.length = contador;
@@ -3524,7 +3516,6 @@ void monitorexit() {
  */
 void multianewarray() {
     DEBUG_PRINT("got into multianewarray\n");
-    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
     int32_t contador;
     frame_t *frame = peek_frame_stack(jvm_stack);
     u1 i, tamanhos[MAX_DIMENSION];
@@ -3544,6 +3535,7 @@ void multianewarray() {
         tamanhos[i] = contador;
     }
 
+    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
     arrayref->tag = REFERENCE;
     arrayref->val.reference_val.tag = ARRAY;
     arrayref->val.reference_val.val.array.length = contador;
@@ -3559,7 +3551,7 @@ void multianewarray() {
  */
 void ifnull() {
     DEBUG_PRINT("got into ifnull\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -3585,7 +3577,7 @@ void ifnull() {
  */
 void ifnonnull() {
     DEBUG_PRINT("got into ifnonnull\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -3635,7 +3627,6 @@ void goto_w() {
  */
 void jsr_w() {
     DEBUG_PRINT("got into jsr_w\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
     u1 byte1 = 0;
     u1 byte2 = 0;
@@ -3643,6 +3634,7 @@ void jsr_w() {
     u1 byte4 = 0;
     u2 index;
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = RETURN_ADDRESS;
     operand->val.primitive_val.val.val_return_addr = jvm_pc.code_pc;
