@@ -213,6 +213,7 @@ any_type_t* createMultiArray(Utf8_info_t* type, int32_t* length, u1 dimension, a
 }
 
 any_type_t* createObject(class_t* class, any_type_t* objref) {
+    DEBUG_PRINT("got into createObject with arguments: %s\n", utf8_to_string(class->class_name));
     if(objref == NULL) {
         objref = (any_type_t*) malloc(sizeof(any_type_t));
     }
@@ -223,8 +224,9 @@ any_type_t* createObject(class_t* class, any_type_t* objref) {
     objref->val.reference_val.val.object.length = class->class_file.fields_count;
     objref->val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * class->class_file.fields_count);
 
+    DEBUG_PRINT("got into createObject with arguments: %s\n", utf8_to_string(class->class_name));
     u2 i = 0;
-    for(i=0;i <= class->class_file.fields_count; i++) {
+    for(i=0;i < class->class_file.fields_count; i++) {
         if ((class->class_file.fields[i].access_flags & ACC_STATIC) == 0) {
             any_type_t *operand = &(objref->val.reference_val.val.object.attributes[i]);
             u1* b = class->class_file.constant_pool[class->class_file.fields[i].descriptor_index].info.Utf8.bytes;
@@ -814,6 +816,7 @@ void returnFromFunction() {
     // change PC
     jvm_pc = frame->return_address;
 
+    DEBUG_PRINT("head=%d\n", frame->operand_stack.head);
     // put return value on the new frame's operand stack if any
     if(hasReturnValue(frame->current_class, frame->current_method)) {
         frame_t *invokerFrame = peek_frame_stack(jvm_stack);
@@ -822,7 +825,7 @@ void returnFromFunction() {
     }
 
     free(frame);
-    DEBUG_PRINT("done with returnFromFunction\n");
+    DEBUG_PRINT("done with returnFromFunction %s\n", utf8_to_string(current_method_name));
 }
 
 
@@ -864,23 +867,30 @@ void callMethod(class_t* class, method_info_t* method) {
 
     //get number of arguments from classfile
     int number_of_arguments = getNumberOfArguments(class, method);
+    DEBUG_PRINT("number_of_arguments = %d\n", number_of_arguments);
 
     // pop arguments from operand stack and
     // insert them on local_var
     int i = 0;
     int local_var_index = 0;
+    operand_stack_t aux_operand_stack;
+    aux_operand_stack.depth = 0;
+    aux_operand_stack.head = -1;
+    aux_operand_stack.size = number_of_arguments;
+    aux_operand_stack.operand = (any_type_t**) malloc(number_of_arguments * sizeof(any_type_t**));
     for (i = 0; i < number_of_arguments; i++) {
         any_type_t *operand = pop_operand_stack(&(invokerFrame->operand_stack));
-        push_operand_stack(&(frame->operand_stack), operand);
+        push_operand_stack(&(aux_operand_stack), operand);
     }
     for (i = 0; i < number_of_arguments; i++) {
-        any_type_t *operand = pop_operand_stack(&(frame->operand_stack));
+        any_type_t *operand = pop_operand_stack(&(aux_operand_stack));
 
         frame->local_var.var[local_var_index] = operand;
         local_var_index++;
         if(operand->val.primitive_val.tag == DOUBLE ||operand->val.primitive_val.tag == LONG) 
             local_var_index++;
     }
+    free(aux_operand_stack.operand);
 
 
     push_frame_stack(&jvm_stack, frame);

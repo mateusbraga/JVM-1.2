@@ -2,6 +2,9 @@
 #include <stdio.h>
 
 #include "frame_stack.h"
+#include "jvm.h"
+
+extern frame_stack_t *jvm_stack;
 
 // --------------- Frame stack Stuff -----------------
 
@@ -58,15 +61,28 @@ any_type_t *pop_operand_stack(operand_stack_t *stack) {
     any_type_t *operand = stack->operand[stack->head];
     (stack->head)--;
 
+    DEBUG_PRINT("poped at %d: ", stack->head + 1);
+    print_any_type(operand);
     return operand;
 }
 void push_operand_stack(operand_stack_t *stack, any_type_t *operand) {
     if (stack->head == stack->size - 1) {
-        printf("ERRO: Push operand stack overflow\n");
+        printf("ERRO: Push operand stack overflow - max_stack = %d\n", stack->size);
+        u1 i = 0;
+        for(i = 0; i < stack->size; i++) {
+            print_any_type(pop_operand_stack(stack));
+        }
         exit(1);
     }
 
     (stack->head)++;
     stack->operand[stack->head] = operand;
+
+    DEBUG_PRINT("pushed at %d: ", stack->head);
+    print_any_type(operand);
+    if (stack->head - 1 >= 0) {
+        DEBUG_PRINT("before at %d has: ", stack->head - 1);
+        print_any_type(stack->operand[stack->head - 1]);
+    }
 }
 

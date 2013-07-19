@@ -56,7 +56,7 @@ void iconst_m1(){
  * @brief load the int value 0 onto the stack
  *
  */
- void iconst_0(){
+void iconst_0(){
     DEBUG_PRINT("got into iconst_0\n");
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
@@ -72,7 +72,7 @@ void iconst_m1(){
  * @brief load the int value 1 onto the stack
  *
  */
- void iconst_1(){
+void iconst_1(){
     DEBUG_PRINT("got into iconst_1\n");
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
@@ -339,7 +339,6 @@ void ldc(){
     }
 
     frame_t* frame = peek_frame_stack(jvm_stack);
-    print_any_type(operand);
     push_operand_stack(&(frame->operand_stack), operand);
 }
 /**
@@ -399,7 +398,6 @@ void ldc2_w(){
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     switch(jvm_pc.currentClass->class_file.constant_pool[b].tag){
         case CONSTANT_Long:
-            // Testado
             high_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.high_bytes;
             low_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.low_bytes;
             operand->tag = PRIMITIVE;
@@ -407,7 +405,6 @@ void ldc2_w(){
             operand->val.primitive_val.val.val64 = (high_bytes<<32)|low_bytes;
             break;
         case CONSTANT_Double:
-            // Testado
             high_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.high_bytes;
             low_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.low_bytes;
             uint64_t double_bytes = (high_bytes<<32) | low_bytes;
@@ -438,10 +435,7 @@ void tload(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[index];
 
-    print_any_type(operand);
-
     push_operand_stack(&(frame->operand_stack), operand);
-
 }
 
 /**
@@ -513,14 +507,8 @@ void taload(){
     index = pop_operand_stack(&(frame->operand_stack));
     arrayref = pop_operand_stack(&(frame->operand_stack));
 
-    print_any_type(index);
-    print_any_type(arrayref);
-
     int_index = index->val.primitive_val.val.val32;
 
-
-    DEBUG_PRINT("Colocou na pilha\n");
-    print_any_type(&(arrayref->val.reference_val.val.array.components[int_index]));
     push_operand_stack(&(frame->operand_stack), &(arrayref->val.reference_val.val.array.components[int_index]));
 }
 
@@ -540,7 +528,7 @@ void tstore(){
 
     frame->local_var.var[index] = value;
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-            frame->local_var.var[index+1] = value;
+        frame->local_var.var[index+1] = value;
 }
 
 /**
@@ -556,7 +544,7 @@ void tstore_0(){
 
     frame->local_var.var[0] = value;
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-            frame->local_var.var[1] = value;
+        frame->local_var.var[1] = value;
 }
 
 /**
@@ -572,14 +560,14 @@ void tstore_1(){
 
     frame->local_var.var[1] = value;
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-            frame->local_var.var[2] = value;
+        frame->local_var.var[2] = value;
 }
 
 /**
  * @brief store (int, long, float, double, reference) value into variable 2
  *
  */
- void tstore_2(){
+void tstore_2(){
     DEBUG_PRINT("got into tstore_2\n");
     any_type_t *value;
 
@@ -588,7 +576,7 @@ void tstore_1(){
 
     frame->local_var.var[2] = value;
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-            frame->local_var.var[3] = value;
+        frame->local_var.var[3] = value;
 }
 
 /**
@@ -604,7 +592,7 @@ void tstore_3(){
 
     frame->local_var.var[3] = value;
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-            frame->local_var.var[4] = value;
+        frame->local_var.var[4] = value;
 }
 /**
  * @brief store an (int, long, float, double, reference, byte, boolean, char short) into an array (operand_stack: arrayref, index, value ->)
@@ -617,11 +605,8 @@ void tastore(){
     frame_t *frame = peek_frame_stack(jvm_stack);
 
     value = pop_operand_stack(&(frame->operand_stack));
-    print_any_type(value);
     index = pop_operand_stack(&(frame->operand_stack));
-    print_any_type(index);
     arrayref = pop_operand_stack(&(frame->operand_stack));
-    print_any_type(arrayref);
 
     int_index = index->val.primitive_val.val.val32;
 
@@ -673,9 +658,9 @@ void dup(){
  */
 int isLongOrDouble(any_type_t* anytype) {
     if (anytype->tag == PRIMITIVE) {
-            if(anytype->val.primitive_val.tag == LONG && anytype->val.primitive_val.tag == DOUBLE) {
-                return 1;
-            }
+        if(anytype->val.primitive_val.tag == LONG && anytype->val.primitive_val.tag == DOUBLE) {
+            return 1;
+        }
     }
     return 0;
 }
@@ -734,7 +719,7 @@ void dup2(){
     frame_t *frame = peek_frame_stack(jvm_stack);
 
     operand1 = pop_operand_stack(&(frame->operand_stack));
-        operand2 = pop_operand_stack(&(frame->operand_stack));
+    operand2 = pop_operand_stack(&(frame->operand_stack));
 
     if(!isLongOrDouble(operand1))
         push_operand_stack(&(frame->operand_stack), operand2);
@@ -836,8 +821,6 @@ void iadd(){
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = (op1->val.primitive_val.val.val32)+(op2->val.primitive_val.val.val32);
 
-    DEBUG_PRINT("Colocou na pilha\n");
-    print_any_type(operand);
     push_operand_stack(&(frame->operand_stack), operand);
 }
 
@@ -2518,6 +2501,7 @@ void getstatic(){
     Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
 
     if(compare_utf8(class_name, string_to_utf8("java/lang/System")) == 0) {
+        DEBUG_PRINT("ignore because is java/lang/System\n");
         return;
     }
     class_t *class_field = getClass(class_name);
@@ -2782,7 +2766,6 @@ void anewarray() {
 
     u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
     Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
-    class_t *object_class = getClass(class_name);
 
 
     any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
@@ -2791,10 +2774,23 @@ void anewarray() {
     arrayref->val.reference_val.val.array.length = tamanho;
     arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * tamanho);
 
-    int32_t i = 0;
-    for(i=0; i<=tamanho; i++){
-        createObject(object_class, &(arrayref->val.reference_val.val.array.components[i]));
+    if(compare_utf8(class_name, string_to_utf8("java/lang/String")) == 0) {
+        int32_t i = 0;
+        for(i=0; i<=tamanho; i++){
+            arrayref->val.reference_val.val.array.components[i].tag = REFERENCE;
+            arrayref->val.reference_val.val.array.components[i].val.reference_val.tag = ARRAY;
+            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.array.length = 0;
+            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.array.components = NULL;
+        }
+    } else {
+        class_t *object_class = getClass(class_name);
+
+        int32_t i = 0;
+        for(i=0; i<=tamanho; i++){
+            createObject(object_class, &(arrayref->val.reference_val.val.array.components[i])); 
+        }
     }
+
     push_operand_stack(&(frame->operand_stack), arrayref);
 }
 
@@ -3216,19 +3212,18 @@ void invokevirtual() {
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 index = (b1<<8)|b2;
 
+
     u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.class_index;
     u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
-    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
-
-    class_t *class_method = getClass(class_name);
-
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
     u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
-    Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
-
     u2 descriptor_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.descriptor_index;
+
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+    Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
     Utf8_info_t *descriptor = &(jvm_pc.currentClass->class_file.constant_pool[descriptor_index].info.Utf8);
 
+    // Tratar println
     if(compare_utf8(string_to_utf8("java/io/PrintStream"), class_name) == 0 &&
             compare_utf8(string_to_utf8("println"), method_name) == 0) {
 
@@ -3238,7 +3233,6 @@ void invokevirtual() {
             return;
         }
         any_type_t *arg = pop_operand_stack(&(frame->operand_stack));
-                    print_any_type(arg);
 
         if (compare_utf8(descriptor, string_to_utf8("(I)V")) == 0) {
             switch(arg->val.primitive_val.tag){
@@ -3271,20 +3265,18 @@ void invokevirtual() {
             }
             printf("\n");
         }
+
         return;
     }
 
-    u2 i = 0;
-    for (i = 0; i < class_method->class_file.methods_count; i++) {
-        u2 name_index = class_method->class_file.methods[i].name_index;
-        if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0) {
-            callMethod(class_method, &(class_method->class_file.methods[i]));
-            return;
-        }
 
+    class_t *class_method = getClass(class_name);
+    if (class_method == NULL) {
+        DEBUG_PRINT("ignore because got NULL class\n");
+        return;
     }
+    callMethod(class_method, getMethod(class_method, method_name, descriptor));
 
-    assert(0);
     return;
 }
 
@@ -3301,38 +3293,24 @@ void invokespecial() {
 
     u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.class_index;
     u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
+    u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
+    u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
+    u2 descriptor_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.descriptor_index;
+
     Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+    Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
+    Utf8_info_t *descriptor = &(jvm_pc.currentClass->class_file.constant_pool[descriptor_index].info.Utf8);
+
 
     class_t *class_method = getClass(class_name);
     if (class_method == NULL) {
+        frame_t *frame = peek_frame_stack(jvm_stack);
+        pop_operand_stack(&(frame->operand_stack));
+        DEBUG_PRINT("ignore because got NULL class\n");
         return;
     }
-    if (class_method->status == CLASSE_NAO_CARREGADA) {
-        loadClass(class_method);
-    }
-    if (class_method->status == CLASSE_NAO_LINKADA) {
-        linkClass(class_method);
-    }
-    if (class_method->status == CLASSE_NAO_INICIALIZADA) {
-        initializeClass(class_method);
-    }
+    callMethod(class_method, getMethod(class_method, method_name, descriptor));
 
-    u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
-    u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
-    Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
-
-
-    u2 i = 0;
-    for (i = 0; i < class_method->class_file.methods_count; i++) {
-        u2 name_index = class_method->class_file.methods[i].name_index;
-        if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0) {
-            callMethod(class_method, &(class_method->class_file.methods[i]));
-            return;
-        }
-
-    }
-
-    assert(0);
     return;
 }
 
@@ -3349,37 +3327,21 @@ void invokestatic() {
 
     u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.class_index;
     u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
-    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
-
-    class_t *class_method = getClass(class_name);
-    if (class_method->status == CLASSE_NAO_CARREGADA) {
-        loadClass(class_method);
-    }
-    if (class_method->status == CLASSE_NAO_LINKADA) {
-        linkClass(class_method);
-    }
-    if (class_method->status == CLASSE_NAO_INICIALIZADA) {
-        initializeClass(class_method);
-    }
-
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
     u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
     u2 descriptor_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.descriptor_index;
+
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
     Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
     Utf8_info_t *descriptor = &(jvm_pc.currentClass->class_file.constant_pool[descriptor_index].info.Utf8);
 
-    u2 i = 0;
-    for (i = 0; i < class_method->class_file.methods_count; i++) {
-        u2 name_index = class_method->class_file.methods[i].name_index;
-        u2 desc_index = class_method->class_file.methods[i].descriptor_index;
-        if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0 &&
-                compare_utf8(descriptor, &(class_method->class_file.constant_pool[desc_index].info.Utf8)) == 0) {
-            callMethod(class_method, &(class_method->class_file.methods[i]));
-            return;
-        }
+    class_t *class_method = getClass(class_name);
+    if (class_method == NULL) {
+        DEBUG_PRINT("ignore because got NULL class\n");
+        return;
     }
+    callMethod(class_method, getMethod(class_method, method_name, descriptor));
 
-    assert(0);
     return;
 }
 
@@ -3397,25 +3359,21 @@ void invokeinterface() {
 
     u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.class_index;
     u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
-    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
-
-    class_t *class_method = getClass(class_name);
-
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
     u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
+    u2 descriptor_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.descriptor_index;
+
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
     Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
+    Utf8_info_t *descriptor = &(jvm_pc.currentClass->class_file.constant_pool[descriptor_index].info.Utf8);
 
-    u2 i = 0;
-    for (i = 0; i < class_method->class_file.methods_count; i++) {
-        u2 name_index = class_method->class_file.methods[i].name_index;
-        if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0) {
-            callMethod(class_method, &(class_method->class_file.methods[i]));
-            return;
-        }
-
+    class_t *class_method = getClass(class_name);
+    if (class_method == NULL) {
+        DEBUG_PRINT("ignore because got NULL class\n");
+        return;
     }
+    callMethod(class_method, getMethod(class_method, method_name, descriptor));
 
-    assert(0);
     return;
 }
 
@@ -3555,13 +3513,11 @@ void multianewarray() {
     int32_t *tamanhos = (int32_t*) malloc(sizeof(int32_t) * dimension);
     for(i=0; i<dimension; i++){
         any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
-        print_any_type(cont);
         tamanhos[i] = cont->val.primitive_val.val.val32;
     }
 
     any_type_t *arrayref = createMultiArray(type, tamanhos, 0, NULL);
 
-    print_any_type(arrayref);
     push_operand_stack(&(frame->operand_stack), arrayref);
 }
 
@@ -3585,7 +3541,7 @@ void ifnull() {
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
