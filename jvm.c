@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include "structs.h"
+#include "opcode.h"
 #include "frame_stack.h"
 
 #include "loader.h"
@@ -21,197 +22,50 @@ extern void (*jvm_opcode[])(void);
 int jvm_number_of_classes = 0;
 class_t *jvm_classes[MAX_NUM_OF_CLASSES];
 
-
-// UTF8 STUFF - BEGIN
-
-/** \addtogroup Funções-Utilitárias
+/** \addtogroup JVM-Core
  * @{
  */
 
 /**
- * @brief Converte um char* para um Utf8_info_t*
+ * @brief Cria uma array de várias dimensões, com tipo type, comprimento length. Cria um novo anytype ou usa arrayref.
  *
- * @param String a ser convertida
- * @return Estrutura Utf8 criada.
+ * @param Tipo da última dimensão da array
+ * @param Array com os comprimentos de cada dimensão
+ * @param Dimensão a ser criada
+ * @param any_type_t já alocado, ou NULL para criar novo any_type_t
+ * @return any_type_t da arrayref criada.
  */
-Utf8_info_t* string_to_utf8(char* a) {
-    Utf8_info_t* utf8 = (Utf8_info_t*) malloc(sizeof(Utf8_info_t));
-    utf8->length = strlen(a);
-    utf8->bytes = (u1*) a;
-    return utf8;
-}
-
-/**
- * @brief Converte um Utf8_info_t* em um char*
- *
- * @param String utf8 a ser convertida
- * @return string criada.
- */
-char* utf8_to_string(Utf8_info_t* utf8) {
-    char* string = NULL;
-    string = (char*) malloc(sizeof(char) * utf8->length + 1);
-    strncpy(string, (char*) utf8->bytes, utf8->length);
-    string[utf8->length] = '\0';
-    return string;
-}
-
-/**
- * @brief Compara dois utf8.
- *
- * @param Primeiro utf8
- * @param Segundo utf8
- * @return 0 se os utf8s são iguais.
- */
-int compare_utf8(Utf8_info_t* a, Utf8_info_t* b) {
-    if (a->length == b->length) {
-        return strncmp((char*) a->bytes,(char*) b->bytes, b->length);
-    }
-    return -1;
-}
-
-/**
- * @brief Retorna o numero de caracteres em utf8 representada na string.
- *
- * @param String com possíveis caracteres em utf8.
- * @return número de caractéres em utf8
- */
-u2 get_utf8_length_from_char(char* string) {
-    u2 counter = 0;
-    u2 length = strlen(string);
-
-    u2 i = 0;
-    for (i = 0; i < length; ) {
-        if((string[i] & 0xe0) == 0xe0) {
-            counter++;
-            i = i + 3;
-        } else if((string[i] & 0xc0) == 0xc0) {
-            counter++;
-            i = i + 2;
-        } else {
-            counter++;
-            i++;
-        }
-    }
-    return counter;
-}
-
-/**
- * @brief Leia o próximo caractere que começa em pos. Altera pos para o possível próximo caractere a ler.
- *
- * @param String com possíveis caracteres em utf8.
- * @param Posição em string do caractere a ler
- * @return valor do caractere em u2
- */
-u2 scan_utf8_char_from_char(char* string, u2 *pos) {
-    u2 original_pos = *pos;
-
-    if((string[original_pos] & 0xe0) == 0xe0) {
-        // 3 bytes 
-        *pos = *pos + 3;
-        assert(original_pos + 2 < strlen(string));
-        char x = string[original_pos];
-        char y = string[original_pos + 1];
-        char z = string[original_pos + 2];
-
-        return ((x & 0xf) << 12) + ((y & 0x3f) << 6) + (z & 0x3f);
-    } else if((string[original_pos] & 0xc0) == 0xc0) {
-        // 2 bytes 
-        *pos = *pos + 2;
-        assert(original_pos + 1 < strlen(string));
-        char x = string[original_pos];
-        char y = string[original_pos + 1];
-
-        return ((x & 0x1f) << 6) + (y & 0x3f);
-    } else {
-        // 1 bytes 
-        *pos = *pos + 1;
-        return string[original_pos];
-    }
-}
-
-
 any_type_t* createMultiArray(Utf8_info_t* type, int32_t* length, u1 dimension, any_type_t* arrayref) {
     DEBUG_PRINT("got into createMultiArray with arguments: %s, %d, %d, %p\n", utf8_to_string(type), length[dimension], dimension, (void*) arrayref);
     if(arrayref == NULL) {
         arrayref = (any_type_t*) malloc(sizeof(any_type_t));
     }
 
-    Utf8_info_t* class_name = NULL;
-    class_t *class = NULL;
-    u2 i = 0;
-    switch(type->bytes[dimension]) {
-        case 'B': //byte
-            arrayref->tag = PRIMITIVE;
-            arrayref->val.primitive_val.tag = BYTE;
-            arrayref->val.primitive_val.val.val8 = 0;
-            break;
-        case 'C': //char
-            arrayref->tag = PRIMITIVE;
-            arrayref->val.primitive_val.tag = CHAR;
-            arrayref->val.primitive_val.val.val_char = 0;
-            break;
-        case 'D': //double
-            arrayref->tag = PRIMITIVE;
-            arrayref->val.primitive_val.tag = DOUBLE;
-            arrayref->val.primitive_val.val.val_double = 0;
-            break;
-        case 'F': //float
-            arrayref->tag = PRIMITIVE;
-            arrayref->val.primitive_val.tag = FLOAT;
-            arrayref->val.primitive_val.val.val_float = 0;
-            break;
-        case 'I': //integer
-            arrayref[i].tag = PRIMITIVE;
-            arrayref[i].val.primitive_val.tag = INT;
-            arrayref[i].val.primitive_val.val.val32 = 0;
-            DEBUG_PRINT("new int na array\n");
-            break;
-        case 'J': //long
-            arrayref->tag = PRIMITIVE;
-            arrayref->val.primitive_val.tag = LONG;
-            arrayref->val.primitive_val.val.val64 = 0;
-            break;
-        case 'S': //short
-            arrayref->tag = PRIMITIVE;
-            arrayref->val.primitive_val.tag = SHORT;
-            arrayref->val.primitive_val.val.val16 = 0;
-            break;
-        case 'Z': //boolean
-            arrayref->tag = PRIMITIVE;
-            arrayref->val.primitive_val.tag = BOOLEAN;
-            arrayref->val.primitive_val.val.val_boolean = 0;
-            break;
-        case 'L': //reference
-            class_name = (Utf8_info_t*) malloc(sizeof(Utf8_info_t));
-            class_name->bytes = (u1*) malloc(sizeof(u1) * type->length - 1 - 1 -dimension);
-            strncpy((char*)class_name->bytes, (char*) &(type->bytes[1 + dimension + 1]), type->length - 1 - 1 - dimension);
-            class_name->length = type->length - 1 -1 -dimension;
+    setDefault(arrayref, (char*) &(type->bytes[dimension]));
 
-            class = getClass(class_name);
-
-            createObject(class, arrayref);
-            break;
-        case '[': //reference - array
-
+    if (type->bytes[dimension] == '[') { //reference - array
             arrayref->tag = REFERENCE;
             arrayref->val.reference_val.tag = ARRAY;
             arrayref->val.reference_val.val.array.length = length[dimension];
             arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * length[dimension]);
 
+            int32_t i = 0;
             for(i=0;i < length[dimension]; i++) {
                 createMultiArray(type, length, dimension + 1, &(arrayref->val.reference_val.val.array.components[i]));
             }
-
-            break;
-        default:
-            printf("Unexpected initial char on method descriptor: %s\n", utf8_to_string(type));
-            exit(1);
     }
 
-    DEBUG_PRINT("Done with createMultiArray with arguments\n");
+    DEBUG_PRINT("Done with createMultiArray\n");
     return arrayref;
 }
 
+/**
+ * @brief Cria um objeto da classe class. Aloca um novo any_type_t ou usa objref.
+ *
+ * @param Classe do objeto a ser criado
+ * @param any_type_t já alocado, ou NULL para criar novo any_type_t
+ * @return any_type_t do objref criado.
+ */
 any_type_t* createObject(class_t* class, any_type_t* objref) {
     DEBUG_PRINT("got into createObject with arguments: %s\n", utf8_to_string(class->class_name));
     if(objref == NULL) {
@@ -224,122 +78,16 @@ any_type_t* createObject(class_t* class, any_type_t* objref) {
     objref->val.reference_val.val.object.length = class->class_file.fields_count;
     objref->val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * class->class_file.fields_count);
 
-    DEBUG_PRINT("got into createObject with arguments: %s\n", utf8_to_string(class->class_name));
     u2 i = 0;
     for(i=0;i < class->class_file.fields_count; i++) {
-        if ((class->class_file.fields[i].access_flags & ACC_STATIC) == 0) {
-            any_type_t *operand = &(objref->val.reference_val.val.object.attributes[i]);
+        if ((class->class_file.fields[i].access_flags & ACC_STATIC) == 0) { // somente setar os campos que não são estáticos
             u1* b = class->class_file.constant_pool[class->class_file.fields[i].descriptor_index].info.Utf8.bytes;
-            switch(b[0]) {
-                case 'B': //byte
-                    operand->tag = PRIMITIVE;
-                    operand->val.primitive_val.tag = BYTE;
-                    operand->val.primitive_val.val.val8 = 0;
-                    break;
-                case 'C': //char
-                    operand->tag = PRIMITIVE;
-                    operand->val.primitive_val.tag = CHAR;
-                    operand->val.primitive_val.val.val_char = 0;
-                    break;
-                case 'D': //double
-                    operand->tag = PRIMITIVE;
-                    operand->val.primitive_val.tag = DOUBLE;
-                    operand->val.primitive_val.val.val_double = 0;
-                    break;
-                case 'F': //float
-                    operand->tag = PRIMITIVE;
-                    operand->val.primitive_val.tag = FLOAT;
-                    operand->val.primitive_val.val.val_float = 0;
-                    break;
-                case 'I': //integer
-                    operand->tag = PRIMITIVE;
-                    operand->val.primitive_val.tag = INT;
-                    operand->val.primitive_val.val.val32 = 0;
-                    break;
-                case 'J': //long
-                    operand->tag = PRIMITIVE;
-                    operand->val.primitive_val.tag = LONG;
-                    operand->val.primitive_val.val.val64 = 0;
-                    break;
-                case 'S': //short
-                    operand->tag = PRIMITIVE;
-                    operand->val.primitive_val.tag = SHORT;
-                    operand->val.primitive_val.val.val16 = 0;
-                    break;
-                case 'Z': //boolean
-                    operand->tag = PRIMITIVE;
-                    operand->val.primitive_val.tag = BOOLEAN;
-                    operand->val.primitive_val.val.val_boolean = 0;
-                    break;
-                case 'L': //reference
-                    operand->tag = REFERENCE;
-                    operand->val.reference_val.tag = OBJECT;
-                    operand->val.reference_val.val.object.length = 0;
-                    operand->val.reference_val.val.object.attributes = NULL;
-                    break;
-                case '[': //reference - array
-                    operand->tag = REFERENCE;
-                    operand->val.reference_val.tag = ARRAY;
-                    operand->val.reference_val.val.array.length = 0;
-                    operand->val.reference_val.val.array.components = NULL;
-                    break;
-                default:
-                    printf("Unexpected char on method descriptor: %c\n", b[0]);
-                    exit(1);
-            }
+            setDefault(&(objref->val.reference_val.val.object.attributes[i]), (char*) b);
         }
     }
+
     return objref;
 }
-
-/**
- * @brief Cria um any_type_t que é uma array de caracteres a partir da string.
- *
- * @param String com caracteres
- * @return any_type_t* criada
- *
- * @see get_utf8_length_from_char, scan_utf8_char_from_char
- */
-any_type_t* char_to_array_reference(char* string) {
-    any_type_t* value = (any_type_t *) malloc(sizeof(any_type_t));
-
-    u2 length = get_utf8_length_from_char(string);
-
-    value->tag = REFERENCE;
-    value->val.reference_val.tag = ARRAY;
-    value->val.reference_val.val.array.length = length;
-    value->val.reference_val.val.array.components = (any_type_t *) malloc(length * sizeof(any_type_t));
-
-    u2 i = 0;
-    u2 j = 0;
-    for (i = 0; i < length && j < strlen(string); i++) {
-        value->val.reference_val.val.array.components[i].tag = PRIMITIVE;
-        value->val.reference_val.val.array.components[i].val.primitive_val.tag = CHAR;
-        value->val.reference_val.val.array.components[i].val.primitive_val.val.val_char = scan_utf8_char_from_char(string, &j);
-    }
-
-    return value;
-}
-
-/**
- * @brief Cria um any_type_t que é uma array de caracteres a partir da utf8.
- *
- * @param UTF8 base
- * @return any_type_t* criada
- *
- * @see char_to_array_reference
- */
-any_type_t* utf8_to_array_reference(Utf8_info_t* utf8) {
-    char* string = (char*) malloc(utf8->length + 1);
-    strncpy(string, (char*) utf8->bytes, utf8->length);
-    string[utf8->length] = '\0';
-    return char_to_array_reference(string);
-}
-
-// UTF8 STUFF - END
-
-
-// CLASS_T STUFF - BEGIN
 
 /**
  * @brief Cria a estrutura class_t da classe com nome class_name
@@ -596,159 +344,6 @@ int getNumberOfArguments(class_t* class, method_info_t* method) {
 
 // METHOD STUFF - END
 
-// OPCODE STUFF - BEGIN
-
-/**
- * @brief Retorna o número de bytes com operandos do opcode que começa em code[index]
- *
- * @param Array dos opcode
- * @param Index do opcode
- * @return Número de bytes com operandos
- */
-int getNumberOfOpcodeOperandsInBytes(u1* code, u2 index) {
-    int counter = 0;
-    int padding = 0;
-    u4 low = 0;
-    u4 high = 0;
-    u4 npairs = 0;
-    u1 byte1 = 0;
-    u1 byte2 = 0;
-    u1 byte3 = 0;
-    u1 byte4 = 0;
-
-    switch(code[index]) {
-        case 0xb9:
-        case 0xba:
-        case 0xc8:
-        case 0xc9:
-            return 4;
-        case 0xaa: //tableswitch is special
-            counter = 1;
-            padding = 4 - (index % 4) - 1;
-            counter += padding; // 1 byte do opcode + allignment bytes
-
-            counter += 4; // jump default
-
-            byte1 = code[index + counter];
-            byte2 = code[index + counter + 1];
-            byte3 = code[index + counter + 2];
-            byte4 = code[index + counter + 3];
-            low = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
-
-            counter += 4; // count low
-
-            byte1 = code[index + counter];
-            byte2 = code[index + counter + 1];
-            byte3 = code[index + counter + 2];
-            byte4 = code[index + counter + 3];
-            high = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
-
-            counter += 4; // count high
-
-            counter += (4 * (high - low + 1)); // count the x offsets
-
-            return counter;
-        case 0xab: //lookupswitch is special
-            counter = 1;
-            padding = 4 - (index % 4) - 1;
-            counter += padding; // 1 byte do opcode + allignment bytes
-
-            counter += 4; //ignore default_offset
-
-            byte1 = code[index + counter];
-            byte2 = code[index + counter + 1];
-            byte3 = code[index + counter + 2];
-            byte4 = code[index + counter + 3];
-            npairs = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
-
-            counter += 4; // count the npairs
-
-            counter += (8 * npairs); // count all the key:offset pairs
-
-            return counter;
-        case 0xc5:
-            return 3;
-        case 0xc4: //wide is special
-            if (code[index + 1] == 0x84) {
-                // forma com iinc
-                return 5;
-            } else {
-                return 3;
-            }
-        case 0xbd:
-        case 0xc0:
-        case 0xc1:
-        case 0xb7:
-        case 0xb8:
-        case 0xb6:
-        case 0x13:
-        case 0x14:
-        case 0xbb:
-        case 0xb5:
-        case 0xb3:
-        case 0xb4:
-        case 0xb2:
-        case 0x84:
-        case 0x11:
-        case 0xa7:
-        case 0xa5:
-        case 0xa6:
-        case 0x9f:
-        case 0xa2:
-        case 0xa3:
-        case 0xa4:
-        case 0xa1:
-        case 0xa0:
-        case 0x99:
-        case 0x9c:
-        case 0x9d:
-        case 0x9e:
-        case 0x9b:
-        case 0x9a:
-        case 0xc7:
-        case 0xc6:
-        case 0xa8:
-            return 2;
-        case 0x19:
-        case 0x3a:
-        case 0x18:
-        case 0x39:
-        case 0x17:
-        case 0x38:
-        case 0x15:
-        case 0x36:
-        case 0x12:
-        case 0x16:
-        case 0x37:
-        case 0xa9:
-        case 0x10:
-        case 0xbc:
-            return 1;
-        default:
-            return 0;
-    }
-    return 0;
-}
-
-/**
- * @brief Avança jvm_pc.code_pc para o próximo opcode
- *
- * @see getCodeAttribute, getNumberOfOpcodeOperandsInBytes
- */
-void goToNextOpcode() {
-    if (jvm_pc.jumped) {
-        jvm_pc.jumped = 0;
-        return;
-    }
-
-    jvm_pc.jumped = 0;
-
-    code_attribute_t* code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
-
-    jvm_pc.code_pc += getNumberOfOpcodeOperandsInBytes(code_attribute->code, jvm_pc.code_pc) + 1;
-}
-// OPCODE STUFF - END
-
 // JVM OPERATION STUFF - START
 
 /**
@@ -906,116 +501,6 @@ void callMethod(class_t* class, method_info_t* method) {
 }
 /** @} */
 // JVM OPERATION STUFF - END
-
-void print_any_type(any_type_t* anytype) {
-    if (anytype == NULL) {
-        DEBUG_PRINT("ERROR: anytype == NULL in print_any_type\n");
-        exit(1);
-    }
-    switch (anytype->tag) {
-        case PRIMITIVE:
-            switch(anytype->val.primitive_val.tag) {
-                case BOOLEAN:
-                    DEBUG_PRINT("anytype is BOOLEAN == %d\n", anytype->val.primitive_val.val.val_boolean);
-                    break;
-                case CHAR:
-                    DEBUG_PRINT("anytype is CHAR == %d\n", anytype->val.primitive_val.val.val_char);
-                    break;
-                case FLOAT:
-                    DEBUG_PRINT("anytype is FLOAT == %f\n", anytype->val.primitive_val.val.val_float);
-                    break;
-                case DOUBLE:
-                    DEBUG_PRINT("anytype is DOUBLE == %f\n", anytype->val.primitive_val.val.val_double);
-                    break;
-                case RETURN_ADDRESS:
-                    DEBUG_PRINT("anytype is RETURN_ADDRESS == %ud\n", anytype->val.primitive_val.val.val_return_addr);
-                    break;
-                case BYTE:
-                    DEBUG_PRINT("anytype is byte == %d\n", anytype->val.primitive_val.val.val8);
-                    break;
-                case SHORT:
-                    DEBUG_PRINT("anytype is short == %d\n", anytype->val.primitive_val.val.val16);
-                    break;
-                case INT:
-                    DEBUG_PRINT("anytype is int == %d\n", anytype->val.primitive_val.val.val32);
-                    break;
-                case LONG:
-                    DEBUG_PRINT("anytype is long == %ld\n", anytype->val.primitive_val.val.val64);
-                    break;
-                default:
-                    DEBUG_PRINT("anytype is invalid!\n");
-
-            }
-            break;
-        case REFERENCE:
-            switch(anytype->val.reference_val.tag) {
-                case OBJECT:
-                    DEBUG_PRINT("anytype is OBJECT of class %s\n", utf8_to_string(anytype->val.reference_val.val.object.objClass->class_name));
-                    break;
-                case ARRAY:
-                    if ( anytype->val.reference_val.val.array.length > 0) {
-                        switch (anytype->val.reference_val.val.array.components[0].tag) {
-                            case PRIMITIVE:
-                                switch(anytype->val.reference_val.val.array.components[0].val.primitive_val.tag) {
-                                    case BOOLEAN:
-                                        DEBUG_PRINT("anytype is ARRAY of length %d and type BOOLEAN \n", (anytype->val.reference_val.val.array.length));
-                                        break;
-                                    case CHAR:
-                                        DEBUG_PRINT("anytype is ARRAY of length %d and type CHAR \n", (anytype->val.reference_val.val.array.length));
-                                        break;
-                                    case FLOAT:
-                                        DEBUG_PRINT("anytype is ARRAY of length %d and type FLOAT \n", (anytype->val.reference_val.val.array.length));
-                                        break;
-                                    case DOUBLE:
-                                        DEBUG_PRINT("anytype is ARRAY of length %d and type DOUBLE \n", (anytype->val.reference_val.val.array.length));
-                                        break;
-                                    case RETURN_ADDRESS:
-                                        DEBUG_PRINT("anytype is ARRAY of length %d and type RETURN_ADDRESS \n", (anytype->val.reference_val.val.array.length));
-                                        break;
-                                    case BYTE:
-                                        DEBUG_PRINT("anytype is ARRAY of length %d and type BYTE \n", (anytype->val.reference_val.val.array.length));
-                                        break;
-                                    case SHORT:
-                                        DEBUG_PRINT("anytype is ARRAY of length %d and type SHORT \n", (anytype->val.reference_val.val.array.length));
-                                        break;
-                                    case INT:
-                                        DEBUG_PRINT("anytype is ARRAY of length %d and type INT \n", (anytype->val.reference_val.val.array.length));
-                                        break;
-                                    case LONG:
-                                        DEBUG_PRINT("anytype is ARRAY of length %d and type LONG \n", (anytype->val.reference_val.val.array.length));
-                                        break;
-                                    default:
-                                        DEBUG_PRINT("anytype is array invalid!\n");
-                                }
-                                break;
-                            case REFERENCE:
-                                switch(anytype->val.reference_val.val.array.components[0].val.reference_val.tag) {
-                                    case OBJECT:
-                                        DEBUG_PRINT("anytype is ARRAY of length %d and type OBJECT \n", (anytype->val.reference_val.val.array.length));
-                                        break;
-                                    case ARRAY:
-                                        DEBUG_PRINT("anytype is ARRAY of length %d and type ARRAY \n", (anytype->val.reference_val.val.array.length));
-                                        break;
-                                    case NULL_REFERENCE:
-                                        DEBUG_PRINT("anytype is ARRAY of length %d and type NULL_REFERENCE \n", (anytype->val.reference_val.val.array.length));
-                                        break;
-                                    default:
-                                        DEBUG_PRINT("anytype is array reference invalid!\n");
-                                }
-                                break;
-                        }
-                    } else {
-                        DEBUG_PRINT("anytype is ARRAY of length %d\n", (anytype->val.reference_val.val.array.length));
-                    }
-                    break;
-                case NULL_REFERENCE:
-                    DEBUG_PRINT("anytype is NULL_REFERENCE\n");
-                    break;
-                default:
-                    DEBUG_PRINT("anytype is invalid!\n");
-            }
-    }
-}
 
 /**
  * @brief Função main. Inicio da JVM

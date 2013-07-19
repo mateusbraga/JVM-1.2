@@ -3,6 +3,13 @@
 
 #include <stdint.h>
 
+#define DEBUG 0
+#ifdef DEBUG
+#define DEBUG_PRINT(...) do{ fprintf( stderr, __VA_ARGS__ ); } while( 0 )
+#else
+#define DEBUG_PRINT(...) do{ } while ( 0 )
+#endif
+
 /** \addtogroup Estruturas
  * @{
  */
@@ -457,6 +464,21 @@ typedef struct pc_struct {
     u1 jumped; //boolean set when we jump
 } pc_t;
 
+
+// --- Funções auxiliares
+
+// UTF8 STUFF - BEGIN
+Utf8_info_t* string_to_utf8(char* a);
+char* utf8_to_string(Utf8_info_t* utf8);
+int compare_utf8(Utf8_info_t* a, Utf8_info_t* b);
+u2 get_utf8_length_from_char(char* string);
+u2 scan_utf8_char_from_char(char* string, u2 *pos);
+any_type_t* char_to_array_reference(char* string);
+any_type_t* utf8_to_array_reference(Utf8_info_t* utf8);
+// UTF8 STUFF - END
+
+void print_any_type(any_type_t* anytype);
+void setDefault(any_type_t* variable, char* descriptor);
 
 #endif
 /** @} */

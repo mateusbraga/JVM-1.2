@@ -20,6 +20,157 @@ extern pc_t jvm_pc;
  * @{
  */
 
+
+/**
+ * @brief Retorna o número de bytes com operandos do opcode que começa em code[index]
+ *
+ * @param Array dos opcode
+ * @param Index do opcode
+ * @return Número de bytes com operandos
+ */
+int getNumberOfOpcodeOperandsInBytes(u1* code, u2 index) {
+    int counter = 0;
+    int padding = 0;
+    u4 low = 0;
+    u4 high = 0;
+    u4 npairs = 0;
+    u1 byte1 = 0;
+    u1 byte2 = 0;
+    u1 byte3 = 0;
+    u1 byte4 = 0;
+
+    switch(code[index]) {
+        case 0xb9:
+        case 0xba:
+        case 0xc8:
+        case 0xc9:
+            return 4;
+        case 0xaa: //tableswitch is special
+            counter = 1;
+            padding = 4 - (index % 4) - 1;
+            counter += padding; // 1 byte do opcode + allignment bytes
+
+            counter += 4; // jump default
+
+            byte1 = code[index + counter];
+            byte2 = code[index + counter + 1];
+            byte3 = code[index + counter + 2];
+            byte4 = code[index + counter + 3];
+            low = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+            counter += 4; // count low
+
+            byte1 = code[index + counter];
+            byte2 = code[index + counter + 1];
+            byte3 = code[index + counter + 2];
+            byte4 = code[index + counter + 3];
+            high = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+            counter += 4; // count high
+
+            counter += (4 * (high - low + 1)); // count the x offsets
+
+            return counter;
+        case 0xab: //lookupswitch is special
+            counter = 1;
+            padding = 4 - (index % 4) - 1;
+            counter += padding; // 1 byte do opcode + allignment bytes
+
+            counter += 4; //ignore default_offset
+
+            byte1 = code[index + counter];
+            byte2 = code[index + counter + 1];
+            byte3 = code[index + counter + 2];
+            byte4 = code[index + counter + 3];
+            npairs = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+            counter += 4; // count the npairs
+
+            counter += (8 * npairs); // count all the key:offset pairs
+
+            return counter;
+        case 0xc5:
+            return 3;
+        case 0xc4: //wide is special
+            if (code[index + 1] == 0x84) {
+                // forma com iinc
+                return 5;
+            } else {
+                return 3;
+            }
+        case 0xbd:
+        case 0xc0:
+        case 0xc1:
+        case 0xb7:
+        case 0xb8:
+        case 0xb6:
+        case 0x13:
+        case 0x14:
+        case 0xbb:
+        case 0xb5:
+        case 0xb3:
+        case 0xb4:
+        case 0xb2:
+        case 0x84:
+        case 0x11:
+        case 0xa7:
+        case 0xa5:
+        case 0xa6:
+        case 0x9f:
+        case 0xa2:
+        case 0xa3:
+        case 0xa4:
+        case 0xa1:
+        case 0xa0:
+        case 0x99:
+        case 0x9c:
+        case 0x9d:
+        case 0x9e:
+        case 0x9b:
+        case 0x9a:
+        case 0xc7:
+        case 0xc6:
+        case 0xa8:
+            return 2;
+        case 0x19:
+        case 0x3a:
+        case 0x18:
+        case 0x39:
+        case 0x17:
+        case 0x38:
+        case 0x15:
+        case 0x36:
+        case 0x12:
+        case 0x16:
+        case 0x37:
+        case 0xa9:
+        case 0x10:
+        case 0xbc:
+            return 1;
+        default:
+            return 0;
+    }
+    return 0;
+}
+
+/**
+ * @brief Avança jvm_pc.code_pc para o próximo opcode
+ *
+ * @see getCodeAttribute, getNumberOfOpcodeOperandsInBytes
+ */
+void goToNextOpcode() {
+    if (jvm_pc.jumped) {
+        jvm_pc.jumped = 0;
+        return;
+    }
+
+    jvm_pc.jumped = 0;
+
+    code_attribute_t* code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+
+    jvm_pc.code_pc += getNumberOfOpcodeOperandsInBytes(code_attribute->code, jvm_pc.code_pc) + 1;
+}
+
 /**
  * @brief push a null reference onto the stack
  *

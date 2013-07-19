@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "jvm.h"
+#include "opcode.h"
 #include "initializer.h"
 #include "loader.h"
 #include "linker.h"

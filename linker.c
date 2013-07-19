@@ -21,68 +21,13 @@ void preparar (class_t* class) {
 	class->static_fields = (any_type_t**) malloc(sizeof(any_type_t*) * class->class_file.fields_count);
 	u2 i;
 	for (i = 1; i < class->class_file.fields_count; i++) {
-		if ((class->class_file.fields[i].access_flags & ACC_STATIC) == ACC_STATIC)  {
-			any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
+		if ((class->class_file.fields[i].access_flags & ACC_STATIC) == ACC_STATIC)  { // somente para os campos estáticos
+          	class->static_fields[i] = (any_type_t*) malloc(sizeof(any_type_t));
 			u1* b = class->class_file.constant_pool[class->class_file.fields[i].descriptor_index].info.Utf8.bytes;
-			switch(b[0]) {
-				case 'B': //byte
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = BYTE;
-            		operand->val.primitive_val.val.val8 = 0;
-            		break;
-	            case 'C': //char
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = CHAR;
-            		operand->val.primitive_val.val.val_char = 0;
-            		break;
-	            case 'D': //double
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = DOUBLE;
-            		operand->val.primitive_val.val.val_double = 0;
-            		break;
-	            case 'F': //float
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = FLOAT;
-            		operand->val.primitive_val.val.val_float = 0;
-            		break;
-	            case 'I': //integer
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = INT;
-            		operand->val.primitive_val.val.val32 = 0;
-            		break;
-	            case 'J': //long
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = LONG;
-            		operand->val.primitive_val.val.val64 = 0;
-            		break;
-	            case 'S': //short
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = SHORT;
-            		operand->val.primitive_val.val.val16 = 0;
-            		break;
-	            case 'Z': //boolean
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = BOOLEAN;
-            		operand->val.primitive_val.val.val_boolean = 0;
-            		break;
-	            case 'L': //reference
-					operand->tag = REFERENCE;
-            		operand->val.reference_val.tag = OBJECT;
-            		operand->val.reference_val.val.object.length = 0;
-            		operand->val.reference_val.val.object.attributes = NULL;
-	                break;
-	            case '[': //reference - array
-					operand->tag = REFERENCE;
-            		operand->val.reference_val.tag = ARRAY;
-            		operand->val.reference_val.val.array.length = 0;
-            		operand->val.reference_val.val.array.components = NULL;
-	                break;
-	            default:
-	                printf("Unexpected char on method descriptor: %c\n", b[0]);
-	                exit(1);
-			}
-          	class->static_fields[i] = operand;
-		}
+			setDefault(class->static_fields[i], (char*) b);
+		} else {
+          	class->static_fields[i] = NULL;
+        }
 	}
 }
 // PREPARATION STUFF - END
