@@ -336,9 +336,73 @@ void setDefault(any_type_t* variable, char* descriptor) {
             variable->val.reference_val.val.array.components = NULL;
             break;
         default:
-            printf("Unexpected char on descriptor: %c\n", descriptor);
+            printf("Unexpected char on descriptor: %c\n", descriptor[0]);
             exit(1);
     }
 }
+
+/**
+ * @brief Cria uma array de várias dimensões, com tipo type, comprimento length. Cria um novo anytype ou usa arrayref.
+ *
+ * @param Tipo da última dimensão da array
+ * @param Array com os comprimentos de cada dimensão
+ * @param Dimensão a ser criada
+ * @param any_type_t já alocado, ou NULL para criar novo any_type_t
+ * @return any_type_t da arrayref criada.
+ */
+any_type_t* createMultiArray(Utf8_info_t* type, int32_t* length, u1 dimension, any_type_t* arrayref) {
+    DEBUG_PRINT("got into createMultiArray with arguments: %s, %d, %d, %p\n", utf8_to_string(type), length[dimension], dimension, (void*) arrayref);
+    if(arrayref == NULL) {
+        arrayref = (any_type_t*) malloc(sizeof(any_type_t));
+    }
+
+    setDefault(arrayref, (char*) &(type->bytes[dimension]));
+
+    if (type->bytes[dimension] == '[') { //reference - array
+            arrayref->tag = REFERENCE;
+            arrayref->val.reference_val.tag = ARRAY;
+            arrayref->val.reference_val.val.array.length = length[dimension];
+            arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * length[dimension]);
+
+            int32_t i = 0;
+            for(i=0;i < length[dimension]; i++) {
+                createMultiArray(type, length, dimension + 1, &(arrayref->val.reference_val.val.array.components[i]));
+            }
+    }
+
+    DEBUG_PRINT("Done with createMultiArray\n");
+    return arrayref;
+}
+
+/**
+ * @brief Cria um objeto da classe class. Aloca um novo any_type_t ou usa objref.
+ *
+ * @param Classe do objeto a ser criado
+ * @param any_type_t já alocado, ou NULL para criar novo any_type_t
+ * @return any_type_t do objref criado.
+ */
+any_type_t* createObject(class_t* class, any_type_t* objref) {
+    DEBUG_PRINT("got into createObject with arguments: %s\n", utf8_to_string(class->class_name));
+    if(objref == NULL) {
+        objref = (any_type_t*) malloc(sizeof(any_type_t));
+    }
+
+    objref->tag = REFERENCE;
+    objref->val.reference_val.tag = OBJECT;
+    objref->val.reference_val.val.object.objClass = class;
+    objref->val.reference_val.val.object.length = class->class_file.fields_count;
+    objref->val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * class->class_file.fields_count);
+
+    u2 i = 0;
+    for(i=0;i < class->class_file.fields_count; i++) {
+        if ((class->class_file.fields[i].access_flags & ACC_STATIC) == 0) { // somente setar os campos que não são estáticos
+            u1* b = class->class_file.constant_pool[class->class_file.fields[i].descriptor_index].info.Utf8.bytes;
+            setDefault(&(objref->val.reference_val.val.object.attributes[i]), (char*) b);
+        }
+    }
+
+    return objref;
+}
+
 
 /** @} */

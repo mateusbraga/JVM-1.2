@@ -4,10 +4,6 @@
 #include "structs.h"
 #include "frame_stack.h"
 
-// Create STUFF
-any_type_t* createMultiArray(Utf8_info_t* type, int32_t* length, u1 dimension, any_type_t* arrayref);
-any_type_t* createObject(class_t* class, any_type_t* objref);
-
 // CLASS_T STUFF
 class_t *getClass(Utf8_info_t* class_name);
 class_t *createClass(Utf8_info_t* class_name);
