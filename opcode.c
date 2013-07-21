@@ -1379,7 +1379,7 @@ void frem(){
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
-    operand->val.primitive_val.val.val_float = (op1->val.primitive_val.val.val_float)-((op1->val.primitive_val.val.val_float)/(op2->val.primitive_val.val.val_float))*(op2->val.primitive_val.val.val_float);
+    operand->val.primitive_val.val.val_float = (op1->val.primitive_val.val.val_float)-((int)((op1->val.primitive_val.val.val_float)/(op2->val.primitive_val.val.val_float)))*(op2->val.primitive_val.val.val_float);
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -1399,7 +1399,7 @@ void drem_op(){
     operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = DOUBLE;
-    operand->val.primitive_val.val.val_double = (op1->val.primitive_val.val.val_double)-((op1->val.primitive_val.val.val_double)/(op2->val.primitive_val.val.val_double))*(op2->val.primitive_val.val.val_double);
+    operand->val.primitive_val.val.val_double = (op1->val.primitive_val.val.val_double)-((int) ((op1->val.primitive_val.val.val_double)/(op2->val.primitive_val.val.val_double)))*(op2->val.primitive_val.val.val_double);
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
