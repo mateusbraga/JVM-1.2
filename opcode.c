@@ -2673,7 +2673,7 @@ void jsr(){
     indexl = code_attribute->code[jvm_pc.code_pc+2];
     index = (indexh<<8)|indexl;
 
-    jvm_pc.code_pc = index;
+    jvm_pc.code_pc += index;
     jvm_pc.jumped = 1;
 }
 
@@ -3146,119 +3146,120 @@ void lookupswitch() {
  */
 void wide() {
     DEBUG_PRINT("got into wide\n");
-    exit(1);
-    /*any_type_t* operand;*/
-    /*int offset = 0;*/
-    /*u2 index;*/
-    /*int16_t inc;*/
-    /*u1 opcode;*/
-    /*u1 byte1 = 0;*/
-    /*u1 byte2 = 0;*/
+    int offset = 0;
+    u2 index;
+    int16_t inc;
+    u1 opcode;
+    u1 byte1 = 0;
+    u1 byte2 = 0;
+    // this malloc is only required for Tload instructions - desperdicio
+    any_type_t* operand = (any_type_t*) malloc(sizeof(any_type_t));
 
-    /*frame_t *frame = peek_frame_stack(jvm_stack);*/
-    /*code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);*/
 
-    /*offset += 1; //count wide opcode*/
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
 
-    /*opcode = code_attribute->code[jvm_pc.code_pc + offset];*/
+    offset += 1; //count wide opcode
 
-    /*offset += 1; //count operation opcode*/
+    opcode = code_attribute->code[jvm_pc.code_pc + offset];
 
-    /*switch(opcode) {*/
-        /*case 0x84: // caso iinc*/
-            /*byte1 = code_attribute->code[jvm_pc.code_pc + offset];*/
-            /*byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];*/
-            /*index = (byte1 << 8) | (byte2);*/
+    offset += 1; //count operation opcode
 
-            /*offset += 2; // count index*/
+    switch(opcode) {
+        case 0x84: // caso iinc
+            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+            index = (byte1 << 8) | (byte2);
 
-            /*byte1 = code_attribute->code[jvm_pc.code_pc + offset];*/
-            /*byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];*/
-            /*inc = (byte1 << 8) | (byte2);*/
+            offset += 2; // count index
 
-            /*offset += 2; // count count*/
+            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+            inc = (byte1 << 8) | (byte2);
 
-            /*operand = frame->local_var.var[index];*/
-            /*switch (operand->val.primitive_val.tag) {*/
-                /*case BYTE:*/
-                    /*operand->val.primitive_val.val.val8 += inc;*/
-                    /*break;*/
-                /*case SHORT:*/
-                    /*operand->val.primitive_val.val.val16 += inc;*/
-                    /*break;*/
-                /*case INT:*/
-                    /*operand->val.primitive_val.val.val32 += inc;*/
-                    /*break;*/
-                /*case LONG:*/
-                    /*operand->val.primitive_val.val.val64 += inc;*/
-                    /*break;*/
-                /*default:*/
-                    /*DEBUG_PRINT("Unexpected primitive_val tag on iinc()\n");*/
-                    /*break;*/
-            /*}*/
+            offset += 2; // count count
 
-            /*break;*/
-        /*case 0x15: // caso iload*/
-        /*case 0x17: // caso fload*/
-        /*case 0x16: // caso lload*/
-        /*case 0x18: // caso dload*/
-        /*case 0x19: // caso aload*/
-            /*byte1 = code_attribute->code[jvm_pc.code_pc + offset];*/
-            /*byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];*/
-            /*index = (byte1 << 8) | (byte2);*/
+            operand = &(frame->local_var.var[index]);
+            switch (operand->val.primitive_val.tag) {
+                case BYTE:
+                    operand->val.primitive_val.val.val8 += inc;
+                    break;
+                case SHORT:
+                    operand->val.primitive_val.val.val16 += inc;
+                    break;
+                case INT:
+                    operand->val.primitive_val.val.val32 += inc;
+                    break;
+                case LONG:
+                    operand->val.primitive_val.val.val64 += inc;
+                    break;
+                default:
+                    DEBUG_PRINT("Unexpected primitive_val tag on iinc()\n");
+                    break;
+            }
 
-            /*offset += 2; // count index*/
+            break;
+        case 0x15: // caso iload
+        case 0x17: // caso fload
+        case 0x16: // caso lload
+        case 0x18: // caso dload
+        case 0x19: // caso aload
+            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+            index = (byte1 << 8) | (byte2);
 
-            /*operand = frame->local_var.var[index];*/
-            /*push_operand_stack(&(frame->operand_stack), operand);*/
-            /*break;*/
-        /*case 0x36: // caso istore*/
-        /*case 0x37: // caso lstore*/
-        /*case 0x38: // caso fstore*/
-        /*case 0x39: // caso dstore*/
-        /*case 0x3a: // caso astore*/
-            /*byte1 = code_attribute->code[jvm_pc.code_pc + offset];*/
-            /*byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];*/
-            /*index = (byte1 << 8) | (byte2);*/
+            offset += 2; // count index
 
-            /*offset += 2; // count index*/
+            memmove(operand, &(frame->local_var.var[index]), sizeof(any_type_t));
+            push_operand_stack(&(frame->operand_stack), operand);
+            break;
+        case 0x36: // caso istore
+        case 0x37: // caso lstore
+        case 0x38: // caso fstore
+        case 0x39: // caso dstore
+        case 0x3a: // caso astore
+            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+            index = (byte1 << 8) | (byte2);
 
-            /*operand = pop_operand_stack(&(frame->operand_stack));*/
+            offset += 2; // count index
 
-            /*frame->local_var.var[index] = operand;*/
-            /*if(operand->val.primitive_val.tag == LONG|| operand->val.primitive_val.tag == DOUBLE)*/
-                /*frame->local_var.var[index+1] = operand;*/
-            /*break;*/
-        /*case 0xa9: // caso ret*/
-            /*byte1 = code_attribute->code[jvm_pc.code_pc + offset];*/
-            /*byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];*/
-            /*index = (byte1 << 8) | (byte2);*/
+            operand = pop_operand_stack(&(frame->operand_stack));
 
-            /*offset += 2; // count index*/
+            memmove(&(frame->local_var.var[index]), operand, sizeof(any_type_t));
+            if(operand->val.primitive_val.tag == LONG|| operand->val.primitive_val.tag == DOUBLE)
+                memmove(&(frame->local_var.var[index + 1]), operand, sizeof(any_type_t));
+            break;
+        case 0xa9: // caso ret
+            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
+            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
+            index = (byte1 << 8) | (byte2);
 
-            /*operand = frame->local_var.var[index];*/
-            /*switch (operand->val.primitive_val.tag) {*/
-                /*case BYTE:*/
-                    /*jvm_pc.code_pc = operand->val.primitive_val.val.val8;*/
-                    /*break;*/
-                /*case SHORT:*/
-                    /*jvm_pc.code_pc = operand->val.primitive_val.val.val16;*/
-                    /*break;*/
-                /*case INT:*/
-                    /*jvm_pc.code_pc = operand->val.primitive_val.val.val32;*/
-                    /*break;*/
-                /*case LONG:*/
-                    /*jvm_pc.code_pc = operand->val.primitive_val.val.val64;*/
-                    /*break;*/
-                /*default:*/
-                    /*printf("Unexpected primitive_val tag on ret()\n");*/
-                    /*break;*/
-            /*}*/
+            offset += 2; // count index
 
-            /*jvm_pc.jumped = 1;*/
+            operand = &(frame->local_var.var[index]);
+            switch (operand->val.primitive_val.tag) {
+                case BYTE:
+                    jvm_pc.code_pc = operand->val.primitive_val.val.val8;
+                    break;
+                case SHORT:
+                    jvm_pc.code_pc = operand->val.primitive_val.val.val16;
+                    break;
+                case INT:
+                    jvm_pc.code_pc = operand->val.primitive_val.val.val32;
+                    break;
+                case LONG:
+                    jvm_pc.code_pc = operand->val.primitive_val.val.val64;
+                    break;
+                default:
+                    printf("Unexpected primitive_val tag on ret()\n");
+                    break;
+            }
 
-            /*break;*/
-    /*}*/
+            jvm_pc.jumped = 1;
+
+            break;
+    }
 }
 
 /**
