@@ -12,7 +12,7 @@
 
 /**
  * @brief Lê um arquivo e monta a tabela de atributos.
- * 
+ *
  * @param classe - Ponteiro para uma classe
  * @param fp - Ponteiro para um arquivo .class de onde as informações serão lidas
  * @param attributesCount - Quantidade de elementos na tabela de atributos
@@ -75,11 +75,11 @@ attribute_info_t* GetAtributos(class_file_t* classe, FILE *fp, u2 attributesCoun
             }
         }else if(compare_utf8(nome, string_to_utf8("Synthetic")) == 0) {
             atributos[i].info.synthetic.attribute_name_index = atributos[i].attribute_name_index;
-            atributos[i].info.synthetic.attribute_length = atributos[i].attribute_length;						
+            atributos[i].info.synthetic.attribute_length = atributos[i].attribute_length;
         }else if(compare_utf8(nome, string_to_utf8("SourceFile")) == 0) {
             atributos[i].info.sourcefile.attribute_name_index = atributos[i].attribute_name_index;
             atributos[i].info.sourcefile.attribute_length = atributos[i].attribute_length;
-            atributos[i].info.sourcefile.sourcefile_index = readu2(fp);			
+            atributos[i].info.sourcefile.sourcefile_index = readu2(fp);
         }else if(compare_utf8(nome, string_to_utf8("LineNumberTable")) == 0) {
             atributos[i].info.line_number_table.attribute_name_index = atributos[i].attribute_name_index;
             atributos[i].info.line_number_table.attribute_length = atributos[i].attribute_length;
@@ -88,7 +88,7 @@ attribute_info_t* GetAtributos(class_file_t* classe, FILE *fp, u2 attributesCoun
             for(j=0; j < atributos[i].info.line_number_table.line_number_table_length; j++) {
                 atributos[i].info.line_number_table.line_number_table[j].start_pc = readu2(fp);
                 atributos[i].info.line_number_table.line_number_table[j].line_number = readu2(fp);
-            }		
+            }
         }else if(compare_utf8(nome, string_to_utf8("LocalVariableTable")) == 0) {
             atributos[i].info.local_variable_table.attribute_name_index = atributos[i].attribute_name_index;
             atributos[i].info.local_variable_table.attribute_length = atributos[i].attribute_length;
@@ -104,7 +104,7 @@ attribute_info_t* GetAtributos(class_file_t* classe, FILE *fp, u2 attributesCoun
 
         }else if(compare_utf8(nome, string_to_utf8("Deprecated")) == 0) {
             atributos[i].info.deprecated.attribute_name_index = atributos[i].attribute_name_index;
-            atributos[i].info.deprecated.attribute_length = atributos[i].attribute_length;		   
+            atributos[i].info.deprecated.attribute_length = atributos[i].attribute_length;
         }else if(compare_utf8(nome, string_to_utf8("Signature")) == 0) {
             atributos[i].info.signature.attribute_name_index = atributos[i].attribute_name_index;
             atributos[i].info.signature.attribute_length = atributos[i].attribute_length;
@@ -119,13 +119,13 @@ attribute_info_t* GetAtributos(class_file_t* classe, FILE *fp, u2 attributesCoun
 /*-----------------------------------------------------------------------------------------------------------------*/
 /**
  * @brief Lê a tabela de atributos e imprime ela na tela.
- * 
+ *
  * @param classe - ponteiro para a classe
  * @param atributos - ponteiro para a tabela de atributos
  * @param qtd - quantidade de elementos da tabela
  * @return não retorna nada
- */ 
-void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd){    
+ */
+void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd){
     Utf8_info_t* nome;
     u4 i, j;
     for( i = 0; i < qtd ; i++){
@@ -142,7 +142,7 @@ void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd
             printf("Code length: %i\n",atributos[i].info.code.code_length);
             printf("...\n");
             for(j=0; j < atributos[i].info.code.code_length; j++ ){
-                //printf("%c",atributos[i].info.code[j]);  
+                //printf("%c",atributos[i].info.code[j]);
             }
             printf("Excepion table length: %hi\n",atributos[i].info.code.exception_table_length);
             for(j=0; j < atributos[i].info.code.exception_table_length; j++) {
@@ -169,7 +169,7 @@ void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd
 /*-----------------------------------------------------------------------------------------------------------------*/
 /**
  * @brief Lê um arquivo e monta a tabela de métodos.
- * 
+ *
  * @param classe - Ponteiro para uma classe
  * @param fp - Ponteiro para um arquivo .class de onde as informações serão lidas
  * @param methodsCount - Quantidade de elementos na tabela de métodos
@@ -194,11 +194,11 @@ method_info_t* GetMetodo(class_file_t* classe,  FILE *fp, u2 methodsCount){
 /*-----------------------------------------------------------------------------------------------------------------*/
 /**
  * @brief Lê a tabela de métodos e imprime ela na tela.
- * 
+ *
  * @param metodos - ponteiro para a tabela de métodos
  * @param qtd - quantidade de elementos da tabela
  * @return não retorna nada
- */ 
+ */
 void ImprimeMetodos(class_file_t* classe){
     u2 qtd;
     method_info_t* metodos;
@@ -218,7 +218,7 @@ void ImprimeMetodos(class_file_t* classe){
 /*-----------------------------------------------------------------------------------------------------------------*/
 /**
  * @brief Lê um arquivo e monta a tabela de campos.
- * 
+ *
  * @param classe - Ponteiro para uma classe
  * @param fp - Ponteiro para um arquivo .classe de onde as informações serão lidas
  * @param fieldCount - Quantidade de elementos na tabela de campos
@@ -243,7 +243,7 @@ field_info_t* GetFields(class_file_t* classe, FILE *fp, u2 fieldCount){
 
 /**
  * @brief Lê a tabela de campos e imprime ela na tela.
- * 
+ *
  * @param fields - ponteiro para a tabela de campos
  * @param qtd - quantidade de elementos da tabela
  * @return não retorna nada
@@ -269,7 +269,7 @@ void ImprimeFields(class_file_t* classe){
 /*-----------------------------------------------------------------------------------------------------------------*/
 /**
  * @brief Lê um arquivo e monta a tabela de constantes a partir dele.
- * 
+ *
  * @param fp - Um ponteiro para o arquivo .class de onde sera lido
  * @param constantCount - um inteiro que indica a quantidade de elementos da tabela
  * @return ponteiro para a tabela de constantes
@@ -277,7 +277,7 @@ void ImprimeFields(class_file_t* classe){
 
 cp_info_t* GetConstantes(FILE *fp, u2 constantCount){
     cp_info_t *constantes;
-    u2 i, j;    
+    u2 i, j;
 
     constantes = (cp_info_t*)calloc(constantCount, sizeof(cp_info_t));
     for(i=1;i<constantCount;i++){
@@ -285,7 +285,7 @@ cp_info_t* GetConstantes(FILE *fp, u2 constantCount){
         switch(constantes[i].tag){
             case CONSTANT_Class:
                 constantes[i].info.Class.name_index = readu2(fp);
-                break;                  
+                break;
             case CONSTANT_Fieldref :
                 constantes[i].info.Fieldref.class_index = readu2(fp);
                 constantes[i].info.Fieldref.name_and_type_index = readu2(fp);
@@ -339,13 +339,13 @@ cp_info_t* GetConstantes(FILE *fp, u2 constantCount){
 /*-----------------------------------------------------------------------------------------------------------------*/
 /**
  * @brief Lê a tabela de constantes e mostra de acordo com a especificacão e baseado no programa jclasslib.
- * 
+ *
  * @param constantes - Um ponteiro para a tabela de constantes
  * @param qtd - Quantidade de elementos desta tabela
  * @return não retorna nada
  */
 void ImprimeConstantes(cp_info_t *constantes, u2 qtd){
-    u2 i;  
+    u2 i;
     u2 index;
     u2 index2;
     u2 index3;
@@ -360,7 +360,7 @@ void ImprimeConstantes(cp_info_t *constantes, u2 qtd){
                 printf("\n");
                 break;
             case CONSTANT_Fieldref:
-                printf("tag: %u (CONSTANT_Fieldref)\n", constantes[i].tag);                    
+                printf("tag: %u (CONSTANT_Fieldref)\n", constantes[i].tag);
                 index = constantes[i].info.Fieldref.class_index;
                 index2 = constantes[index].info.Class.name_index;
                 printf("class_index: %u <%s>\n", index, utf8_to_string(&(constantes[index2].info.Utf8)));
@@ -441,15 +441,15 @@ void ImprimeConstantes(cp_info_t *constantes, u2 qtd){
                 break;
         }
     }
-} 
+}
 
 /*-----------------------------------------------------------------------------------------------------------------*/
 /**
  * @brief A partir do nome no argumento a função lê um arquivo e monta a classe a partir dele.
- * 
+ *
  * @param class - estrutura de uma classe
  * @return nada
- */ 
+ */
 void set_class_file(class_t* class){
     u2 i;
     FILE *fp;
@@ -491,7 +491,7 @@ void set_class_file(class_t* class){
                 printf("Erro! Problema na versao da classe\n %x.%x\n", classe->major_version, classe->minor_version);
                 exit(1);
             }
-        }   
+        }
     }
     classe->constant_pool_count = readu2(fp);
     classe->constant_pool = GetConstantes(fp, classe->constant_pool_count);
@@ -518,7 +518,7 @@ void set_class_file(class_t* class){
 /*-----------------------------------------------------------------------------------------------------------------*/
 /**
  * @brief Lê a classe passada (que foi montada a partir da função "void set_class_file" e imprime a sua estrutura na tela.
- * 
+ *
  * @param classe - Ponteiro para a classe que será mostrada
  * @return não retorna nada
 */
@@ -564,8 +564,8 @@ void loadClass(class_t* class){
     u2 index_class;
     DEBUG_PRINT("Got in loadClass with arguments: %s\n", utf8_to_string(class->class_name));
     set_class_file(class);
-    index_class = class->class_file.constant_pool[class->class_file->this_class].info.Class.name_index;
-    if ((compare_utf8(class->class_name, &(class->class_file.constant_pool[index_class].info.Utf8)) != 0) {
+    index_class = class->class_file.constant_pool[class->class_file.this_class].info.Class.name_index;
+    if (compare_utf8(class->class_name, &(class->class_file.constant_pool[index_class].info.Utf8)) != 0) {
         printf("Erro! Nome lido da classe e nome recebido da classe diferentes.\n");
         exit(1);
     }
