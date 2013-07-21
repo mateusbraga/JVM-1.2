@@ -80,9 +80,5 @@ void push_operand_stack(operand_stack_t *stack, any_type_t *operand) {
 
     DEBUG_PRINT("pushed at %d: ", stack->head);
     print_any_type(operand);
-    if (stack->head - 1 >= 0) {
-        DEBUG_PRINT("before at %d has: ", stack->head - 1);
-        print_any_type(stack->operand[stack->head - 1]);
-    }
 }
 

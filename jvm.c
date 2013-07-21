@@ -123,6 +123,8 @@ int isSuperClassOf(class_t* super_class, class_t* sub_class) {
  * @return Code attribute
  */
 code_attribute_t* getCodeAttribute(class_t* class, method_info_t* method) {
+    Utf8_info_t* method_name = &(class->class_file.constant_pool[method->name_index].info.Utf8);
+    DEBUG_PRINT("got into getCodeAttribute with arguments: %s , %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name));
     int i = 0;
     for (i = 0; method->attributes_count; i++) {
         attribute_info_t* attribute = &(method->attributes[i]);
@@ -134,7 +136,7 @@ code_attribute_t* getCodeAttribute(class_t* class, method_info_t* method) {
             return &(attribute->info.code);
         }
     }
-    printf("ERROR: Could not find Code attribute");
+    printf("ERROR: Could not find Code attribute\n");
     exit(1);
 }
 
@@ -382,21 +384,8 @@ void callMethod(class_t* class, method_info_t* method) {
         initializeClass(class);
     }
 
-    code_attribute_t* code_attribute = getCodeAttribute(class, method);
-
     frame_t *invokerFrame = peek_frame_stack(jvm_stack);
-    frame_t *frame = (frame_t*) malloc(sizeof(frame_t));
-    frame->current_class = class;
-    frame->current_method = method;
-    frame->return_address = jvm_pc;
-    frame->local_var.size = code_attribute->max_locals; 
-    frame->local_var.var = (any_type_t**) malloc(frame->local_var.size * sizeof(any_type_t*));
-    frame->operand_stack.depth = 0;
-    frame->operand_stack.head = -1;
-    frame->operand_stack.size = code_attribute->max_stack;
-    frame->operand_stack.operand = (any_type_t**) malloc(frame->operand_stack.size * sizeof(any_type_t**));
-
-
+    
     //get number of arguments from classfile
     int number_of_arguments = getNumberOfArguments(class, method);
     DEBUG_PRINT("number_of_arguments = %d\n", number_of_arguments);
@@ -410,10 +399,36 @@ void callMethod(class_t* class, method_info_t* method) {
     aux_operand_stack.head = -1;
     aux_operand_stack.size = number_of_arguments;
     aux_operand_stack.operand = (any_type_t**) malloc(number_of_arguments * sizeof(any_type_t**));
+    any_type_t* aux_objref = NULL;
     for (i = 0; i < number_of_arguments; i++) {
         any_type_t *operand = pop_operand_stack(&(invokerFrame->operand_stack));
         push_operand_stack(&(aux_operand_stack), operand);
+        aux_objref = operand;
     }
+
+    code_attribute_t* code_attribute = NULL;
+    if ((class->class_file.access_flags & ACC_INTERFACE) == ACC_INTERFACE) {
+        Utf8_info_t* descriptor = &(class->class_file.constant_pool[method->descriptor_index].info.Utf8);
+        DEBUG_PRINT("hello %s\n", utf8_to_string(descriptor));
+        class = aux_objref->val.reference_val.val.object.objClass;
+        method = getMethod(class, method_name, descriptor);
+        code_attribute = getCodeAttribute(class, method);
+    } else {
+        code_attribute = getCodeAttribute(class, method);
+    }
+
+    frame_t *frame = (frame_t*) malloc(sizeof(frame_t));
+    frame->current_class = class;
+    frame->current_method = method;
+    frame->return_address = jvm_pc;
+    frame->local_var.size = code_attribute->max_locals; 
+    frame->local_var.var = (any_type_t**) malloc(frame->local_var.size * sizeof(any_type_t*));
+    frame->operand_stack.depth = 0;
+    frame->operand_stack.head = -1;
+    frame->operand_stack.size = code_attribute->max_stack;
+    frame->operand_stack.operand = (any_type_t**) malloc(frame->operand_stack.size * sizeof(any_type_t**));
+
+
     for (i = 0; i < number_of_arguments; i++) {
         any_type_t *operand = pop_operand_stack(&(aux_operand_stack));
 
