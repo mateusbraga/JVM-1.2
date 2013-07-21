@@ -55,7 +55,7 @@ typedef uint32_t u4;
 /**
  * @struct Utf8_info_t
  * @brief Estrutura para Constante Utf8 da constant pool
- * 
+ *
  */
 
 typedef struct Utf8_info_struct {
@@ -66,7 +66,7 @@ typedef struct Utf8_info_struct {
 /**
  * @struct cp_info_struct
  * @brief Estrutura da constant pool, contendo um tag e uma union com todas as outras estruturas.
- * 
+ *
  */
 
 typedef struct cp_info_struct
@@ -75,7 +75,7 @@ typedef struct cp_info_struct
     /**
      * @union cp_info_union
      * @brief Union com todas as estruturas da constant pool
-     * 
+     *
      */
     union cp_info_union {
         struct CONSTANT_Class_info_struct {
@@ -130,7 +130,7 @@ typedef struct cp_info_struct
 } cp_info_t;
 /**
  * @struct exception_table_struct
- * 
+ *
  */
 typedef struct exception_table_struct {
     u2 start_pc;
@@ -140,7 +140,7 @@ typedef struct exception_table_struct {
 } exception_table_t;
 /**
  * @struct inner_class_struct
- * 
+ *
  */
 typedef struct inner_class_struct {
    u2 inner_class_info_index;
@@ -152,7 +152,7 @@ typedef struct inner_class_struct {
 /**
  * @struct line_number_table_t
  * @brief Estrutura que guarda o pc
- * 
+ *
  */
 typedef struct line_number_table_struct {
    u2 start_pc;
@@ -161,7 +161,7 @@ typedef struct line_number_table_struct {
 /**
  * @struct local_variable_table_t
  * @brief Estrutra da tabela de variaveis locais
- * 
+ *
  */
 typedef struct local_variable_table_struct {
     u2 start_pc;
@@ -173,7 +173,7 @@ typedef struct local_variable_table_struct {
 
 /**
  * @struct constantvalue_attribute_t
- * 
+ *
  */
 typedef struct constantvalue_attribute_struct {
     u2 attribute_name_index;
@@ -184,7 +184,7 @@ typedef struct constantvalue_attribute_struct {
 /**
  * @struct code_attribute_struct
  * @brief Estrutura dos atributos da classe.
- * 
+ *
  */
 typedef struct code_attribute_struct {
     u2 attribute_name_index;
@@ -201,7 +201,7 @@ typedef struct code_attribute_struct {
 /**
  * @struct code_attribute_struct
  * @brief Estrutura das excessoes dos atributos da classe.
- * 
+ *
  */
 typedef struct exceptions_attribute_struct {
     u2 attribute_name_index;
@@ -211,7 +211,7 @@ typedef struct exceptions_attribute_struct {
 } exceptions_attribute_t;
 /**
  * @struct InnerClasses_attribute_struct
- * 
+ *
  */
 typedef struct InnerClasses_attribute_struct {
     u2 attribute_name_index;
@@ -221,7 +221,7 @@ typedef struct InnerClasses_attribute_struct {
 } innerclasses_attribute_t;
 /**
  * @struct Synthetic_attribute_struct
- * 
+ *
  */
 typedef struct Synthetic_attribute_struct {
     u2 attribute_name_index;
@@ -229,7 +229,7 @@ typedef struct Synthetic_attribute_struct {
 } synthetic_attribute_t;
 /**
  * @struct Sourcefile_attribute_struct
- * 
+ *
  */
 typedef struct Sourcefile_attribute_struct {
     u2 attribute_name_index;
@@ -238,7 +238,7 @@ typedef struct Sourcefile_attribute_struct {
 } sourcefile_attribute_t;
 /**
  * @struct Signature_attribute_struct
- * 
+ *
  */
 typedef struct Signature_attribute_struct
 {
@@ -248,7 +248,7 @@ typedef struct Signature_attribute_struct
 } signature_attribute_t;
 /**
  * @struct LineNumberTable_attribute_struct
- * 
+ *
  */
 typedef struct LineNumberTable_attribute_struct {
     u2 attribute_name_index;
@@ -258,7 +258,7 @@ typedef struct LineNumberTable_attribute_struct {
 } line_number_table_attribute_t;
 /**
  * @struct LocalVariableTable_attribute_struct
- * 
+ *
  */
 typedef struct LocalVariableTable_attribute_struct {
     u2 attribute_name_index;
@@ -268,7 +268,7 @@ typedef struct LocalVariableTable_attribute_struct {
 } local_variable_attribute_t;
 /**
  * @struct Deprecated_attribute_struct
- * 
+ *
  */
 typedef struct Deprecated_attribute_struct {
     u2 attribute_name_index;
@@ -277,7 +277,7 @@ typedef struct Deprecated_attribute_struct {
 /**
  * @struct attribute_info_struct
  * @brief Estrutura com os attributos, contendo o nome, o tamanho e uma union com as informacoes do attributo.
- * 
+ *
  */
 typedef struct attribute_info_struct {
     u2 attribute_name_index;
@@ -299,7 +299,7 @@ typedef struct attribute_info_struct {
 /**
  * @struct field_info_struct
  * @brief Estrutra com as informacoes dos campos da classe.
- * 
+ *
  */
 typedef struct field_info_struct {
     u2 access_flags;
@@ -311,7 +311,7 @@ typedef struct field_info_struct {
 /**
  * @struct method_info_struct
  * @brief Estrutura com as informacoes dos metodos da classe.
- * 
+ *
  */
 
 typedef struct method_info_struct {
@@ -328,7 +328,7 @@ typedef struct method_info_struct {
  /**
  * @struct class_file_struct
  * @brief Estrutura primaria da classe, com todas as informacoes do classfile.
- * 
+ *
  */
 typedef struct class_file_struct {
     u4 magic;
@@ -355,19 +355,19 @@ typedef struct class_file_struct {
 /**
  * @enum any_type_tag_enum
  * @brief Enum com os tipos do any_tag, Primitivo e de Referencia.
- * 
+ *
  */
 typedef enum any_type_tag_enum {PRIMITIVE, REFERENCE} any_type_tag_t;
 /**
  * @enum reference_type_tag_enum
  * @brief Enum com os tipos do any_tag de referencia, podendo ser array, objeto ou null
- * 
+ *
  */
 typedef enum reference_type_tag_enum {ARRAY, OBJECT, NULL_REFERENCE} reference_type_tag_t;
 /**
  * @enum any_type_tag_enum
  * @brief Enum com os tipos do any_tag primario, podendo ser, boolean, byte, short, int, long...
- * 
+ *
  */
 typedef enum primitive_type_tag_enum {BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE, RETURN_ADDRESS} primitive_type_tag_t;
 
@@ -376,7 +376,7 @@ typedef struct class_struct class_t;
 /**
  * @struct array_struct
  * @brief Estrutura do array do any_type de referencia
- * 
+ *
  */
 typedef struct array_struct {
     uint32_t length;
@@ -385,7 +385,7 @@ typedef struct array_struct {
 /**
  * @struct object_struct
  * @brief Estrutura do objeto do any_type de referencia
- * 
+ *
  */
 typedef struct object_struct {
     class_t* objClass;
@@ -395,7 +395,7 @@ typedef struct object_struct {
 /**
  * @struct primitive_type_struct
  * @brief Estrutura dos campos primitivos do any_type
- * 
+ *
  */
 typedef struct primitive_type_struct {
     primitive_type_tag_t tag;
@@ -415,7 +415,7 @@ typedef struct primitive_type_struct {
 /**
  * @struct reference_type_struct
  * @brief Estrutura de referencia do any_type, podendo ser array ou objeto
- * 
+ *
  */
 typedef struct reference_type_struct {
     reference_type_tag_t tag;
@@ -428,7 +428,7 @@ typedef struct reference_type_struct {
 /**
  * @struct any_type_struct
  * @brief Estrutura inicial do any_type, podendo ser primitivo ou de referencia.
- * 
+ *
  */
 struct any_type_struct {
     any_type_tag_t tag;
@@ -442,13 +442,13 @@ struct any_type_struct {
 /**
  * @enum class_status_t
  * @brief Enumeracao dos estados possiveis da classe.
- * 
+ *
  */
 typedef enum {CLASSE_NAO_CARREGADA, CLASSE_NAO_LINKADA, CLASSE_NAO_INICIALIZADA, CLASSE_PRONTA } class_status_t;
 /**
  * @struct class_struct
  * @brief Estrutra da classe, contendo seu nome, seu status, sua class file e seus campos estaticos
- * 
+ *
  */
 struct class_struct {
     Utf8_info_t *class_name;
@@ -459,7 +459,7 @@ struct class_struct {
 /**
  * @struct pc_struct
  * @brief Estrutura do pc da classe
- * 
+ *
  */
 typedef struct pc_struct {
     class_t* currentClass;

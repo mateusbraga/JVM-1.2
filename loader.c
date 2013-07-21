@@ -142,7 +142,8 @@ void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd
             printf("Code length: %i\n",atributos[i].info.code.code_length);
             printf("...\n");
             for(j=0; j < atributos[i].info.code.code_length; j++ ){
-                //printf("%c",atributos[i].info.code[j]);
+                getNumberOfOpcodeOperandsInBytes(atributos[i].info.code[j]);
+                printf("%c",atributos[i].info.code[j]);
             }
             printf("Excepion table length: %hi\n",atributos[i].info.code.exception_table_length);
             for(j=0; j < atributos[i].info.code.exception_table_length; j++) {
