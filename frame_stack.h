@@ -30,7 +30,7 @@ void push_operand_stack(operand_stack_t *stack, any_type_t *operand);
  * 
  */
 typedef struct local_variables_struct {
-    any_type_t** var; // Array de ponteiros any_type_t
+    any_type_t* var; // Array de any_type_t
     unsigned int size;
 } local_variables_t;
 

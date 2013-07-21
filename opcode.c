@@ -640,13 +640,13 @@ void ldc2_w(){
  */
 void tload(){
     DEBUG_PRINT("got into tload\n");
-    any_type_t* operand;
+    any_type_t* operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    operand = frame->local_var.var[index];
+    memmove(operand, &(frame->local_var.var[index]), sizeof(any_type_t));
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -657,10 +657,10 @@ void tload(){
  */
 void tload_0(){
     DEBUG_PRINT("got into tload_0\n");
-    any_type_t* operand;
+    any_type_t* operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    operand = frame->local_var.var[0];
+    memmove(operand, &(frame->local_var.var[0]), sizeof(any_type_t));
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -671,10 +671,10 @@ void tload_0(){
  */
 void tload_1(){
     DEBUG_PRINT("got into tload_1\n");
-    any_type_t* operand;
+    any_type_t* operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    operand = frame->local_var.var[1];
+    memmove(operand, &(frame->local_var.var[1]), sizeof(any_type_t));
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -685,10 +685,10 @@ void tload_1(){
  */
 void tload_2(){
     DEBUG_PRINT("got into tload_2\n");
-    any_type_t* operand;
+    any_type_t* operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    operand = frame->local_var.var[2];
+    memmove(operand, &(frame->local_var.var[2]), sizeof(any_type_t));
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -699,10 +699,10 @@ void tload_2(){
  */
 void tload_3(){
     DEBUG_PRINT("got into tload_3\n");
-    any_type_t* operand;
+    any_type_t* operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     frame_t *frame = peek_frame_stack(jvm_stack);
-    operand = frame->local_var.var[3];
+    memmove(operand, &(frame->local_var.var[3]), sizeof(any_type_t));
 
     push_operand_stack(&(frame->operand_stack), operand);
 }
@@ -717,12 +717,16 @@ void taload(){
     uint32_t int_index;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
+    any_type_t* operand = (any_type_t*) malloc(sizeof(any_type_t));
+
     index = pop_operand_stack(&(frame->operand_stack));
     arrayref = pop_operand_stack(&(frame->operand_stack));
 
     int_index = index->val.primitive_val.val.val32;
 
-    push_operand_stack(&(frame->operand_stack), &(arrayref->val.reference_val.val.array.components[int_index]));
+    memmove(operand, &(arrayref->val.reference_val.val.array.components[int_index]), sizeof(any_type_t));
+
+    push_operand_stack(&(frame->operand_stack), operand);
 }
 
 /**
@@ -739,9 +743,9 @@ void tstore(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     value = pop_operand_stack(&(frame->operand_stack));
 
-    frame->local_var.var[index] = value;
+    memmove(&(frame->local_var.var[index]), value, sizeof(any_type_t));
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-        frame->local_var.var[index+1] = value;
+        memmove(&(frame->local_var.var[index + 1]), value, sizeof(any_type_t));
 }
 
 /**
@@ -755,9 +759,9 @@ void tstore_0(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     value = pop_operand_stack(&(frame->operand_stack));
 
-    frame->local_var.var[0] = value;
+    memmove(&(frame->local_var.var[0]), value, sizeof(any_type_t));
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-        frame->local_var.var[1] = value;
+        memmove(&(frame->local_var.var[1]), value, sizeof(any_type_t));
 }
 
 /**
@@ -771,9 +775,9 @@ void tstore_1(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     value = pop_operand_stack(&(frame->operand_stack));
 
-    frame->local_var.var[1] = value;
+    memmove(&(frame->local_var.var[1]), value, sizeof(any_type_t));
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-        frame->local_var.var[2] = value;
+        memmove(&(frame->local_var.var[2]), value, sizeof(any_type_t));
 }
 
 /**
@@ -787,9 +791,9 @@ void tstore_2(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     value = pop_operand_stack(&(frame->operand_stack));
 
-    frame->local_var.var[2] = value;
+    memmove(&(frame->local_var.var[2]), value, sizeof(any_type_t));
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-        frame->local_var.var[3] = value;
+        memmove(&(frame->local_var.var[3]), value, sizeof(any_type_t));
 }
 
 /**
@@ -803,9 +807,9 @@ void tstore_3(){
     frame_t *frame = peek_frame_stack(jvm_stack);
     value = pop_operand_stack(&(frame->operand_stack));
 
-    frame->local_var.var[3] = value;
+    memmove(&(frame->local_var.var[3]), value, sizeof(any_type_t));
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-        frame->local_var.var[4] = value;
+        memmove(&(frame->local_var.var[4]), value, sizeof(any_type_t));
 }
 /**
  * @brief store an (int, long, float, double, reference, byte, boolean, char short) into an array (operand_stack: arrayref, index, value ->)
@@ -860,22 +864,6 @@ void dup(){
 
     push_operand_stack(&(frame->operand_stack), operand);
     push_operand_stack(&(frame->operand_stack), operand);
-}
-
-/**
- * @brief Returnar se variável é um double ou um long
- *
- * @param anytype variável a checkar
- * @return 1 se double ou long, senão 0.
- *
- */
-int isLongOrDouble(any_type_t* anytype) {
-    if (anytype->tag == PRIMITIVE) {
-        if(anytype->val.primitive_val.tag == LONG && anytype->val.primitive_val.tag == DOUBLE) {
-            return 1;
-        }
-    }
-    return 0;
 }
 
 /**
@@ -3158,118 +3146,119 @@ void lookupswitch() {
  */
 void wide() {
     DEBUG_PRINT("got into wide\n");
-    any_type_t* operand;
-    int offset = 0;
-    u2 index;
-    int16_t inc;
-    u1 opcode;
-    u1 byte1 = 0;
-    u1 byte2 = 0;
+    exit(1);
+    /*any_type_t* operand;*/
+    /*int offset = 0;*/
+    /*u2 index;*/
+    /*int16_t inc;*/
+    /*u1 opcode;*/
+    /*u1 byte1 = 0;*/
+    /*u1 byte2 = 0;*/
 
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    /*frame_t *frame = peek_frame_stack(jvm_stack);*/
+    /*code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);*/
 
-    offset += 1; //count wide opcode
+    /*offset += 1; //count wide opcode*/
 
-    opcode = code_attribute->code[jvm_pc.code_pc + offset];
+    /*opcode = code_attribute->code[jvm_pc.code_pc + offset];*/
 
-    offset += 1; //count operation opcode
+    /*offset += 1; //count operation opcode*/
 
-    switch(opcode) {
-        case 0x84: // caso iinc
-            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
-            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
-            index = (byte1 << 8) | (byte2);
+    /*switch(opcode) {*/
+        /*case 0x84: // caso iinc*/
+            /*byte1 = code_attribute->code[jvm_pc.code_pc + offset];*/
+            /*byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];*/
+            /*index = (byte1 << 8) | (byte2);*/
 
-            offset += 2; // count index
+            /*offset += 2; // count index*/
 
-            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
-            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
-            inc = (byte1 << 8) | (byte2);
+            /*byte1 = code_attribute->code[jvm_pc.code_pc + offset];*/
+            /*byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];*/
+            /*inc = (byte1 << 8) | (byte2);*/
 
-            offset += 2; // count count
+            /*offset += 2; // count count*/
 
-            operand = frame->local_var.var[index];
-            switch (operand->val.primitive_val.tag) {
-                case BYTE:
-                    operand->val.primitive_val.val.val8 += inc;
-                    break;
-                case SHORT:
-                    operand->val.primitive_val.val.val16 += inc;
-                    break;
-                case INT:
-                    operand->val.primitive_val.val.val32 += inc;
-                    break;
-                case LONG:
-                    operand->val.primitive_val.val.val64 += inc;
-                    break;
-                default:
-                    DEBUG_PRINT("Unexpected primitive_val tag on iinc()\n");
-                    break;
-            }
+            /*operand = frame->local_var.var[index];*/
+            /*switch (operand->val.primitive_val.tag) {*/
+                /*case BYTE:*/
+                    /*operand->val.primitive_val.val.val8 += inc;*/
+                    /*break;*/
+                /*case SHORT:*/
+                    /*operand->val.primitive_val.val.val16 += inc;*/
+                    /*break;*/
+                /*case INT:*/
+                    /*operand->val.primitive_val.val.val32 += inc;*/
+                    /*break;*/
+                /*case LONG:*/
+                    /*operand->val.primitive_val.val.val64 += inc;*/
+                    /*break;*/
+                /*default:*/
+                    /*DEBUG_PRINT("Unexpected primitive_val tag on iinc()\n");*/
+                    /*break;*/
+            /*}*/
 
-            break;
-        case 0x15: // caso iload
-        case 0x17: // caso fload
-        case 0x16: // caso lload
-        case 0x18: // caso dload
-        case 0x19: // caso aload
-            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
-            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
-            index = (byte1 << 8) | (byte2);
+            /*break;*/
+        /*case 0x15: // caso iload*/
+        /*case 0x17: // caso fload*/
+        /*case 0x16: // caso lload*/
+        /*case 0x18: // caso dload*/
+        /*case 0x19: // caso aload*/
+            /*byte1 = code_attribute->code[jvm_pc.code_pc + offset];*/
+            /*byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];*/
+            /*index = (byte1 << 8) | (byte2);*/
 
-            offset += 2; // count index
+            /*offset += 2; // count index*/
 
-            operand = frame->local_var.var[index];
-            push_operand_stack(&(frame->operand_stack), operand);
-            break;
-        case 0x36: // caso istore
-        case 0x37: // caso lstore
-        case 0x38: // caso fstore
-        case 0x39: // caso dstore
-        case 0x3a: // caso astore
-            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
-            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
-            index = (byte1 << 8) | (byte2);
+            /*operand = frame->local_var.var[index];*/
+            /*push_operand_stack(&(frame->operand_stack), operand);*/
+            /*break;*/
+        /*case 0x36: // caso istore*/
+        /*case 0x37: // caso lstore*/
+        /*case 0x38: // caso fstore*/
+        /*case 0x39: // caso dstore*/
+        /*case 0x3a: // caso astore*/
+            /*byte1 = code_attribute->code[jvm_pc.code_pc + offset];*/
+            /*byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];*/
+            /*index = (byte1 << 8) | (byte2);*/
 
-            offset += 2; // count index
+            /*offset += 2; // count index*/
 
-            operand = pop_operand_stack(&(frame->operand_stack));
+            /*operand = pop_operand_stack(&(frame->operand_stack));*/
 
-            frame->local_var.var[index] = operand;
-            if(operand->val.primitive_val.tag == LONG|| operand->val.primitive_val.tag == DOUBLE)
-                frame->local_var.var[index+1] = operand;
-            break;
-        case 0xa9: // caso ret
-            byte1 = code_attribute->code[jvm_pc.code_pc + offset];
-            byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
-            index = (byte1 << 8) | (byte2);
+            /*frame->local_var.var[index] = operand;*/
+            /*if(operand->val.primitive_val.tag == LONG|| operand->val.primitive_val.tag == DOUBLE)*/
+                /*frame->local_var.var[index+1] = operand;*/
+            /*break;*/
+        /*case 0xa9: // caso ret*/
+            /*byte1 = code_attribute->code[jvm_pc.code_pc + offset];*/
+            /*byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];*/
+            /*index = (byte1 << 8) | (byte2);*/
 
-            offset += 2; // count index
+            /*offset += 2; // count index*/
 
-            operand = frame->local_var.var[index];
-            switch (operand->val.primitive_val.tag) {
-                case BYTE:
-                    jvm_pc.code_pc = operand->val.primitive_val.val.val8;
-                    break;
-                case SHORT:
-                    jvm_pc.code_pc = operand->val.primitive_val.val.val16;
-                    break;
-                case INT:
-                    jvm_pc.code_pc = operand->val.primitive_val.val.val32;
-                    break;
-                case LONG:
-                    jvm_pc.code_pc = operand->val.primitive_val.val.val64;
-                    break;
-                default:
-                    printf("Unexpected primitive_val tag on ret()\n");
-                    break;
-            }
+            /*operand = frame->local_var.var[index];*/
+            /*switch (operand->val.primitive_val.tag) {*/
+                /*case BYTE:*/
+                    /*jvm_pc.code_pc = operand->val.primitive_val.val.val8;*/
+                    /*break;*/
+                /*case SHORT:*/
+                    /*jvm_pc.code_pc = operand->val.primitive_val.val.val16;*/
+                    /*break;*/
+                /*case INT:*/
+                    /*jvm_pc.code_pc = operand->val.primitive_val.val.val32;*/
+                    /*break;*/
+                /*case LONG:*/
+                    /*jvm_pc.code_pc = operand->val.primitive_val.val.val64;*/
+                    /*break;*/
+                /*default:*/
+                    /*printf("Unexpected primitive_val tag on ret()\n");*/
+                    /*break;*/
+            /*}*/
 
-            jvm_pc.jumped = 1;
+            /*jvm_pc.jumped = 1;*/
 
-            break;
-    }
+            /*break;*/
+    /*}*/
 }
 
 /**
@@ -3283,7 +3272,7 @@ void ret() {
 
     u1 index = code_attribute->code[jvm_pc.code_pc + 1];
 
-    any_type_t* operand = frame->local_var.var[index];
+    any_type_t* operand = &(frame->local_var.var[index]);
     switch (operand->val.primitive_val.tag) {
         case BYTE:
             jvm_pc.code_pc = operand->val.primitive_val.val.val8;
@@ -3317,7 +3306,7 @@ void iinc() {
     u1 index = code_attribute->code[jvm_pc.code_pc + 1];
     int8_t inc = code_attribute->code[jvm_pc.code_pc + 2];
 
-    any_type_t* operand = frame->local_var.var[index];
+    any_type_t* operand = &(frame->local_var.var[index]);
     switch (operand->val.primitive_val.tag) {
         case BYTE:
             operand->val.primitive_val.val.val8 += inc;
@@ -3780,7 +3769,7 @@ void ifnonnull() {
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
     }
 }
@@ -3806,7 +3795,7 @@ void goto_w() {
 
     index = ((byte1 << 24)|(byte2 << 16)|(byte3 << 8)|(byte4));
 
-    jvm_pc.code_pc = index;
+    jvm_pc.code_pc += index;
     jvm_pc.jumped = 1;
 }
 
@@ -3838,7 +3827,7 @@ void jsr_w() {
 
     index = ((byte1 << 24)|(byte2 << 16)|(byte3 << 8)|(byte4));
 
-    jvm_pc.code_pc = index;
+    jvm_pc.code_pc += index;
     jvm_pc.jumped = 1;
 }
 
@@ -3886,20 +3875,20 @@ void (*jvm_opcode[])(void) = {
     instanceof,monitorenter,monitorexit,wide,multianewarray,ifnull,ifnonnull,goto_w	,jsr_w,breakpoint
 };
 
-char **opcode_menemonic = {"aaload", "aastore", "aconst_null", "aload", "aload_0", "aload_1", "aload_2", "aload_3", "anewarray", "areturn", "arraylength",
-"astore", "astore_0", "astore_1", "astore_2", "astore_3", "athrow", "baload", "bastore", "bipush", "breakpoint", "caload", "castore",
-"checkcast", "d2f", "d2i", "d2l", "dadd", "daload", "dastore", "dcmpg", "dcmpl", "dconst_0", "dconst_1", "ddiv", "dload", "dload_0",
-"dload_1", "dload_2", "dload_3", "dmul", "dneg", "drem", "dreturn", "dstore", "dstore_0", "dstore_1", "dstore_2", "dstore_3", "dsub",
-"dup", "dup_x1", "dup_x2", "dup2", "dup2_x1", "dup2_x2", "f2d", "f2i", "f2l", "fadd", "faload", "fastore", "fcmpg", "fcmpl", "fconst_0",
-"fconst_1", "fconst_2", "fdiv", "fload", "fload_0", "fload_1", "fload_2", "fload_3", "fmul", "fneg", "frem", "freturn", "fstore",
-"fstore_0", "fstore_1", "fstore_2", "fstore_3", "fsub", "getfield", "getstatic", "goto", "goto_w", "i2b", "i2c", "i2d", "i2f", "i2l",
-"i2s", "iadd", "iaload", "iand", "iastore", "iconst_m1", "iconst_0", "iconst_1", "iconst_2", "iconst_3", "iconst_4", "iconst_5", "idiv",
-"if_acmpeq", "if_acmpne", "if_icmpeq", "if_icmpge", "if_icmpgt", "if_icmple", "if_icmplt", "if_icmpne", "ifeq", "ifge", "ifgt", "ifle",
-"iflt", "ifne", "ifnonnull", "ifnull", "iinc", "iload", "iload_0", "iload_1", "iload_2", "iload_3", "impdep1", "impdep2", "imul", "ineg",
-"instanceof", "invokedynamic", "invokeinterface", "invokespecial", "invokestatic", "invokevirtual", "ior", "irem", "ireturn", "ishl", "ishr",
-"istore", "istore_0", "istore_1", "istore_2", "istore_3", "isub", "iushr", "ixor", "jsr", "jsr_w", "l2d", "l2f", "l2i", "ladd", "laload", "land",
-"lastore", "lcmp", "lconst_0", "lconst_1", "ldc", "ldc_w", "ldc2_w", "ldiv", "lload", "lload_0", "lload_1", "lload_2", "lload_3", "lmul", "lneg",
-"lookupswitch", "lor", "lrem", "lreturn", "lshl", "lshr", "lstore", "lstore_0", "lstore_1", "lstore_2", "lstore_3", "lsub", "lushr", "lxor",
-"monitorenter", "monitorexit", "multianewarray", "new", "newarray", "nop", "pop", "pop2", "putfield", "putstatic", "ret", "return", "saload",
-"sastore", "sipush", "swap", "tableswitch", "wide"};
+/*char **opcode_menemonic = {"aaload", "aastore", "aconst_null", "aload", "aload_0", "aload_1", "aload_2", "aload_3", "anewarray", "areturn", "arraylength",*/
+/*"astore", "astore_0", "astore_1", "astore_2", "astore_3", "athrow", "baload", "bastore", "bipush", "breakpoint", "caload", "castore",*/
+/*"checkcast", "d2f", "d2i", "d2l", "dadd", "daload", "dastore", "dcmpg", "dcmpl", "dconst_0", "dconst_1", "ddiv", "dload", "dload_0",*/
+/*"dload_1", "dload_2", "dload_3", "dmul", "dneg", "drem", "dreturn", "dstore", "dstore_0", "dstore_1", "dstore_2", "dstore_3", "dsub",*/
+/*"dup", "dup_x1", "dup_x2", "dup2", "dup2_x1", "dup2_x2", "f2d", "f2i", "f2l", "fadd", "faload", "fastore", "fcmpg", "fcmpl", "fconst_0",*/
+/*"fconst_1", "fconst_2", "fdiv", "fload", "fload_0", "fload_1", "fload_2", "fload_3", "fmul", "fneg", "frem", "freturn", "fstore",*/
+/*"fstore_0", "fstore_1", "fstore_2", "fstore_3", "fsub", "getfield", "getstatic", "goto", "goto_w", "i2b", "i2c", "i2d", "i2f", "i2l",*/
+/*"i2s", "iadd", "iaload", "iand", "iastore", "iconst_m1", "iconst_0", "iconst_1", "iconst_2", "iconst_3", "iconst_4", "iconst_5", "idiv",*/
+/*"if_acmpeq", "if_acmpne", "if_icmpeq", "if_icmpge", "if_icmpgt", "if_icmple", "if_icmplt", "if_icmpne", "ifeq", "ifge", "ifgt", "ifle",*/
+/*"iflt", "ifne", "ifnonnull", "ifnull", "iinc", "iload", "iload_0", "iload_1", "iload_2", "iload_3", "impdep1", "impdep2", "imul", "ineg",*/
+/*"instanceof", "invokedynamic", "invokeinterface", "invokespecial", "invokestatic", "invokevirtual", "ior", "irem", "ireturn", "ishl", "ishr",*/
+/*"istore", "istore_0", "istore_1", "istore_2", "istore_3", "isub", "iushr", "ixor", "jsr", "jsr_w", "l2d", "l2f", "l2i", "ladd", "laload", "land",*/
+/*"lastore", "lcmp", "lconst_0", "lconst_1", "ldc", "ldc_w", "ldc2_w", "ldiv", "lload", "lload_0", "lload_1", "lload_2", "lload_3", "lmul", "lneg",*/
+/*"lookupswitch", "lor", "lrem", "lreturn", "lshl", "lshr", "lstore", "lstore_0", "lstore_1", "lstore_2", "lstore_3", "lsub", "lushr", "lxor",*/
+/*"monitorenter", "monitorexit", "multianewarray", "new", "newarray", "nop", "pop", "pop2", "putfield", "putstatic", "ret", "return", "saload",*/
+/*"sastore", "sipush", "swap", "tableswitch", "wide"};*/
 

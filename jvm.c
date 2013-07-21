@@ -123,8 +123,8 @@ int isSuperClassOf(class_t* super_class, class_t* sub_class) {
  * @return Code attribute
  */
 code_attribute_t* getCodeAttribute(class_t* class, method_info_t* method) {
-    Utf8_info_t* method_name = &(class->class_file.constant_pool[method->name_index].info.Utf8);
-    DEBUG_PRINT("got into getCodeAttribute with arguments: %s , %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name));
+    /*Utf8_info_t* method_name = &(class->class_file.constant_pool[method->name_index].info.Utf8);*/
+    /*DEBUG_PRINT("got into getCodeAttribute with arguments: %s , %s\n", utf8_to_string(class->class_name), utf8_to_string(method_name));*/
     int i = 0;
     for (i = 0; method->attributes_count; i++) {
         attribute_info_t* attribute = &(method->attributes[i]);
@@ -422,7 +422,7 @@ void callMethod(class_t* class, method_info_t* method) {
     frame->current_method = method;
     frame->return_address = jvm_pc;
     frame->local_var.size = code_attribute->max_locals; 
-    frame->local_var.var = (any_type_t**) malloc(frame->local_var.size * sizeof(any_type_t*));
+    frame->local_var.var = (any_type_t*) malloc(frame->local_var.size * sizeof(any_type_t));
     frame->operand_stack.depth = 0;
     frame->operand_stack.head = -1;
     frame->operand_stack.size = code_attribute->max_stack;
@@ -432,7 +432,7 @@ void callMethod(class_t* class, method_info_t* method) {
     for (i = 0; i < number_of_arguments; i++) {
         any_type_t *operand = pop_operand_stack(&(aux_operand_stack));
 
-        frame->local_var.var[local_var_index] = operand;
+        memmove(&(frame->local_var.var[local_var_index]), operand, sizeof(any_type_t));
         local_var_index++;
         if(operand->val.primitive_val.tag == DOUBLE ||operand->val.primitive_val.tag == LONG) 
             local_var_index++;

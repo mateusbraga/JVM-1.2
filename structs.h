@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-//#define DEBUG 0
+#define DEBUG 0
 #ifdef DEBUG
 #define DEBUG_PRINT(...) do{ fprintf( stderr, __VA_ARGS__ ); } while( 0 )
 #else
@@ -487,6 +487,7 @@ any_type_t* createObject(class_t* class, any_type_t* objref);
 // Others
 void print_any_type(any_type_t* anytype);
 void setDefault(any_type_t* variable, char* descriptor);
+int isLongOrDouble(any_type_t* anytype);
 
 #endif
 /** @} */

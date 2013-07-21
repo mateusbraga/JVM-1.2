@@ -405,4 +405,20 @@ any_type_t* createObject(class_t* class, any_type_t* objref) {
 }
 
 
+/**
+ * @brief Returnar se variável é um double ou um long
+ *
+ * @param anytype variável a checkar
+ * @return 1 se double ou long, senão 0.
+ *
+ */
+int isLongOrDouble(any_type_t* anytype) {
+    if (anytype->tag == PRIMITIVE) {
+        if(anytype->val.primitive_val.tag == LONG && anytype->val.primitive_val.tag == DOUBLE) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /** @} */
