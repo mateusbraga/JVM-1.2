@@ -21,4 +21,21 @@ Nossa JVM implementa parte da especificação em: http://docs.oracle.com/javase/
 \subsection estruturas-descricao Descrição das principais estruturas de dados utilizadas
 \ref Estruturas "Estruturas"
 
+Principais estruturas utilizadas na JVM
+
+class_t
+	Estrutura que representa uma classe. Possui o nome da classe, o status da classe (Nao carregada, Nao linkada, Nao inicializada, Pronta), o class_file da classe e por fim um array dos campos estáticos da classe.
+
+class_file_t
+	Estrutura que contem todas as representacoes do arquivo class file da classe. 
+
+pc_t
+	Estrutura que contem informacoes sobre o local em que o programa esta sendo executado. Possui a classe que esta sendo executada, o metodo que esta sendo realizado, o pc em si que nos informa qual instrucao iremos executar, e uma flag jumped que nos informa se sera realizado um desvio na sequencia de instrucoes.
+
+anytype_t
+	Estrutura que representa qualquer dado que a JVM necessite, os primitivos (int, short, boolean, char, double, etc) e os de referencia (array e objetos).
+
+frame_t
+	Estrutura que representa a frame utilizada em um metodo. Possui informacoes sobre a classe e o método correspondente, o pc de retorno, as variaveis locais e a pilha de operandos.
+
 */
