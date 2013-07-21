@@ -14,11 +14,162 @@ extern frame_stack_t *jvm_stack;
 
 extern pc_t jvm_pc;
 
-#define MAX_DIMENSION            650000
+#define MAX_DIMENSION 65000
 
 /** \addtogroup Opcodes
  * @{
  */
+
+
+/**
+ * @brief Retorna o número de bytes com operandos do opcode que começa em code[index]
+ *
+ * @param Array dos opcode
+ * @param Index do opcode
+ * @return Número de bytes com operandos
+ */
+int getNumberOfOpcodeOperandsInBytes(u1* code, u2 index) {
+    int counter = 0;
+    int padding = 0;
+    u4 low = 0;
+    u4 high = 0;
+    u4 npairs = 0;
+    u1 byte1 = 0;
+    u1 byte2 = 0;
+    u1 byte3 = 0;
+    u1 byte4 = 0;
+
+    switch(code[index]) {
+        case 0xb9:
+        case 0xba:
+        case 0xc8:
+        case 0xc9:
+            return 4;
+        case 0xaa: //tableswitch is special
+            counter = 1;
+            padding = 4 - (index % 4) - 1;
+            counter += padding; // 1 byte do opcode + allignment bytes
+
+            counter += 4; // jump default
+
+            byte1 = code[index + counter];
+            byte2 = code[index + counter + 1];
+            byte3 = code[index + counter + 2];
+            byte4 = code[index + counter + 3];
+            low = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+            counter += 4; // count low
+
+            byte1 = code[index + counter];
+            byte2 = code[index + counter + 1];
+            byte3 = code[index + counter + 2];
+            byte4 = code[index + counter + 3];
+            high = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+            counter += 4; // count high
+
+            counter += (4 * (high - low + 1)); // count the x offsets
+
+            return counter;
+        case 0xab: //lookupswitch is special
+            counter = 1;
+            padding = 4 - (index % 4) - 1;
+            counter += padding; // 1 byte do opcode + allignment bytes
+
+            counter += 4; //ignore default_offset
+
+            byte1 = code[index + counter];
+            byte2 = code[index + counter + 1];
+            byte3 = code[index + counter + 2];
+            byte4 = code[index + counter + 3];
+            npairs = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+            counter += 4; // count the npairs
+
+            counter += (8 * npairs); // count all the key:offset pairs
+
+            return counter;
+        case 0xc5:
+            return 3;
+        case 0xc4: //wide is special
+            if (code[index + 1] == 0x84) {
+                // forma com iinc
+                return 5;
+            } else {
+                return 3;
+            }
+        case 0xbd:
+        case 0xc0:
+        case 0xc1:
+        case 0xb7:
+        case 0xb8:
+        case 0xb6:
+        case 0x13:
+        case 0x14:
+        case 0xbb:
+        case 0xb5:
+        case 0xb3:
+        case 0xb4:
+        case 0xb2:
+        case 0x84:
+        case 0x11:
+        case 0xa7:
+        case 0xa5:
+        case 0xa6:
+        case 0x9f:
+        case 0xa2:
+        case 0xa3:
+        case 0xa4:
+        case 0xa1:
+        case 0xa0:
+        case 0x99:
+        case 0x9c:
+        case 0x9d:
+        case 0x9e:
+        case 0x9b:
+        case 0x9a:
+        case 0xc7:
+        case 0xc6:
+        case 0xa8:
+            return 2;
+        case 0x19:
+        case 0x3a:
+        case 0x18:
+        case 0x39:
+        case 0x17:
+        case 0x38:
+        case 0x15:
+        case 0x36:
+        case 0x12:
+        case 0x16:
+        case 0x37:
+        case 0xa9:
+        case 0x10:
+        case 0xbc:
+            return 1;
+        default:
+            return 0;
+    }
+    return 0;
+}
+
+/**
+ * @brief Avança jvm_pc.code_pc para o próximo opcode
+ *
+ * @see getCodeAttribute, getNumberOfOpcodeOperandsInBytes
+ */
+void goToNextOpcode() {
+    if (jvm_pc.jumped) {
+        jvm_pc.jumped = 0;
+        return;
+    }
+
+    jvm_pc.jumped = 0;
+
+    code_attribute_t* code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+
+    jvm_pc.code_pc += getNumberOfOpcodeOperandsInBytes(code_attribute->code, jvm_pc.code_pc) + 1;
+}
 
 /**
  * @brief push a null reference onto the stack
@@ -26,8 +177,8 @@ extern pc_t jvm_pc;
  */
 void aconst_null(){
     DEBUG_PRINT("got into aconst_null\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = REFERENCE;
     operand->val.reference_val.tag = NULL_REFERENCE;
     operand->val.reference_val.val.val_null = NULL;
@@ -42,8 +193,8 @@ void aconst_null(){
  */
 void iconst_m1(){
     DEBUG_PRINT("got into iconst_m1\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = -1;
@@ -56,10 +207,10 @@ void iconst_m1(){
  * @brief load the int value 0 onto the stack
  *
  */
- void iconst_0(){
+void iconst_0(){
     DEBUG_PRINT("got into iconst_0\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 0;
@@ -72,10 +223,10 @@ void iconst_m1(){
  * @brief load the int value 1 onto the stack
  *
  */
- void iconst_1(){
+void iconst_1(){
     DEBUG_PRINT("got into iconst_1\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 1;
@@ -90,8 +241,8 @@ void iconst_m1(){
  */
 void iconst_2(){
     DEBUG_PRINT("got into iconst_2\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 2;
@@ -106,19 +257,14 @@ void iconst_2(){
  */
 void iconst_3(){
     DEBUG_PRINT("got into iconst_3\n");
+
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-    if(operand == NULL){
-        printf( "Socorro! malloc devolveu NULL!\n");
-        exit(EXIT_FAILURE);
-    }
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 3;
 
     frame_t* frame = peek_frame_stack(jvm_stack);
-
     push_operand_stack(&(frame->operand_stack), operand);
-
 }
 
 /**
@@ -127,8 +273,8 @@ void iconst_3(){
  */
 void iconst_4(){
     DEBUG_PRINT("got into iconst_4\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 4;
@@ -143,11 +289,8 @@ void iconst_4(){
  */
 void iconst_5(){
     DEBUG_PRINT("got into iconst_5\n");
+
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-    if(operand == NULL) {
-        printf("Socorro! malloc falhor\n");
-        exit(EXIT_FAILURE);
-    }
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = 5;
@@ -162,8 +305,8 @@ void iconst_5(){
  */
 void lconst_0(){
     DEBUG_PRINT("got into lconst_0\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = LONG;
     operand->val.primitive_val.val.val64 = 0;
@@ -178,8 +321,8 @@ void lconst_0(){
  */
 void lconst_1(){
     DEBUG_PRINT("got into lconst_1\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = LONG;
     operand->val.primitive_val.val.val64 = 1;
@@ -195,8 +338,8 @@ void lconst_1(){
  */
 void fconst_0(){
     DEBUG_PRINT("got into fconst_0\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
     operand->val.primitive_val.val.val_float = 0;
@@ -211,8 +354,8 @@ void fconst_0(){
  */
 void fconst_1(){
     DEBUG_PRINT("got into fconst_1\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
     operand->val.primitive_val.val.val_float = 1;
@@ -227,8 +370,8 @@ void fconst_1(){
  */
 void fconst_2(){
     DEBUG_PRINT("got into fconst_2\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = FLOAT;
     operand->val.primitive_val.val.val_float = 2;
@@ -243,8 +386,8 @@ void fconst_2(){
  */
 void dconst_0(){
     DEBUG_PRINT("got into dconst_0\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = DOUBLE;
     operand->val.primitive_val.val.val_double = 0;
@@ -259,8 +402,8 @@ void dconst_0(){
  */
 void dconst_1(){
     DEBUG_PRINT("got into dconst_1\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = DOUBLE;
     operand->val.primitive_val.val.val_double = 1;
@@ -281,14 +424,12 @@ void bipush(){
     int32_t value2 = value;
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = value2;
 
     frame_t* frame = peek_frame_stack(jvm_stack);
     push_operand_stack(&(frame->operand_stack), operand);
-
 }
 
 /**
@@ -304,7 +445,6 @@ void sipush(){
     int32_t value = (int32_t) aux;
 
     any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
-
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = INT;
     operand->val.primitive_val.val.val32 = value;
@@ -322,10 +462,10 @@ void ldc(){
     DEBUG_PRINT("got into ldc\n");
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b = code_attribute->code[jvm_pc.code_pc+1];
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     u4 bytes;
     u2 bytes1;
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     switch(jvm_pc.currentClass->class_file.constant_pool[b].tag){
         case CONSTANT_Integer:
             bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Integer.bytes;
@@ -338,7 +478,6 @@ void ldc(){
             operand->tag = PRIMITIVE;
             operand->val.primitive_val.tag = FLOAT;
             memmove(&(operand->val.primitive_val.val.val_float), &(bytes), sizeof(float));
-
             break;
         case CONSTANT_String:
             bytes1 = jvm_pc.currentClass->class_file.constant_pool[b].info.String.string_index;
@@ -363,10 +502,10 @@ void ldc_w(){
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 b = (b1<<8)|b2;
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     u4 bytes;
     u2 bytes1;
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     switch(jvm_pc.currentClass->class_file.constant_pool[b].tag){
         case CONSTANT_Integer:
             bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Integer.bytes;
@@ -404,13 +543,12 @@ void ldc2_w(){
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 b = (b1<<8)|b2;
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     uint64_t high_bytes;
     uint64_t low_bytes;
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     switch(jvm_pc.currentClass->class_file.constant_pool[b].tag){
         case CONSTANT_Long:
-            // Testado
             high_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.high_bytes;
             low_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.low_bytes;
             operand->tag = PRIMITIVE;
@@ -418,7 +556,6 @@ void ldc2_w(){
             operand->val.primitive_val.val.val64 = (high_bytes<<32)|low_bytes;
             break;
         case CONSTANT_Double:
-            // Testado
             high_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.high_bytes;
             low_bytes = jvm_pc.currentClass->class_file.constant_pool[b].info.Long.low_bytes;
             uint64_t double_bytes = (high_bytes<<32) | low_bytes;
@@ -445,13 +582,11 @@ void tload(){
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 index = code_attribute->code[jvm_pc.code_pc+1];
-    operand = (any_type_t*) malloc(sizeof(any_type_t));
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = frame->local_var.var[index];
 
     push_operand_stack(&(frame->operand_stack), operand);
-
 }
 
 /**
@@ -525,8 +660,6 @@ void taload(){
 
     int_index = index->val.primitive_val.val.val32;
 
-    DEBUG_PRINT("got into taload %d %d %d\n", arrayref->tag, arrayref->val.reference_val.tag, arrayref->val.reference_val.val.array.length);
-
     push_operand_stack(&(frame->operand_stack), &(arrayref->val.reference_val.val.array.components[int_index]));
 }
 
@@ -546,7 +679,7 @@ void tstore(){
 
     frame->local_var.var[index] = value;
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-            frame->local_var.var[index+1] = value;
+        frame->local_var.var[index+1] = value;
 }
 
 /**
@@ -562,7 +695,7 @@ void tstore_0(){
 
     frame->local_var.var[0] = value;
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-            frame->local_var.var[1] = value;
+        frame->local_var.var[1] = value;
 }
 
 /**
@@ -578,14 +711,14 @@ void tstore_1(){
 
     frame->local_var.var[1] = value;
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-            frame->local_var.var[2] = value;
+        frame->local_var.var[2] = value;
 }
 
 /**
  * @brief store (int, long, float, double, reference) value into variable 2
  *
  */
- void tstore_2(){
+void tstore_2(){
     DEBUG_PRINT("got into tstore_2\n");
     any_type_t *value;
 
@@ -594,7 +727,7 @@ void tstore_1(){
 
     frame->local_var.var[2] = value;
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-            frame->local_var.var[3] = value;
+        frame->local_var.var[3] = value;
 }
 
 /**
@@ -610,7 +743,7 @@ void tstore_3(){
 
     frame->local_var.var[3] = value;
     if(value->val.primitive_val.tag == LONG|| value->val.primitive_val.tag == DOUBLE)
-            frame->local_var.var[4] = value;
+        frame->local_var.var[4] = value;
 }
 /**
  * @brief store an (int, long, float, double, reference, byte, boolean, char short) into an array (operand_stack: arrayref, index, value ->)
@@ -647,7 +780,7 @@ void pop2(){
     DEBUG_PRINT("got into pop2\n");
     frame_t *frame = peek_frame_stack(jvm_stack);
 
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     value = pop_operand_stack(&(frame->operand_stack));
     if(value->val.primitive_val.tag != LONG && value->val.primitive_val.tag != DOUBLE)
         pop_operand_stack(&(frame->operand_stack));
@@ -658,14 +791,29 @@ void pop2(){
  */
 void dup(){
     DEBUG_PRINT("got into dup\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *operand = NULL;
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand = pop_operand_stack(&(frame->operand_stack));
 
     push_operand_stack(&(frame->operand_stack), operand);
     push_operand_stack(&(frame->operand_stack), operand);
+}
 
+/**
+ * @brief Returnar se variável é um double ou um long
+ *
+ * @param anytype variável a checkar
+ * @return 1 se double ou long, senão 0.
+ *
+ */
+int isLongOrDouble(any_type_t* anytype) {
+    if (anytype->tag == PRIMITIVE) {
+        if(anytype->val.primitive_val.tag == LONG && anytype->val.primitive_val.tag == DOUBLE) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 /**
@@ -674,21 +822,21 @@ void dup(){
  */
 void dup_x1(){
     DEBUG_PRINT("got into dup_x1\n");
-    any_type_t *operand1 = (any_type_t*) malloc(sizeof(any_type_t));
-    any_type_t *operand2 = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *operand1 = NULL;
+    any_type_t *operand2 = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
     operand1 = pop_operand_stack(&(frame->operand_stack));
     operand2 = pop_operand_stack(&(frame->operand_stack));
 
-    if(operand1->val.primitive_val.tag == LONG || operand2->val.primitive_val.tag == LONG || operand1->val.primitive_val.tag == DOUBLE || operand2->val.primitive_val.tag == DOUBLE)
-        exit(1); //algum erro
+    if(isLongOrDouble(operand1) || isLongOrDouble(operand2)) {
+        printf("ERROR: dup_x1 com operando LONG / DOUBLE\n");
+        exit(1);
+    }
 
     push_operand_stack(&(frame->operand_stack), operand1);
     push_operand_stack(&(frame->operand_stack), operand2);
     push_operand_stack(&(frame->operand_stack), operand1);
-
-
 }
 
 /**
@@ -702,15 +850,16 @@ void dup_x2(){
 
     operand1 = pop_operand_stack(&(frame->operand_stack));
     operand2 = pop_operand_stack(&(frame->operand_stack));
-    operand3 = pop_operand_stack(&(frame->operand_stack));
+    if(isLongOrDouble(operand2))
+        operand3 = pop_operand_stack(&(frame->operand_stack));
 
     push_operand_stack(&(frame->operand_stack), operand1);
-    if(operand2->val.primitive_val.tag != LONG && operand2->val.primitive_val.tag != DOUBLE)
+    if(isLongOrDouble(operand2))
         push_operand_stack(&(frame->operand_stack), operand3);
     push_operand_stack(&(frame->operand_stack), operand2);
     push_operand_stack(&(frame->operand_stack), operand1);
-
 }
+
 /**
  * @brief duplicate top two stack words (two values, if value1 is not double nor long; a single value, if value1 is double or long) (operand_stack: 	{value2, value1} -> {value2, value1}, {value2, value1})
  *
@@ -723,13 +872,12 @@ void dup2(){
     operand1 = pop_operand_stack(&(frame->operand_stack));
     operand2 = pop_operand_stack(&(frame->operand_stack));
 
-    push_operand_stack(&(frame->operand_stack), operand1);
-    if(operand1->val.primitive_val.tag != LONG && operand1->val.primitive_val.tag != DOUBLE)
+    if(!isLongOrDouble(operand1))
         push_operand_stack(&(frame->operand_stack), operand2);
     push_operand_stack(&(frame->operand_stack), operand1);
-    if(operand1->val.primitive_val.tag != LONG && operand1->val.primitive_val.tag != DOUBLE)
+    if(!isLongOrDouble(operand1))
         push_operand_stack(&(frame->operand_stack), operand2);
-
+    push_operand_stack(&(frame->operand_stack), operand1);
 }
 
 /**
@@ -743,16 +891,16 @@ void dup2_x1(){
 
     operand1 = pop_operand_stack(&(frame->operand_stack));
     operand2 = pop_operand_stack(&(frame->operand_stack));
-    operand3 = pop_operand_stack(&(frame->operand_stack));
+    if(!isLongOrDouble(operand1))
+        operand3 = pop_operand_stack(&(frame->operand_stack));
 
-    push_operand_stack(&(frame->operand_stack), operand1);
-    if(operand1->val.primitive_val.tag != LONG && operand1->val.primitive_val.tag != DOUBLE)
+    if(!isLongOrDouble(operand1))
         push_operand_stack(&(frame->operand_stack), operand2);
-    push_operand_stack(&(frame->operand_stack), operand3);
     push_operand_stack(&(frame->operand_stack), operand1);
-    if(operand1->val.primitive_val.tag != LONG && operand1->val.primitive_val.tag != DOUBLE)
-        push_operand_stack(&(frame->operand_stack), operand2);
-
+    if(!isLongOrDouble(operand1))
+        push_operand_stack(&(frame->operand_stack), operand3);
+    push_operand_stack(&(frame->operand_stack), operand2);
+    push_operand_stack(&(frame->operand_stack), operand1);
 }
 
 /**
@@ -761,23 +909,28 @@ void dup2_x1(){
  */
 void dup2_x2(){
     DEBUG_PRINT("got into dup2_x2\n");
-    any_type_t *operand1, *operand2, *operand3, *operand4;
+    any_type_t *operand1 = NULL;
+    any_type_t *operand2 = NULL;
+    any_type_t *operand3 = NULL; 
+    any_type_t *operand4 = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
     operand1 = pop_operand_stack(&(frame->operand_stack));
     operand2 = pop_operand_stack(&(frame->operand_stack));
-    operand3 = pop_operand_stack(&(frame->operand_stack));
-    operand4 = pop_operand_stack(&(frame->operand_stack));
+    if(!isLongOrDouble(operand1) && isLongOrDouble(operand2))
+        operand3 = pop_operand_stack(&(frame->operand_stack));
+    if(!isLongOrDouble(operand1) && !isLongOrDouble(operand2))
+        operand4 = pop_operand_stack(&(frame->operand_stack));
 
-    push_operand_stack(&(frame->operand_stack), operand1);
-    if(operand1->val.primitive_val.tag != LONG && operand1->val.primitive_val.tag != DOUBLE)
+    if(!isLongOrDouble(operand1))
         push_operand_stack(&(frame->operand_stack), operand2);
-    push_operand_stack(&(frame->operand_stack), operand3);
-    if(operand3->val.primitive_val.tag != LONG && operand3->val.primitive_val.tag != DOUBLE)
+    push_operand_stack(&(frame->operand_stack), operand1);
+    if(!isLongOrDouble(operand1) && !isLongOrDouble(operand2)) 
         push_operand_stack(&(frame->operand_stack), operand4);
+    if(isLongOrDouble(operand1) && isLongOrDouble(operand2)) 
+        push_operand_stack(&(frame->operand_stack), operand3);
+    push_operand_stack(&(frame->operand_stack), operand2);
     push_operand_stack(&(frame->operand_stack), operand1);
-    if(operand1->val.primitive_val.tag != LONG && operand1->val.primitive_val.tag != DOUBLE)
-        push_operand_stack(&(frame->operand_stack), operand2);
 }
 
 /**
@@ -786,15 +939,17 @@ void dup2_x2(){
  */
 void swap(){
     DEBUG_PRINT("got into swap\n");
-    any_type_t *operand1 = (any_type_t*) malloc(sizeof(any_type_t));
-    any_type_t *operand2 = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *operand1 = NULL;
+    any_type_t *operand2 = NULL;
 
     frame_t *frame = peek_frame_stack(jvm_stack);
     operand1 = pop_operand_stack(&(frame->operand_stack));
     operand2 = pop_operand_stack(&(frame->operand_stack));
 
-    if(operand1->val.primitive_val.tag == LONG || operand2->val.primitive_val.tag == LONG || operand1->val.primitive_val.tag == DOUBLE || operand2->val.primitive_val.tag == DOUBLE)
-        exit(1); // algum erro
+    if(isLongOrDouble(operand1) || isLongOrDouble(operand2)) {
+        printf("ERROR: swap com operando LONG / DOUBLE\n");
+        exit(1);
+    }
 
     push_operand_stack(&(frame->operand_stack), operand1);
     push_operand_stack(&(frame->operand_stack), operand2);
@@ -2005,7 +2160,7 @@ void dcmpg(){
  */
 void ifeq(){
     DEBUG_PRINT("got into ifeq\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -2031,7 +2186,7 @@ void ifeq(){
  */
 void ifne(){
     DEBUG_PRINT("got into ifne\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -2057,7 +2212,7 @@ void ifne(){
  */
 void iflt(){
     DEBUG_PRINT("got into iflt\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -2083,7 +2238,7 @@ void iflt(){
  */
 void ifge(){
     DEBUG_PRINT("got into ifge\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -2109,7 +2264,7 @@ void ifge(){
  */
 void ifgt(){
     DEBUG_PRINT("got into ifgt\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -2135,7 +2290,7 @@ void ifgt(){
  */
 void ifle(){
     DEBUG_PRINT("got into ifle\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -2370,7 +2525,7 @@ void if_acmpeq(){
                 jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
-        break;
+            break;
     }
 
 }
@@ -2423,7 +2578,7 @@ void if_acmpne(){
                 jvm_pc.code_pc += index;
                 jvm_pc.jumped = 1;
             }
-        break;
+            break;
     }
 }
 
@@ -2452,12 +2607,12 @@ void goto_op(){
  */
 void jsr(){
     DEBUG_PRINT("got into jsr\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
     u2 index;
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = RETURN_ADDRESS;
     operand->val.primitive_val.val.val_return_addr = jvm_pc.code_pc;
@@ -2497,6 +2652,7 @@ void getstatic(){
     Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
 
     if(compare_utf8(class_name, string_to_utf8("java/lang/System")) == 0) {
+        DEBUG_PRINT("ignore because is java/lang/System\n");
         return;
     }
     class_t *class_field = getClass(class_name);
@@ -2672,64 +2828,139 @@ void new_op() {
  */
 void newarray(){
     DEBUG_PRINT("got into newarray\n");
-    frame_t *frame = peek_frame_stack(jvm_stack);
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 atype = code_attribute->code[jvm_pc.code_pc+1];
 
-    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
-
+    frame_t *frame = peek_frame_stack(jvm_stack);
     any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
+    int32_t tamanho = cont->val.primitive_val.val.val32;
 
-    int32_t contador, i = 0;
-
-    contador = cont->val.primitive_val.val.val32;
+    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
     arrayref->tag = REFERENCE;
     arrayref->val.reference_val.tag = ARRAY;
-    arrayref->val.reference_val.val.array.length = contador;
-    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
+    arrayref->val.reference_val.val.array.length = tamanho;
+    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * tamanho);
 
-    for(i=0; i<=contador; i++){
-        arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
-        switch(atype){
+    int32_t  i = 0;
+    arrayref->val.reference_val.val.array.components[i].tag = PRIMITIVE;
+    switch(atype){ // got from http://www.vmth.ucdavis.edu/incoming/Jasmin/ref-newarray.html
         case 4:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BOOLEAN;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_boolean = 0;
+            for(i=0; i<=tamanho; i++){
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BOOLEAN;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_boolean = 0;
+            }
             break;
         case 5:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = CHAR;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_char = 0;
+            for(i=0; i<=tamanho; i++){
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = CHAR;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_char = 0;
+            }
             break;
         case 6:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = FLOAT;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_float = 0;
+            for(i=0; i<=tamanho; i++){
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = FLOAT;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_float = 0;
+            }
             break;
         case 7:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = DOUBLE;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_double = 0;
+            for(i=0; i<=tamanho; i++){
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = DOUBLE;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val_double = 0;
+            }
             break;
         case 8:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BYTE;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val8 = 0;
+            for(i=0; i<=tamanho; i++){
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = BYTE;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val8 = 0;
+            }
             break;
         case 9:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = SHORT;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val16 = 0;
+            for(i=0; i<=tamanho; i++){
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = SHORT;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val16 = 0;
+            }
             break;
         case 10:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = INT;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val32 = 0;
+            for(i=0; i<=tamanho; i++){
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = INT;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val32 = 0;
+            }
             break;
         case 11:
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = LONG;
-            arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val64 = 0;
+            for(i=0; i<=tamanho; i++){
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.tag = LONG;
+                arrayref->val.reference_val.val.array.components[i].val.primitive_val.val.val64 = 0;
+            }
             break;
+    }
+
+    push_operand_stack(&(frame->operand_stack), arrayref);
+}
+
+/**
+ * @brief create new object of type identified by class reference in constant pool index (indexbyte1 << 8 + indexbyte2)
+ *
+ */
+void anewarray() {
+    DEBUG_PRINT("got into anewarray\n");
+
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
+    int32_t tamanho = cont->val.primitive_val.val.val32;
+
+
+    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
+    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
+    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
+    u2 index = (b1<<8)|b2;
+
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+
+    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
+    arrayref->tag = REFERENCE;
+    arrayref->val.reference_val.tag = ARRAY;
+    arrayref->val.reference_val.val.array.length = tamanho;
+    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * tamanho);
+
+    if(compare_utf8(class_name, string_to_utf8("java/lang/String")) == 0) {
+        int32_t i = 0;
+        for(i=0; i<=tamanho; i++){
+            arrayref->val.reference_val.val.array.components[i].tag = REFERENCE;
+            arrayref->val.reference_val.val.array.components[i].val.reference_val.tag = ARRAY;
+            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.array.length = 0;
+            arrayref->val.reference_val.val.array.components[i].val.reference_val.val.array.components = NULL;
+        }
+    } else {
+        class_t *object_class = getClass(class_name);
+
+        int32_t i = 0;
+        for(i=0; i<=tamanho; i++){
+            createObject(object_class, &(arrayref->val.reference_val.val.array.components[i])); 
         }
     }
 
-
     push_operand_stack(&(frame->operand_stack), arrayref);
+}
 
+/**
+ * @brief get the length of an array
+ *
+ */
+void arraylength() {
+    DEBUG_PRINT("got into arraylength\n");
+
+    frame_t *frame = peek_frame_stack(jvm_stack);
+    any_type_t *arrayref = pop_operand_stack(&(frame->operand_stack));
+
+    any_type_t *length = (any_type_t*) malloc(sizeof(any_type_t));
+    length->tag = PRIMITIVE;
+    length->val.primitive_val.tag = INT;
+    length->val.primitive_val.val.val32 = arrayref->val.reference_val.val.array.length;
+
+    push_operand_stack(&(frame->operand_stack), length);
 }
 
 /**
@@ -2777,10 +3008,10 @@ void tableswitch() {
     any_type_t *operand = pop_operand_stack(&(frame->operand_stack));
     u4 index = operand->val.primitive_val.val.val32;
 
-    if (index < low && index > high) {
+    if (index < low || index > high) {
         jvm_pc.code_pc = myDefault + jvm_pc.code_pc;
     } else {
-        offset += index - low;
+        offset += (index - low) * 4;
 
         byte1 = code_attribute->code[jvm_pc.code_pc + offset];
         byte2 = code_attribute->code[jvm_pc.code_pc + offset + 1];
@@ -3132,19 +3363,18 @@ void invokevirtual() {
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
     u2 index = (b1<<8)|b2;
 
+
     u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.class_index;
     u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
-    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
-
-    class_t *class_method = getClass(class_name);
-
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
     u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
-    Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
-
     u2 descriptor_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.descriptor_index;
+
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+    Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
     Utf8_info_t *descriptor = &(jvm_pc.currentClass->class_file.constant_pool[descriptor_index].info.Utf8);
 
+    // Tratar println
     if(compare_utf8(string_to_utf8("java/io/PrintStream"), class_name) == 0 &&
             compare_utf8(string_to_utf8("println"), method_name) == 0) {
 
@@ -3157,18 +3387,18 @@ void invokevirtual() {
 
         if (compare_utf8(descriptor, string_to_utf8("(I)V")) == 0) {
             switch(arg->val.primitive_val.tag){
-            case INT:
-                printf("%d\n", arg->val.primitive_val.val.val32);
-                break;
-            case SHORT:
-                printf("%d\n", arg->val.primitive_val.val.val16);
-                break;
-            case BYTE:
-                printf("%d\n", arg->val.primitive_val.val.val8);
-                break;
-            default:
-                printf(("ERRO: arg isn't int, byte or short)"));
-                exit(1);
+                case INT:
+                    printf("%d\n", arg->val.primitive_val.val.val32);
+                    break;
+                case SHORT:
+                    printf("%d\n", arg->val.primitive_val.val.val16);
+                    break;
+                case BYTE:
+                    printf("%d\n", arg->val.primitive_val.val.val8);
+                    break;
+                default:
+                    printf(("ERRO: arg isn't int, byte or short\n"));
+                    exit(1);
 
             }
         } else if (compare_utf8(descriptor, string_to_utf8("(J)V")) == 0) {
@@ -3186,20 +3416,18 @@ void invokevirtual() {
             }
             printf("\n");
         }
+
         return;
     }
 
-    u2 i = 0;
-    for (i = 0; i < class_method->class_file.methods_count; i++) {
-        u2 name_index = class_method->class_file.methods[i].name_index;
-        if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0) {
-            callMethod(class_method, &(class_method->class_file.methods[i]));
-            return;
-        }
 
+    class_t *class_method = getClass(class_name);
+    if (class_method == NULL) {
+        DEBUG_PRINT("ignore because got NULL class\n");
+        return;
     }
+    callMethod(class_method, getMethod(class_method, method_name, descriptor));
 
-    assert(0);
     return;
 }
 
@@ -3216,38 +3444,24 @@ void invokespecial() {
 
     u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.class_index;
     u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
+    u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
+    u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
+    u2 descriptor_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.descriptor_index;
+
     Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+    Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
+    Utf8_info_t *descriptor = &(jvm_pc.currentClass->class_file.constant_pool[descriptor_index].info.Utf8);
+
 
     class_t *class_method = getClass(class_name);
     if (class_method == NULL) {
+        frame_t *frame = peek_frame_stack(jvm_stack);
+        pop_operand_stack(&(frame->operand_stack));
+        DEBUG_PRINT("ignore because got NULL class\n");
         return;
     }
-    if (class_method->status == CLASSE_NAO_CARREGADA) {
-        loadClass(class_method);
-    }
-    if (class_method->status == CLASSE_NAO_LINKADA) {
-        linkClass(class_method);
-    }
-    if (class_method->status == CLASSE_NAO_INICIALIZADA) {
-        initializeClass(class_method);
-    }
+    callMethod(class_method, getMethod(class_method, method_name, descriptor));
 
-    u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
-    u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
-    Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
-
-
-    u2 i = 0;
-    for (i = 0; i < class_method->class_file.methods_count; i++) {
-        u2 name_index = class_method->class_file.methods[i].name_index;
-        if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0) {
-            callMethod(class_method, &(class_method->class_file.methods[i]));
-            return;
-        }
-
-    }
-
-    assert(0);
     return;
 }
 
@@ -3264,37 +3478,21 @@ void invokestatic() {
 
     u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.class_index;
     u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
-    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
-
-    class_t *class_method = getClass(class_name);
-    if (class_method->status == CLASSE_NAO_CARREGADA) {
-        loadClass(class_method);
-    }
-    if (class_method->status == CLASSE_NAO_LINKADA) {
-        linkClass(class_method);
-    }
-    if (class_method->status == CLASSE_NAO_INICIALIZADA) {
-        initializeClass(class_method);
-    }
-
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
     u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
     u2 descriptor_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.descriptor_index;
+
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
     Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
     Utf8_info_t *descriptor = &(jvm_pc.currentClass->class_file.constant_pool[descriptor_index].info.Utf8);
 
-    u2 i = 0;
-    for (i = 0; i < class_method->class_file.methods_count; i++) {
-        u2 name_index = class_method->class_file.methods[i].name_index;
-        u2 desc_index = class_method->class_file.methods[i].descriptor_index;
-        if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0 &&
-                compare_utf8(descriptor, &(class_method->class_file.constant_pool[desc_index].info.Utf8)) == 0) {
-            callMethod(class_method, &(class_method->class_file.methods[i]));
-            return;
-        }
+    class_t *class_method = getClass(class_name);
+    if (class_method == NULL) {
+        DEBUG_PRINT("ignore because got NULL class\n");
+        return;
     }
+    callMethod(class_method, getMethod(class_method, method_name, descriptor));
 
-    assert(0);
     return;
 }
 
@@ -3312,25 +3510,21 @@ void invokeinterface() {
 
     u2 class_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.class_index;
     u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[class_index].info.Class.name_index;
-    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
-
-    class_t *class_method = getClass(class_name);
-
     u2 name_and_type_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Methodref.name_and_type_index;
     u2 method_name_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.name_index;
+    u2 descriptor_index = jvm_pc.currentClass->class_file.constant_pool[name_and_type_index].info.Nameandtype.descriptor_index;
+
+    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
     Utf8_info_t *method_name = &(jvm_pc.currentClass->class_file.constant_pool[method_name_index].info.Utf8);
+    Utf8_info_t *descriptor = &(jvm_pc.currentClass->class_file.constant_pool[descriptor_index].info.Utf8);
 
-    u2 i = 0;
-    for (i = 0; i < class_method->class_file.methods_count; i++) {
-        u2 name_index = class_method->class_file.methods[i].name_index;
-        if (compare_utf8(&(class_method->class_file.constant_pool[name_index].info.Utf8), method_name) == 0) {
-            callMethod(class_method, &(class_method->class_file.methods[i]));
-            return;
-        }
-
+    class_t *class_method = getClass(class_name);
+    if (class_method == NULL) {
+        DEBUG_PRINT("ignore because got NULL class\n");
+        return;
     }
+    callMethod(class_method, getMethod(class_method, method_name, descriptor));
 
-    assert(0);
     return;
 }
 
@@ -3341,60 +3535,6 @@ void invokeinterface() {
 void invokedynamic() {
     DEBUG_PRINT("got into invokedynamic\n");
     //TODO
-}
-
-/**
- * @brief create new object of type identified by class reference in constant pool index (indexbyte1 << 8 + indexbyte2)
- *
- */
-void anewarray() {
-    DEBUG_PRINT("got into anewarray\n");
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
-    any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
-    int32_t contador, i = 0;
-
-    contador = cont->val.primitive_val.val.val32;
-    arrayref->tag = REFERENCE;
-    arrayref->val.reference_val.tag = ARRAY;
-    arrayref->val.reference_val.val.array.length = contador;
-    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
-
-    code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
-    u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
-    u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
-    u2 index = (b1<<8)|b2;
-
-    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
-    Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
-
-    class_t *object_class = getClass(class_name);
-
-    for(i=0; i<=contador; i++){
-        arrayref->val.reference_val.val.array.components[i].tag = REFERENCE;
-        arrayref->val.reference_val.val.array.components[i].val.reference_val.tag = OBJECT;
-        arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.objClass = object_class;
-        arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.length = object_class->class_file.fields_count;
-        arrayref->val.reference_val.val.array.components[i].val.reference_val.val.object.attributes = (any_type_t*) malloc(sizeof(any_type_t) * object_class->class_file.fields_count);
-    }
-    push_operand_stack(&(frame->operand_stack), arrayref);
-}
-
-/**
- * @brief get the length of an array
- *
- */
-void arraylength() {
-    DEBUG_PRINT("got into arraylength\n");
-    frame_t *frame = peek_frame_stack(jvm_stack);
-    any_type_t *arrayref = pop_operand_stack(&(frame->operand_stack));
-
-    any_type_t *length = (any_type_t*) malloc(sizeof(any_type_t));
-    length->tag = PRIMITIVE;
-    length->val.primitive_val.tag = INT;
-    length->val.primitive_val.val.val32 = arrayref->val.reference_val.val.array.length;
-
-    push_operand_stack(&(frame->operand_stack), length);
 }
 
 /**
@@ -3496,31 +3636,38 @@ void monitorexit() {
  */
 void multianewarray() {
     DEBUG_PRINT("got into multianewarray\n");
-    any_type_t *arrayref = (any_type_t*) malloc(sizeof(any_type_t));
-    int32_t contador;
+
     frame_t *frame = peek_frame_stack(jvm_stack);
-    u1 i, tamanhos[MAX_DIMENSION];
 
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
-    u1 dimension = code_attribute->code[jvm_pc.code_pc+3];
     u2 index = (b1<<8)|b2;
-    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
-    /*Utf8_info_t *class_name = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);*/
-    u1* c = jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8.bytes;
+    u1 dimension = code_attribute->code[jvm_pc.code_pc+3];
 
-    for (i = dimension; i > 0; i--) {
+    u2 class_name_index = jvm_pc.currentClass->class_file.constant_pool[index].info.Class.name_index;
+    Utf8_info_t *type = &(jvm_pc.currentClass->class_file.constant_pool[class_name_index].info.Utf8);
+
+
+    any_type_t **auxList = (any_type_t**) malloc(sizeof(any_type_t*) * dimension);
+    u1 i = 0;
+    DEBUG_PRINT("dimension is %d\n", dimension);
+    for(i=0; i < dimension; i++){
+        auxList[i] = pop_operand_stack(&(frame->operand_stack));
+    }
+    for(i=0; i < dimension; i++){
+        push_operand_stack(&(frame->operand_stack), auxList[i]);
+    }
+    free(auxList);
+
+
+    int32_t *tamanhos = (int32_t*) malloc(sizeof(int32_t) * dimension);
+    for(i=0; i<dimension; i++){
         any_type_t *cont = pop_operand_stack(&(frame->operand_stack));
-        contador = cont->val.primitive_val.val.val32;
-        tamanhos[i] = contador;
+        tamanhos[i] = cont->val.primitive_val.val.val32;
     }
 
-    arrayref->tag = REFERENCE;
-    arrayref->val.reference_val.tag = ARRAY;
-    arrayref->val.reference_val.val.array.length = contador;
-    arrayref->val.reference_val.val.array.components = (any_type_t*) malloc(sizeof(any_type_t) * contador);
-    createMultiArray(arrayref->val.reference_val.val.array.components, tamanhos, dimension, c[dimension], dimension);
+    any_type_t *arrayref = createMultiArray(type, tamanhos, 0, NULL);
 
     push_operand_stack(&(frame->operand_stack), arrayref);
 }
@@ -3531,7 +3678,7 @@ void multianewarray() {
  */
 void ifnull() {
     DEBUG_PRINT("got into ifnull\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -3545,7 +3692,7 @@ void ifnull() {
 
         index = (indexh<<8)|indexl;
 
-        jvm_pc.code_pc = index;
+        jvm_pc.code_pc += index;
         jvm_pc.jumped = 1;
 
     }
@@ -3557,7 +3704,7 @@ void ifnull() {
  */
 void ifnonnull() {
     DEBUG_PRINT("got into ifnonnull\n");
-    any_type_t *value = (any_type_t*) malloc(sizeof(any_type_t));
+    any_type_t *value = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
     code_attribute_t *code_attribute;
     u1 indexh, indexl;
@@ -3607,7 +3754,6 @@ void goto_w() {
  */
 void jsr_w() {
     DEBUG_PRINT("got into jsr_w\n");
-    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     frame_t *frame = peek_frame_stack(jvm_stack);
     u1 byte1 = 0;
     u1 byte2 = 0;
@@ -3615,6 +3761,7 @@ void jsr_w() {
     u1 byte4 = 0;
     u2 index;
 
+    any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
     operand->tag = PRIMITIVE;
     operand->val.primitive_val.tag = RETURN_ADDRESS;
     operand->val.primitive_val.val.val_return_addr = jvm_pc.code_pc;

@@ -6,88 +6,32 @@
 #include "structs.h"
 #include "jvm.h"
 
-// PREPARATION STUFF - BEGIN
-/** \addtogroup Linking
+/** \addtogroup Linker
  * @{
  */
 
+// PREPARATION STUFF - BEGIN
 /**
  * @brief Preparacao. Inicializa todos os campos estaticos com seus valores defaults.
  *
  * @param classe que sera preparada.
  * 
  */
-
 void preparar (class_t* class) {
-
 	class->static_fields = (any_type_t**) malloc(sizeof(any_type_t*) * class->class_file.fields_count);
 	u2 i;
 	for (i = 1; i < class->class_file.fields_count; i++) {
-		if ((class->class_file.fields[i].access_flags & ACC_STATIC) == ACC_STATIC)  {
-			any_type_t *operand = (any_type_t*) malloc(sizeof(any_type_t));
+		if ((class->class_file.fields[i].access_flags & ACC_STATIC) == ACC_STATIC)  { // somente para os campos estáticos
+          	class->static_fields[i] = (any_type_t*) malloc(sizeof(any_type_t));
 			u1* b = class->class_file.constant_pool[class->class_file.fields[i].descriptor_index].info.Utf8.bytes;
-			switch(b[0]) {
-				case 'B': //byte
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = BYTE;
-            		operand->val.primitive_val.val.val8 = 0;
-            		break;
-	            case 'C': //char
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = CHAR;
-            		operand->val.primitive_val.val.val_char = 0;
-            		break;
-	            case 'D': //double
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = DOUBLE;
-            		operand->val.primitive_val.val.val_double = 0;
-            		break;
-	            case 'F': //float
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = FLOAT;
-            		operand->val.primitive_val.val.val_float = 0;
-            		break;
-	            case 'I': //integer
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = INT;
-            		operand->val.primitive_val.val.val32 = 0;
-            		break;
-	            case 'J': //long
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = LONG;
-            		operand->val.primitive_val.val.val64 = 0;
-            		break;
-	            case 'S': //short
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = SHORT;
-            		operand->val.primitive_val.val.val16 = 0;
-            		break;
-	            case 'Z': //boolean
-					operand->tag = PRIMITIVE;
-            		operand->val.primitive_val.tag = BOOLEAN;
-            		operand->val.primitive_val.val.val_boolean = 0;
-            		break;
-	            case 'L': //reference
-					operand->tag = REFERENCE;
-            		operand->val.reference_val.tag = OBJECT;
-            		operand->val.reference_val.val.object.length = 0;
-            		operand->val.reference_val.val.object.attributes = NULL;
-	                break;
-	            case '[': //reference - array
-					operand->tag = REFERENCE;
-            		operand->val.reference_val.tag = ARRAY;
-            		operand->val.reference_val.val.array.length = 0;
-            		operand->val.reference_val.val.array.components = NULL;
-	                break;
-	            default:
-	                printf("Unexpected char on method descriptor: %c\n", b[0]);
-	                exit(1);
-			}
-          	class->static_fields[i] = operand;
-		}
+			setDefault(class->static_fields[i], (char*) b);
+		} else {
+          	class->static_fields[i] = NULL;
+        }
 	}
 }
 // PREPARATION STUFF - END
+
 // VERIFICATION STUFF - BEGIN
 /**
  * @brief Verificacao. Analisa se a classe final nao eh extendida. Se toda classe tem superclasse. Se tudo que aponta para a constant pool aponta para o local correto.
@@ -95,7 +39,6 @@ void preparar (class_t* class) {
  * @param classe que sera verificada
  * 
  */
-
 void verificar (class_t* class) {
 	if (class->status == CLASSE_NAO_CARREGADA) {
         loadClass(class);
@@ -168,24 +111,22 @@ void verificar (class_t* class) {
 		printf("Erro: Class Final possui uma subclasse.\n");
 		exit(1);
     }
-	if ((class->class_file.this_class >=  class->class_file.constant_pool_count) || (class->class_file.this_class < 0)) {
-		printf("Erro: Indice da classe eh maior ou menor que o tamanho da constante pool\n");
+	if (class->class_file.this_class >=  class->class_file.constant_pool_count) {
+		printf("Erro: Índice da classe é maior que o tamanho da constante pool\n");
 		exit(1);
 	}
 	
 	//Verificar se toda classe (Menos Object) tem superclass.
 	if (class->class_file.super_class == 0) {
 		//Pego o nome em Utf8 da classe. Comparar se ela eh Object.
-	    Utf8_info_t* name_compare;
-	    name_compare = string_to_utf8("java/lang/Object");
-	    if (compare_utf8(class->class_name, name_compare) != 0) {
+	    Utf8_info_t* object_class_name = string_to_utf8("java/lang/Object");
+	    if (compare_utf8(class->class_name, object_class_name) != 0) {
 	    	printf("Erro: Class nao possui super classe\n");
 			exit(1);
 	    }
 	}
-
 }
-// PREPARATION STUFF - END
+// VERIFICATION STUFF - END
 
 /**
  * @brief Funcao que inincia o linker.
@@ -193,39 +134,15 @@ void verificar (class_t* class) {
  * @param Classe que sera linkada
  *
  */
-
 void linkClass (class_t* class) {
     DEBUG_PRINT("Got in linkClass with arguments: %s\n", utf8_to_string(class->class_name));
+
 	verificar(class);
-	preparar(class); //Estrutura montada para busca de metodos
+	preparar(class);
 	//resolver(class);
+	
 	class->status = CLASSE_NAO_INICIALIZADA; // Se nenhum erro ocorrer muda o estado da classe e retorna para a função.
+
 	DEBUG_PRINT("Done linkClass\n");
 }
-
-
-	// 	//Verificar se o code_length eh maior do que 0 e menor do que 65536.
-	// u2 i;
-	// u2 j;
-	// u4 tamanho;
-	// //Comeca do 0 ou do 1?
-	// for (i = 0; i < (class->class_file.fields_count - 1); i++) {
-	// 	/*Metodo que recebe um ponteiro para um atributo e retorna o code_length dele*/
-	// 	for (j = 0; j < (class->class_file.fields[i]->attributes_count - 1); j++) {
-	// 		tamanho = getCodeLength(class->class_file.fields[i]->attributes[j]);
-	// 		if ((tamanho < 0) || (tamanho > 65536)) {
-	// 	    	printf("Erro: code_length do campo com tamanho menor do que 0 ou maior do que 65536\n", this_class_name);
-	// 			exit(1);
-	// 		}
-	// 	}
-	// }
- //    for (i = 0; i < (class->class_file.methods_counts - 1); i++) {
-	// 	for (j = 0; j < (class->class_file.methods[i]->attributes_count - 1); j++) {
-	// 		tamanho = getCodeLength(class->class_file.methods[i]->attributes[j]);
-	// 		if ((tamanho < 0) || (tamanho > 65536)) {
-	// 	    	printf("Erro: code_length do campo com tamanho menor do que 0 ou maior do que 65536\n", this_class_name);
-	// 			exit(1);
-	// 		}
-	// 	}
-	// }
-		//Tem que verificar varias static constraints sobre instrucao, como??
+/** @} */

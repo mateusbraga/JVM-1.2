@@ -19,5 +19,6 @@ Nossa JVM implementa parte da especificação em: http://docs.oracle.com/javase/
 \image html diagrama.png
 
 \subsection estruturas-descricao Descrição das principais estruturas de dados utilizadas
+\ref Estruturas "Estruturas"
 
 */

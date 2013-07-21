@@ -3,6 +3,16 @@
 
 #include <stdint.h>
 
+#define DEBUG 0
+#ifdef DEBUG
+#define DEBUG_PRINT(...) do{ fprintf( stderr, __VA_ARGS__ ); } while( 0 )
+#else
+#define DEBUG_PRINT(...) do{ } while ( 0 )
+#endif
+
+/** \addtogroup Estruturas
+ * @{
+ */
 // CLASS FILE FORMAT STUFF - BEGIN
 
 /* Tags */
@@ -459,4 +469,24 @@ typedef struct pc_struct {
 } pc_t;
 
 
+// --- Funções auxiliares
+
+// UTF8 STUFF
+Utf8_info_t* string_to_utf8(char* a);
+char* utf8_to_string(Utf8_info_t* utf8);
+int compare_utf8(Utf8_info_t* a, Utf8_info_t* b);
+u2 get_utf8_length_from_char(char* string);
+u2 scan_utf8_char_from_char(char* string, u2 *pos);
+any_type_t* char_to_array_reference(char* string);
+any_type_t* utf8_to_array_reference(Utf8_info_t* utf8);
+
+// Create STUFF
+any_type_t* createMultiArray(Utf8_info_t* type, int32_t* length, u1 dimension, any_type_t* arrayref);
+any_type_t* createObject(class_t* class, any_type_t* objref);
+
+// Others
+void print_any_type(any_type_t* anytype);
+void setDefault(any_type_t* variable, char* descriptor);
+
 #endif
+/** @} */
