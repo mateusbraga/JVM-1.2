@@ -486,7 +486,7 @@ void set_class_file(class_t* class){
         exit(1);
     }
     else {
-        if((classe->major_version == 45) || (classe->major_version == 46)){
+        if (classe->major_version == 46) {
             if(classe->minor_version != 0) {
                 printf("Erro! Problema na versao da classe\n %x.%x\n", classe->major_version, classe->minor_version);
                 exit(1);
@@ -511,6 +511,8 @@ void set_class_file(class_t* class){
     classe->methods = GetMetodo(classe, fp, classe->methods_count);
     classe->attributes_count = readu2(fp);
     classe->attributes = GetAtributos(classe, fp , classe->attributes_count);
+
+
 }
 
 /*-----------------------------------------------------------------------------------------------------------------*/
@@ -559,8 +561,14 @@ void MostraClasse(class_file_t* classe){
 
 /*-----------------------------------------------------------------------------------------------------------------*/
 void loadClass(class_t* class){
+    u2 index_class;
     DEBUG_PRINT("Got in loadClass with arguments: %s\n", utf8_to_string(class->class_name));
     set_class_file(class);
+    index_class = class->class_file.constant_pool[class->class_file->this_class].info.Class.name_index;
+    if ((compare_utf8(class->class_name, &(class->class_file.constant_pool[index_class].info.Utf8)) != 0) {
+        printf("Erro! Nome lido da classe e nome recebido da classe diferentes.\n");
+        exit(1);
+    }
     class->status = CLASSE_NAO_LINKADA;
     DEBUG_PRINT("Done loadClass\n");
 }
