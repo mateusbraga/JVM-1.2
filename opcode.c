@@ -22,6 +22,68 @@ extern pc_t jvm_pc;
 
 
 /**
+ * @brief Retorna uma cópia do operando passado
+ *
+ * @param any_type_t operando
+ * @return Cópia do operando
+ */
+
+ any_type_t* copyAnyType(any_type_t *operando){
+    any_type_t *copy = (any_type_t *) malloc(sizeof(any_type_t));
+
+    copy->tag = operando->tag;
+    if(copy->tag == PRIMITIVE){
+        copy->val.primitive_val.tag = operando->val.primitive_val.tag;
+        switch(copy->val.primitive_val.tag){
+        case BYTE:
+            copy->val.primitive_val.val.val8 = operando->val.primitive_val.val.val8;
+            break;
+        case SHORT:
+            copy->val.primitive_val.val.val16 = operando->val.primitive_val.val.val16;
+            break;
+        case INT:
+            copy->val.primitive_val.val.val32 = operando->val.primitive_val.val.val32;
+            break;
+        case LONG:
+            copy->val.primitive_val.val.val64 = operando->val.primitive_val.val.val64;
+            break;
+        case CHAR:
+            copy->val.primitive_val.val.val_char = operando->val.primitive_val.val.val_char;
+            break;
+        case BOOLEAN:
+            copy->val.primitive_val.val.val_boolean = operando->val.primitive_val.val.val_boolean;
+            break;
+        case FLOAT:
+            copy->val.primitive_val.val.val_float = operando->val.primitive_val.val.val_float;
+            break;
+        case DOUBLE:
+            copy->val.primitive_val.val.val_double = operando->val.primitive_val.val.val_double;
+            break;
+        case RETURN_ADDRESS:
+            copy->val.primitive_val.val.val_return_addr = operando->val.primitive_val.val.val_return_addr;
+            break;
+        }
+    }else{
+        copy->val.reference_val.tag = operando->val.reference_val.tag;
+        switch(copy->val.reference_val.tag){
+        case ARRAY:
+            copy->val.reference_val.val.array = operando->val.reference_val.val.array;
+            break;
+        case OBJECT:
+            copy->val.reference_val.val.object = operando->val.reference_val.val.object;
+            break;
+        case NULL_REFERENCE:
+            copy->val.reference_val.val.val_null = operando->val.reference_val.val.val_null;
+            break;
+        }
+    }
+
+    return operando;
+
+ }
+
+
+/**
  * @brief Retorna o número de bytes com operandos do opcode que começa em code[index]
  *
  * @param Array dos opcode
@@ -911,7 +973,7 @@ void dup2_x2(){
     DEBUG_PRINT("got into dup2_x2\n");
     any_type_t *operand1 = NULL;
     any_type_t *operand2 = NULL;
-    any_type_t *operand3 = NULL; 
+    any_type_t *operand3 = NULL;
     any_type_t *operand4 = NULL;
     frame_t *frame = peek_frame_stack(jvm_stack);
 
@@ -925,9 +987,9 @@ void dup2_x2(){
     if(!isLongOrDouble(operand1))
         push_operand_stack(&(frame->operand_stack), operand2);
     push_operand_stack(&(frame->operand_stack), operand1);
-    if(!isLongOrDouble(operand1) && !isLongOrDouble(operand2)) 
+    if(!isLongOrDouble(operand1) && !isLongOrDouble(operand2))
         push_operand_stack(&(frame->operand_stack), operand4);
-    if(isLongOrDouble(operand1) && isLongOrDouble(operand2)) 
+    if(isLongOrDouble(operand1) && isLongOrDouble(operand2))
         push_operand_stack(&(frame->operand_stack), operand3);
     push_operand_stack(&(frame->operand_stack), operand2);
     push_operand_stack(&(frame->operand_stack), operand1);
@@ -2938,7 +3000,7 @@ void anewarray() {
 
         int32_t i = 0;
         for(i=0; i<=tamanho; i++){
-            createObject(object_class, &(arrayref->val.reference_val.val.array.components[i])); 
+            createObject(object_class, &(arrayref->val.reference_val.val.array.components[i]));
         }
     }
 
@@ -3823,4 +3885,21 @@ void (*jvm_opcode[])(void) = {
     getfield,putfield,invokevirtual,invokespecial,invokestatic,invokeinterface,invokedynamic,new_op,newarray,anewarray,arraylength,athrow,checkcast,
     instanceof,monitorenter,monitorexit,wide,multianewarray,ifnull,ifnonnull,goto_w	,jsr_w,breakpoint
 };
+
+char **opcode_menemonic = {"aaload", "aastore", "aconst_null", "aload", "aload_0", "aload_1", "aload_2", "aload_3", "anewarray", "areturn", "arraylength",
+"astore", "astore_0", "astore_1", "astore_2", "astore_3", "athrow", "baload", "bastore", "bipush", "breakpoint", "caload", "castore",
+"checkcast", "d2f", "d2i", "d2l", "dadd", "daload", "dastore", "dcmpg", "dcmpl", "dconst_0", "dconst_1", "ddiv", "dload", "dload_0",
+"dload_1", "dload_2", "dload_3", "dmul", "dneg", "drem", "dreturn", "dstore", "dstore_0", "dstore_1", "dstore_2", "dstore_3", "dsub",
+"dup", "dup_x1", "dup_x2", "dup2", "dup2_x1", "dup2_x2", "f2d", "f2i", "f2l", "fadd", "faload", "fastore", "fcmpg", "fcmpl", "fconst_0",
+"fconst_1", "fconst_2", "fdiv", "fload", "fload_0", "fload_1", "fload_2", "fload_3", "fmul", "fneg", "frem", "freturn", "fstore",
+"fstore_0", "fstore_1", "fstore_2", "fstore_3", "fsub", "getfield", "getstatic", "goto", "goto_w", "i2b", "i2c", "i2d", "i2f", "i2l",
+"i2s", "iadd", "iaload", "iand", "iastore", "iconst_m1", "iconst_0", "iconst_1", "iconst_2", "iconst_3", "iconst_4", "iconst_5", "idiv",
+"if_acmpeq", "if_acmpne", "if_icmpeq", "if_icmpge", "if_icmpgt", "if_icmple", "if_icmplt", "if_icmpne", "ifeq", "ifge", "ifgt", "ifle",
+"iflt", "ifne", "ifnonnull", "ifnull", "iinc", "iload", "iload_0", "iload_1", "iload_2", "iload_3", "impdep1", "impdep2", "imul", "ineg",
+"instanceof", "invokedynamic", "invokeinterface", "invokespecial", "invokestatic", "invokevirtual", "ior", "irem", "ireturn", "ishl", "ishr",
+"istore", "istore_0", "istore_1", "istore_2", "istore_3", "isub", "iushr", "ixor", "jsr", "jsr_w", "l2d", "l2f", "l2i", "ladd", "laload", "land",
+"lastore", "lcmp", "lconst_0", "lconst_1", "ldc", "ldc_w", "ldc2_w", "ldiv", "lload", "lload_0", "lload_1", "lload_2", "lload_3", "lmul", "lneg",
+"lookupswitch", "lor", "lrem", "lreturn", "lshl", "lshr", "lstore", "lstore_0", "lstore_1", "lstore_2", "lstore_3", "lsub", "lushr", "lxor",
+"monitorenter", "monitorexit", "multianewarray", "new", "newarray", "nop", "pop", "pop2", "putfield", "putstatic", "ret", "return", "saload",
+"sastore", "sipush", "swap", "tableswitch", "wide"};
 
