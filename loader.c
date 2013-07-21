@@ -5,6 +5,8 @@
 #include "structs.h"
 #include "jvm.h"
 
+#define MAX_TAM 65535
+
 /** \addtogroup Loader
  * @{
  */
@@ -562,11 +564,21 @@ void MostraClasse(class_file_t* classe){
 /*-----------------------------------------------------------------------------------------------------------------*/
 void loadClass(class_t* class){
     u2 index_class;
+    char *nome_classe, *nome_lido, *pch, nome_aux[MAX_TAM];
     DEBUG_PRINT("Got in loadClass with arguments: %s\n", utf8_to_string(class->class_name));
     set_class_file(class);
+
     index_class = class->class_file.constant_pool[class->class_file.this_class].info.Class.name_index;
-    if (compare_utf8(class->class_name, &(class->class_file.constant_pool[index_class].info.Utf8)) != 0) {
-        printf("Erro! Nome lido da classe e nome recebido da classe diferentes.\n");
+    nome_classe = utf8_to_string(class->class_name);
+    nome_lido = utf8_to_string(&(class->class_file.constant_pool[index_class].info.Utf8));
+    pch = strtok (nome_classe,"/");
+    while (pch != NULL) {
+        strcpy(nome_aux, pch);
+        pch = strtok (NULL, "/");
+    }
+
+    if (strcmp(nome_aux, nome_lido) != 0) {
+        printf("Erro! Nome lido da classe e nome recebido da classe diferentes. \nnome classe = %s\nnome lido = %s\n", nome_aux, nome_lido);
         exit(1);
     }
     class->status = CLASSE_NAO_LINKADA;
