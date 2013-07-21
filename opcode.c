@@ -4487,4 +4487,5 @@ case 0xca:
 		return "breakpoint	";
 	break;
     }
+    return "Error: invalid opcode";
 }

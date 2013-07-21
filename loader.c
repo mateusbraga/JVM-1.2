@@ -3,6 +3,7 @@
 #include <string.h>
 #include "loader.h"
 #include "structs.h"
+#include "opcode.h"
 #include "jvm.h"
 
 #define MAX_TAM 65535
@@ -133,7 +134,6 @@ void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd
     Utf8_info_t* nome;
     u4 i, j, num_b, k;
     u1 opcode;
-    char menemonic[16];
 
     for( i = 0; i < qtd ; i++){
         printf("\nAttribute %d\n", i);

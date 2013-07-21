@@ -6,5 +6,6 @@
 
 int getNumberOfOpcodeOperandsInBytes(u1* code, u2 index);
 void goToNextOpcode();
+char *opcodeMnemonic(u1 index);
 
 #endif 

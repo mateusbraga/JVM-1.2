@@ -188,7 +188,7 @@ void print_any_type(any_type_t* anytype) {
                     DEBUG_PRINT("anytype is int == %d\n", anytype->val.primitive_val.val.val32);
                     break;
                 case LONG:
-                    DEBUG_PRINT("anytype is long == %lld\n", anytype->val.primitive_val.val.val64);
+                    DEBUG_PRINT("anytype is long == %lld\n", (long long) anytype->val.primitive_val.val.val64);
                     break;
                 default:
                     DEBUG_PRINT("anytype is invalid!\n");
