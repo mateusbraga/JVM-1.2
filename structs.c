@@ -88,7 +88,7 @@ u2 scan_utf8_char_from_char(char* string, u2 *pos) {
     u2 original_pos = *pos;
 
     if((string[original_pos] & 0xe0) == 0xe0) {
-        // 3 bytes 
+        // 3 bytes
         *pos = *pos + 3;
         assert(original_pos + 2 < strlen(string));
         char x = string[original_pos];
@@ -97,7 +97,7 @@ u2 scan_utf8_char_from_char(char* string, u2 *pos) {
 
         return ((x & 0xf) << 12) + ((y & 0x3f) << 6) + (z & 0x3f);
     } else if((string[original_pos] & 0xc0) == 0xc0) {
-        // 2 bytes 
+        // 2 bytes
         *pos = *pos + 2;
         assert(original_pos + 1 < strlen(string));
         char x = string[original_pos];
@@ -105,7 +105,7 @@ u2 scan_utf8_char_from_char(char* string, u2 *pos) {
 
         return ((x & 0x1f) << 6) + (y & 0x3f);
     } else {
-        // 1 bytes 
+        // 1 bytes
         *pos = *pos + 1;
         return string[original_pos];
     }
@@ -188,7 +188,7 @@ void print_any_type(any_type_t* anytype) {
                     DEBUG_PRINT("anytype is int == %d\n", anytype->val.primitive_val.val.val32);
                     break;
                 case LONG:
-                    DEBUG_PRINT("anytype is long == %ld\n", anytype->val.primitive_val.val.val64);
+                    DEBUG_PRINT("anytype is long == %lld\n", anytype->val.primitive_val.val.val64);
                     break;
                 default:
                     DEBUG_PRINT("anytype is invalid!\n");
@@ -324,7 +324,7 @@ void setDefault(any_type_t* variable, char* descriptor) {
             class_name->bytes = (u1*) malloc(sizeof(u1) * i - 1);
             strncpy((char*)class_name->bytes, descriptor, i - 1);
             class_name->length = i - 1;
-            
+
             variable->val.reference_val.val.object.objClass = getClass(class_name);
             variable->val.reference_val.val.object.length = 0;
             variable->val.reference_val.val.object.attributes = NULL;
