@@ -3554,7 +3554,6 @@ void invokestatic() {
  */
 void invokeinterface() {
     DEBUG_PRINT("got into invokeinterface\n");
-    // TODO verificar se esta certa (esta igual as anteriores)
     code_attribute_t *code_attribute = getCodeAttribute(jvm_pc.currentClass, jvm_pc.method);
     u1 b1 = code_attribute->code[jvm_pc.code_pc+1];
     u1 b2 = code_attribute->code[jvm_pc.code_pc+2];
@@ -3876,20 +3875,616 @@ void (*jvm_opcode[])(void) = {
     instanceof,monitorenter,monitorexit,wide,multianewarray,ifnull,ifnonnull,goto_w	,jsr_w,breakpoint
 };
 
-/*char **opcode_menemonic = {"aaload", "aastore", "aconst_null", "aload", "aload_0", "aload_1", "aload_2", "aload_3", "anewarray", "areturn", "arraylength",*/
-/*"astore", "astore_0", "astore_1", "astore_2", "astore_3", "athrow", "baload", "bastore", "bipush", "breakpoint", "caload", "castore",*/
-/*"checkcast", "d2f", "d2i", "d2l", "dadd", "daload", "dastore", "dcmpg", "dcmpl", "dconst_0", "dconst_1", "ddiv", "dload", "dload_0",*/
-/*"dload_1", "dload_2", "dload_3", "dmul", "dneg", "drem", "dreturn", "dstore", "dstore_0", "dstore_1", "dstore_2", "dstore_3", "dsub",*/
-/*"dup", "dup_x1", "dup_x2", "dup2", "dup2_x1", "dup2_x2", "f2d", "f2i", "f2l", "fadd", "faload", "fastore", "fcmpg", "fcmpl", "fconst_0",*/
-/*"fconst_1", "fconst_2", "fdiv", "fload", "fload_0", "fload_1", "fload_2", "fload_3", "fmul", "fneg", "frem", "freturn", "fstore",*/
-/*"fstore_0", "fstore_1", "fstore_2", "fstore_3", "fsub", "getfield", "getstatic", "goto", "goto_w", "i2b", "i2c", "i2d", "i2f", "i2l",*/
-/*"i2s", "iadd", "iaload", "iand", "iastore", "iconst_m1", "iconst_0", "iconst_1", "iconst_2", "iconst_3", "iconst_4", "iconst_5", "idiv",*/
-/*"if_acmpeq", "if_acmpne", "if_icmpeq", "if_icmpge", "if_icmpgt", "if_icmple", "if_icmplt", "if_icmpne", "ifeq", "ifge", "ifgt", "ifle",*/
-/*"iflt", "ifne", "ifnonnull", "ifnull", "iinc", "iload", "iload_0", "iload_1", "iload_2", "iload_3", "impdep1", "impdep2", "imul", "ineg",*/
-/*"instanceof", "invokedynamic", "invokeinterface", "invokespecial", "invokestatic", "invokevirtual", "ior", "irem", "ireturn", "ishl", "ishr",*/
-/*"istore", "istore_0", "istore_1", "istore_2", "istore_3", "isub", "iushr", "ixor", "jsr", "jsr_w", "l2d", "l2f", "l2i", "ladd", "laload", "land",*/
-/*"lastore", "lcmp", "lconst_0", "lconst_1", "ldc", "ldc_w", "ldc2_w", "ldiv", "lload", "lload_0", "lload_1", "lload_2", "lload_3", "lmul", "lneg",*/
-/*"lookupswitch", "lor", "lrem", "lreturn", "lshl", "lshr", "lstore", "lstore_0", "lstore_1", "lstore_2", "lstore_3", "lsub", "lushr", "lxor",*/
-/*"monitorenter", "monitorexit", "multianewarray", "new", "newarray", "nop", "pop", "pop2", "putfield", "putstatic", "ret", "return", "saload",*/
-/*"sastore", "sipush", "swap", "tableswitch", "wide"};*/
-
+char *opcodeMnemonic(u1 index){
+    switch(index){
+    case 0x00:
+	return "nop	";
+	break;
+case 0x01:
+		return "aconst_null	";
+	break;
+case 0x02:
+		return "iconst_m1	";
+	break;
+case 0x03:
+		return "iconst_0	";
+	break;
+case 0x04:
+		return "iconst_1	";
+	break;
+case 0x05:
+		return "iconst_2	";
+	break;
+case 0x06:
+		return "iconst_3	";
+	break;
+case 0x07:
+		return "iconst_4	";
+	break;
+case 0x08:
+		return "iconst_5	";
+	break;
+case 0x09:
+		return "lconst_0	";
+	break;
+case 0x0a:
+		return "lconst_1	";
+	break;
+case 0x0b:
+		return "fconst_0	";
+	break;
+case 0x0c:
+		return "fconst_1	";
+	break;
+case 0x0d:
+		return "fconst_2	";
+	break;
+case 0x0e:
+		return "dconst_0	";
+	break;
+case 0x0f:
+		return "dconst_1	";
+	break;
+case 0x10:
+		return "bipush	";
+	break;
+case 0x11:
+		return "sipush	";
+	break;
+case 0x12:
+		return "ldc	";
+	break;
+case 0x13:
+		return "ldc_w	";
+	break;
+case 0x14:
+		return "ldc2_w	";
+	break;
+case 0x15:
+		return "iload	";
+	break;
+case 0x16:
+		return "lload	";
+	break;
+case 0x17:
+		return "fload	";
+	break;
+case 0x18:
+		return "dload	";
+	break;
+case 0x19:
+		return "aload	";
+	break;
+case 0x1a:
+		return "iload_0	";
+	break;
+case 0x1b:
+		return "iload_1	";
+	break;
+case 0x1c:
+		return "iload_2	";
+	break;
+case 0x1d:
+		return "iload_3	";
+	break;
+case 0x1e:
+		return "lload_0	";
+	break;
+case 0x1f:
+		return "lload_1	";
+	break;
+case 0x20:
+		return "lload_2	";
+	break;
+case 0x21:
+		return "lload_3	";
+	break;
+case 0x22:
+		return "fload_0	";
+	break;
+case 0x23:
+		return "fload_1	";
+	break;
+case 0x24:
+		return "fload_2	";
+	break;
+case 0x25:
+		return "fload_3	";
+	break;
+case 0x26:
+		return "dload_0	";
+	break;
+case 0x27:
+		return "dload_1	";
+	break;
+case 0x28:
+		return "dload_2	";
+	break;
+case 0x29:
+		return "dload_3	";
+	break;
+case 0x2a:
+		return "aload_0	";
+	break;
+case 0x2b:
+		return "aload_1	";
+	break;
+case 0x2c:
+		return "aload_2	";
+	break;
+case 0x2d:
+		return "aload_3	";
+	break;
+case 0x2e:
+		return "iaload	";
+	break;
+case 0x2f:
+		return "laload	";
+	break;
+case 0x30:
+		return "faload	";
+	break;
+case 0x31:
+		return "daload	";
+	break;
+case 0x32:
+		return "aaload	";
+	break;
+case 0x33:
+		return "baload	";
+	break;
+case 0x34:
+		return "caload	";
+	break;
+case 0x35:
+		return "saload	";
+	break;
+case 0x36:
+		return "istore	";
+	break;
+case 0x37:
+		return "lstore	";
+	break;
+case 0x38:
+		return "fstore	";
+	break;
+case 0x39:
+		return "dstore	";
+	break;
+case 0x3a:
+		return "astore	";
+	break;
+case 0x3b:
+		return "istore_0	";
+	break;
+case 0x3c:
+		return "istore_1	";
+	break;
+case 0x3d:
+		return "istore_2	";
+	break;
+case 0x3e:
+		return "istore_3	";
+	break;
+case 0x3f:
+		return "lstore_0	";
+	break;
+case 0x40:
+		return "lstore_1	";
+	break;
+case 0x41:
+		return "lstore_2	";
+	break;
+case 0x42:
+		return "lstore_3	";
+	break;
+case 0x43:
+		return "fstore_0	";
+	break;
+case 0x44:
+		return "fstore_1	";
+	break;
+case 0x45:
+		return "fstore_2	";
+	break;
+case 0x46:
+		return "fstore_3	";
+	break;
+case 0x47:
+		return "dstore_0	";
+	break;
+case 0x48:
+		return "dstore_1	";
+	break;
+case 0x49:
+		return "dstore_2	";
+	break;
+case 0x4a:
+		return "dstore_3	";
+	break;
+case 0x4b:
+		return "astore_0	";
+	break;
+case 0x4c:
+		return "astore_1	";
+	break;
+case 0x4d:
+		return "astore_2	";
+	break;
+case 0x4e:
+		return "astore_3	";
+	break;
+case 0x4f:
+		return "iastore	";
+	break;
+case 0x50:
+		return "lastore	";
+	break;
+case 0x51:
+		return "fastore	";
+	break;
+case 0x52:
+		return "dastore	";
+	break;
+case 0x53:
+		return "aastore	";
+	break;
+case 0x54:
+		return "bastore	";
+	break;
+case 0x55:
+		return "castore	";
+	break;
+case 0x56:
+		return "sastore	";
+	break;
+case 0x57:
+		return "pop	";
+	break;
+case 0x58:
+		return "pop2	";
+	break;
+case 0x59:
+		return "dup	";
+	break;
+case 0x5a:
+		return "dup_x1	";
+	break;
+case 0x5b:
+		return "dup_x2	";
+	break;
+case 0x5c:
+		return "dup2	";
+	break;
+case 0x5d:
+		return "dup2_x1	";
+	break;
+case 0x5e:
+		return "dup2_x2	";
+	break;
+case 0x5f:
+		return "swap	";
+	break;
+case 0x60:
+		return "iadd	";
+	break;
+case 0x61:
+		return "ladd	";
+	break;
+case 0x62:
+		return "fadd	";
+	break;
+case 0x63:
+		return "dadd	";
+	break;
+case 0x64:
+		return "isub	";
+	break;
+case 0x65:
+		return "lsub	";
+	break;
+case 0x66:
+		return "fsub	";
+	break;
+case 0x67:
+		return "dsub	";
+	break;
+case 0x68:
+		return "imul	";
+	break;
+case 0x69:
+		return "lmul	";
+	break;
+case 0x6a:
+		return "fmul	";
+	break;
+case 0x6b:
+		return "dmul	";
+	break;
+case 0x6c:
+		return "idiv	";
+	break;
+case 0x6d:
+		return "ldiv	";
+	break;
+case 0x6e:
+		return "fdiv	";
+	break;
+case 0x6f:
+		return "ddiv	";
+	break;
+case 0x70:
+		return "irem	";
+	break;
+case 0x71:
+		return "lrem	";
+	break;
+case 0x72:
+		return "frem	";
+	break;
+case 0x73:
+		return "drem	";
+	break;
+case 0x74:
+		return "ineg	";
+	break;
+case 0x75:
+		return "lneg	";
+	break;
+case 0x76:
+		return "fneg	";
+	break;
+case 0x77:
+		return "dneg	";
+	break;
+case 0x78:
+		return "ishl	";
+	break;
+case 0x79:
+		return "lshl	";
+	break;
+case 0x7a:
+		return "ishr	";
+	break;
+case 0x7b:
+		return "lshr	";
+	break;
+case 0x7c:
+		return "iushr	";
+	break;
+case 0x7d:
+		return "lushr	";
+	break;
+case 0x7e:
+		return "iand	";
+	break;
+case 0x7f:
+		return "land	";
+	break;
+case 0x80:
+		return "ior	";
+	break;
+case 0x81:
+		return "lor	";
+	break;
+case 0x82:
+		return "ixor	";
+	break;
+case 0x83:
+		return "lxor	";
+	break;
+case 0x84:
+		return "iinc	";
+	break;
+case 0x85:
+		return "i2l	";
+	break;
+case 0x86:
+		return "i2f	";
+	break;
+case 0x87:
+		return "i2d	";
+	break;
+case 0x88:
+		return "l2i	";
+	break;
+case 0x89:
+		return "l2f	";
+	break;
+case 0x8a:
+		return "l2d	";
+	break;
+case 0x8b:
+		return "f2i	";
+	break;
+case 0x8c:
+		return "f2l	";
+	break;
+case 0x8d:
+		return "f2d	";
+	break;
+case 0x8e:
+		return "d2i	";
+	break;
+case 0x8f:
+		return "d2l	";
+	break;
+case 0x90:
+		return "d2f	";
+	break;
+case 0x91:
+		return "i2b	";
+	break;
+case 0x92:
+		return "i2c	";
+	break;
+case 0x93:
+		return "i2s	";
+	break;
+case 0x94:
+		return "lcmp	";
+	break;
+case 0x95:
+		return "fcmpl	";
+	break;
+case 0x96:
+		return "fcmpg	";
+	break;
+case 0x97:
+		return "dcmpl	";
+	break;
+case 0x98:
+		return "dcmpg	";
+	break;
+case 0x99:
+		return "ifeq	";
+	break;
+case 0x9a:
+		return "ifne	";
+	break;
+case 0x9b:
+		return "iflt	";
+	break;
+case 0x9c:
+		return "ifge	";
+	break;
+case 0x9d:
+		return "ifgt	";
+	break;
+case 0x9e:
+		return "ifle	";
+	break;
+case 0x9f:
+		return "if_icmpeq	";
+	break;
+case 0xa0:
+		return "if_icmpne	";
+	break;
+case 0xa1:
+		return "if_icmplt	";
+	break;
+case 0xa2:
+		return "if_icmpge	";
+	break;
+case 0xa3:
+		return "if_icmpgt	";
+	break;
+case 0xa4:
+		return "if_icmple	";
+	break;
+case 0xa5:
+		return "if_acmpeq	";
+	break;
+case 0xa6:
+		return "if_acmpne	";
+	break;
+case 0xa7:
+		return "goto	";
+	break;
+case 0xa8:
+		return "jsr	";
+	break;
+case 0xa9:
+		return "ret	";
+	break;
+case 0xaa:
+		return "tableswitch	";
+	break;
+case 0xab:
+		return "lookupswitch	";
+	break;
+case 0xac:
+		return "ireturn	";
+	break;
+case 0xad:
+		return "lreturn	";
+	break;
+case 0xae:
+		return "freturn	";
+	break;
+case 0xaf:
+		return "dreturn	";
+	break;
+case 0xb0:
+		return "areturn	";
+	break;
+case 0xb1:
+		return "return	";
+	break;
+case 0xb2:
+		return "getstatic	";
+	break;
+case 0xb3:
+		return "putstatic	";
+	break;
+case 0xb4:
+		return "getfield	";
+	break;
+case 0xb5:
+		return "putfield	";
+	break;
+case 0xb6:
+		return "invokevirtual	";
+	break;
+case 0xb7:
+		return "invokespecial	";
+	break;
+case 0xb8:
+		return "invokestatic	";
+	break;
+case 0xb9:
+		return "invokeinterface	";
+	break;
+case 0xba:
+		return "invokedynamic	";
+	break;
+case 0xbb:
+		return "new	";
+	break;
+case 0xbc:
+		return "newarray	";
+	break;
+case 0xbd:
+		return "anewarray	";
+	break;
+case 0xbe:
+		return "arraylength	";
+	break;
+case 0xbf:
+		return "athrow	";
+	break;
+case 0xc0:
+		return "checkcast	";
+	break;
+case 0xc1:
+		return "instanceof	";
+	break;
+case 0xc2:
+		return "monitorenter	";
+	break;
+case 0xc3:
+		return "monitorexit	";
+	break;
+case 0xc4:
+		return "wide	";
+	break;
+case 0xc5:
+		return "multianewarray	";
+	break;
+case 0xc6:
+		return "ifnull	";
+	break;
+case 0xc7:
+		return "ifnonnull	";
+	break;
+case 0xc8:
+		return "goto_w	";
+	break;
+case 0xc9:
+		return "jsr_w	";
+	break;
+case 0xca:
+		return "breakpoint	";
+	break;
+    }
+}
