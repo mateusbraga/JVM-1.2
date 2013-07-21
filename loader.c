@@ -12,6 +12,8 @@
  */
 
 
+extern char** opcode_menemonic;
+
 /**
  * @brief Lê um arquivo e monta a tabela de atributos.
  *
@@ -129,7 +131,10 @@ attribute_info_t* GetAtributos(class_file_t* classe, FILE *fp, u2 attributesCoun
  */
 void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd){
     Utf8_info_t* nome;
-    u4 i, j;
+    u4 i, j, num_b, k;
+    u1 opcode;
+    char menemonic[16];
+
     for( i = 0; i < qtd ; i++){
         printf("\nAttribute %d\n", i);
         printf("Attribute name index: cp_info #%hi <%s>\n", atributos[i].attribute_name_index, utf8_to_string(&(classe->constant_pool[atributos[i].attribute_name_index].info.Utf8)));
@@ -142,10 +147,16 @@ void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd
             printf("Maximum stack depth: %hi\n",atributos[i].info.code.max_stack);
             printf("Maximum local variables: %hi\n",atributos[i].info.code.max_locals);
             printf("Code length: %i\n",atributos[i].info.code.code_length);
-            printf("...\n");
-            for(j=0; j < atributos[i].info.code.code_length; j++ ){
-                getNumberOfOpcodeOperandsInBytes(atributos[i].info.code[j]);
-                printf("%c",atributos[i].info.code[j]);
+            j=0;
+            while(j <= atributos[i].info.code.code_length){
+                opcode = atributos[i].info.code.code[j];
+                printf("%s (%#x) - ", opcodeMnemonic(opcode) ,opcode);
+                num_b = getNumberOfOpcodeOperandsInBytes(atributos[i].info.code.code, j);
+                j += num_b+1;
+                for(k=0; k<num_b; k++){
+                    printf("%#x ", atributos[i].info.code.code[j+1+k]);
+                }
+                printf("\n");
             }
             printf("Excepion table length: %hi\n",atributos[i].info.code.exception_table_length);
             for(j=0; j < atributos[i].info.code.exception_table_length; j++) {
@@ -163,6 +174,14 @@ void ImprimeAtributos(class_file_t* classe, attribute_info_t * atributos, u2 qtd
                 printf("Exception index table %d: %i\n",atributos[i].info.exception.exception_index_table[j],j);
             }
             printf("\n");
+        } else if(compare_utf8(nome, string_to_utf8("LineNumberTable")) == 0){
+                printf("Nr. start_pc line_number \n");
+                for(j=0; j<atributos[i].info.line_number_table.line_number_table_length; j++){
+                    printf("%d \t", j);
+                    printf("%i \t",atributos[i].info.line_number_table.line_number_table[j].start_pc);
+                    printf("%i",atributos[i].info.line_number_table.line_number_table[j].line_number);
+                    printf("\n");
+                }
         } else {
             printf("...\n");
         }
@@ -355,6 +374,7 @@ void ImprimeConstantes(cp_info_t *constantes, u2 qtd){
 
 
     for(i=1;i<qtd;i++){
+        printf("constant_pool_index: %u", i);
         switch(constantes[i].tag){
             case CONSTANT_Class:
                 printf("tag: %u (CONSTANT_Class)\n", constantes[i].tag);
