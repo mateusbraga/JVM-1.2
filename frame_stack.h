@@ -5,8 +5,15 @@
 
 #include "structs.h"
 
-// --------------- Operand stack Stuff -----------------
+/** \addtogroup Estruturas da frame
+ * @{
+ */
 
+// --------------- Operand stack Stuff -----------------
+/**
+ * @struct operand_stack_struct
+ * 
+ */
 typedef struct operand_stack_struct {
     any_type_t **operand;
     int head;
@@ -18,14 +25,20 @@ any_type_t *pop_operand_stack(operand_stack_t *stack);
 void push_operand_stack(operand_stack_t *stack, any_type_t *operand);
 
 // --------------- Local variables Stuff -----------------
-
+/**
+ * @struct local_variables_struct
+ * 
+ */
 typedef struct local_variables_struct {
     any_type_t** var; // Array de ponteiros any_type_t
     unsigned int size;
 } local_variables_t;
 
 // --------------- Frame Stuff -----------------
-
+/**
+ * @struct frame_struct
+ * 
+ */
 typedef struct frame_struct {
     local_variables_t local_var;
     operand_stack_t operand_stack;
@@ -35,7 +48,10 @@ typedef struct frame_struct {
 } frame_t;
 
 // --------------- Frame stack Stuff -----------------
-
+/**
+ * @struct frame_stack_struct
+ * 
+ */
 typedef struct frame_stack_struct {
     frame_t *frame;
     struct frame_stack_struct *next;
