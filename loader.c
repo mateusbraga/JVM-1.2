@@ -598,7 +598,7 @@ void loadClass(class_t* class){
         pch = strtok (NULL, "/");
     }
 
-    if (strcmp(nome_aux, nome_lido) != 0) {
+    if (strlen(nome_aux) != strlen(nome_lido) && strcmp(nome_aux, nome_lido) != 0) {
         printf("Erro! Nome lido da classe e nome recebido da classe diferentes. \nnome classe = %s\nnome lido = %s\n", nome_aux, nome_lido);
         exit(1);
     }
