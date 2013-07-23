@@ -1,3 +1,0 @@
-Checkar versao do classfile e emitir erro caso nome do classfile nao
-existe.
-
